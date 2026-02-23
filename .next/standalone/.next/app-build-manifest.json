@@ -1,0 +1,60 @@
+{
+  "pages": {
+    "/_not-found/page": [
+      "static/chunks/webpack-7c296b568d7fbcb2.js",
+      "static/chunks/4bd1b696-21f374d1156f834a.js",
+      "static/chunks/255-a41b0d888672637a.js",
+      "static/chunks/main-app-d79de0fafd53af40.js",
+      "static/chunks/app/_not-found/page-b5848d4a06832069.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack-7c296b568d7fbcb2.js",
+      "static/chunks/4bd1b696-21f374d1156f834a.js",
+      "static/chunks/255-a41b0d888672637a.js",
+      "static/chunks/main-app-d79de0fafd53af40.js",
+      "static/css/01b8a09f1d204ea6.css",
+      "static/chunks/app/layout-8e31e2f7ae2d56f0.js"
+    ],
+    "/phim/[slug]/page": [
+      "static/chunks/webpack-7c296b568d7fbcb2.js",
+      "static/chunks/4bd1b696-21f374d1156f834a.js",
+      "static/chunks/255-a41b0d888672637a.js",
+      "static/chunks/main-app-d79de0fafd53af40.js",
+      "static/chunks/a4634e51-2c687a4b8afb5da0.js",
+      "static/chunks/103-aeddc6a0aa47a267.js",
+      "static/chunks/464-8533dfae425b50f3.js",
+      "static/chunks/app/phim/[slug]/page-2dd49f5ffae0da86.js"
+    ],
+    "/page": [
+      "static/chunks/webpack-7c296b568d7fbcb2.js",
+      "static/chunks/4bd1b696-21f374d1156f834a.js",
+      "static/chunks/255-a41b0d888672637a.js",
+      "static/chunks/main-app-d79de0fafd53af40.js",
+      "static/chunks/103-aeddc6a0aa47a267.js",
+      "static/chunks/110-dc7fa65a5a00f773.js",
+      "static/chunks/829-9694c4b4ed74a667.js",
+      "static/chunks/464-8533dfae425b50f3.js",
+      "static/chunks/app/page-62d800e34e94fbe0.js"
+    ],
+    "/quoc-gia/[slug]/page": [
+      "static/chunks/webpack-7c296b568d7fbcb2.js",
+      "static/chunks/4bd1b696-21f374d1156f834a.js",
+      "static/chunks/255-a41b0d888672637a.js",
+      "static/chunks/main-app-d79de0fafd53af40.js",
+      "static/chunks/103-aeddc6a0aa47a267.js",
+      "static/chunks/110-dc7fa65a5a00f773.js",
+      "static/chunks/464-8533dfae425b50f3.js",
+      "static/chunks/app/quoc-gia/[slug]/page-20ce9a256ddd907e.js"
+    ],
+    "/the-loai/[slug]/page": [
+      "static/chunks/webpack-7c296b568d7fbcb2.js",
+      "static/chunks/4bd1b696-21f374d1156f834a.js",
+      "static/chunks/255-a41b0d888672637a.js",
+      "static/chunks/main-app-d79de0fafd53af40.js",
+      "static/chunks/103-aeddc6a0aa47a267.js",
+      "static/chunks/110-dc7fa65a5a00f773.js",
+      "static/chunks/464-8533dfae425b50f3.js",
+      "static/chunks/app/the-loai/[slug]/page-0d4be6278df98734.js"
+    ]
+  }
+}
