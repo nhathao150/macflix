@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
+
+const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 // 1. Import trạm phát sóng của NextAuth (từ file Providers.tsx của bạn)
 import { AuthProvider } from './Providers'; 
@@ -18,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi">
-      <body>
+      <body className={inter.className}>
         {/* Lớp giáp 1: Quản lý tài khoản (NextAuth) nằm ngoài cùng */}
         <AuthProvider>
           {/* Lớp giáp 2: Quản lý Popup (Modal) nằm bên trong */}

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
+import Image from 'next/image';
 import { History, Play, Loader2, AlertCircle } from 'lucide-react';
 
 export default function HistoryPage() {
@@ -80,10 +81,12 @@ export default function HistoryPage() {
                 className="group flex flex-col cursor-pointer"
               >
                 <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-[#141414]">
-                  <img 
-                    src={movie.imageSrc} 
+                  <Image 
+                    src={movie.imageSrc || '/placeholder-image.jpg'} 
                     alt={movie.name} 
-                    className="w-full h-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-110" 
+                    fill
+                    sizes="(max-width: 768px) 50vw, 33vw"
+                    className="object-cover opacity-80 transition-transform duration-500 group-hover:scale-110" 
                   />
                   {/* Nút Play lúc hover chuột */}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">

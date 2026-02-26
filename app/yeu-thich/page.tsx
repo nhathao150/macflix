@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Heart, Play, Loader2, AlertCircle } from 'lucide-react';
 
 export default function FavoritesPage() {
@@ -68,7 +69,7 @@ export default function FavoritesPage() {
             {favorites.map((movie, index) => (
               <Link href={`/phim/${movie.slug}`} key={index} className="group flex flex-col cursor-pointer">
                 <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-[#141414]">
-                  <img src={movie.imageSrc} alt={movie.name} className="w-full h-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-110" />
+                  <Image src={movie.imageSrc || '/placeholder-image.jpg'} alt={movie.name} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover opacity-80 transition-transform duration-500 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
                     <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-2xl">
                       <Play className="w-5 h-5 text-white fill-white ml-1" />

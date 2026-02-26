@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 // Import thêm icon History và Settings
-import { Search, Bell, User, ChevronDown, Menu, Sun, Moon, LogOut, History, Settings, Heart } from 'lucide-react';
+import { Search, Bell, User, ChevronDown, Menu, LogOut, History, Settings, Heart } from 'lucide-react';
 import { searchMovies } from '@/lib/api';
 import { useSession, signOut } from 'next-auth/react'; 
 
@@ -33,16 +34,13 @@ const COUNTRIES = [
 export default function Navbar() {
   const { data: session } = useSession();
 
-  const [isDarkMode, setIsDarkMode] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    if (!document.documentElement.classList.contains('dark')) {
-      document.documentElement.classList.add('dark');
-    }
-    setIsDarkMode(document.documentElement.classList.contains('dark'));
+    // Luôn đảm bảo giao diện có class dark khi load trang ban đầu (trùng với trạng thái isDarkMode = true)
+    document.documentElement.classList.add('dark');
   }, []);
 
   useEffect(() => {
@@ -58,16 +56,6 @@ export default function Navbar() {
     }, 500);
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
-
-  const toggleTheme = () => {
-    if (isDarkMode) {
-      document.documentElement.classList.remove('dark');
-      setIsDarkMode(false);
-    } else {
-      document.documentElement.classList.add('dark');
-      setIsDarkMode(true);
-    }
-  };
 
   const closeDropdown = () => {
     const elem = document.activeElement as HTMLElement;
@@ -154,7 +142,7 @@ export default function Navbar() {
                 ) : searchResults.length > 0 ? (
                   searchResults.map((movie) => (
                     <Link href={`/phim/${movie.slug}`} key={movie.id} onClick={() => setSearchTerm('')} className="flex items-center gap-3 p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-colors group">
-                      <img src={movie.imageSrc} alt={movie.title} className="w-10 h-14 object-cover rounded-md shadow-sm group-hover:scale-105 transition-transform" />
+                      <Image src={movie.imageSrc || '/placeholder-image.jpg'} alt={movie.title} width={40} height={56} className="w-10 h-14 object-cover rounded-md shadow-sm group-hover:scale-105 transition-transform" />
                       <div className="flex flex-col">
                         <span className="text-sm font-bold text-gray-800 dark:text-white line-clamp-1">{movie.title}</span>
                         <span className="text-[10px] text-gray-500 dark:text-white/50 uppercase">Xem chi tiết</span>
@@ -170,10 +158,6 @@ export default function Navbar() {
 
           <button className="lg:hidden hover:text-black dark:hover:text-white transition-transform hover:scale-110"><Search className="w-5 h-5" /></button>
           <button className="hover:text-black dark:hover:text-white transition-transform hover:scale-110"><Bell className="w-5 h-5" /></button>
-          
-          <button onClick={toggleTheme} className="hover:text-black dark:hover:text-white transition-transform hover:scale-110 hover:rotate-12" title="Đổi giao diện Sáng/Tối">
-            {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </button>
 
           {/* LOGIC ĐĂNG NHẬP / ĐĂNG XUẤT */}
           {session ? (
