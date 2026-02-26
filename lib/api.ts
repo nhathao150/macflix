@@ -7,7 +7,7 @@ export interface Movie {
   slug: string;
 }
 
-// 1. Hàm lấy phim mới hỗn hợp (Dùng cho Hero Banner)
+// 1. Hàm lấy phim mới hỗn hợp (Dùng cho Hero Banner) - Đã Cache
 export async function getNewMovies(page = 1): Promise<Movie[]> {
   try {
     const res = await fetch(`https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=${page}`, { next: { revalidate: 3600 } });
@@ -27,14 +27,13 @@ export async function getNewMovies(page = 1): Promise<Movie[]> {
   }
 }
 
-// 2. Hàm MỚI: Lấy phim theo từng Danh Mục (Phim Lẻ, Phim Bộ, Hoạt Hình)
+// 2. Hàm lấy phim theo từng Danh Mục - Đã Cache
 export async function getMoviesByCategory(category: string): Promise<Movie[]> {
   try {
     const res = await fetch(`https://phimapi.com/v1/api/danh-sach/${category}?limit=12`, { next: { revalidate: 3600 } });
     if (!res.ok) throw new Error('Failed to fetch data');
     const data = await res.json();
     
-    // API v1 có cấu trúc trả về hơi khác một chút
     const imageDomain = data.data.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
     
     return data.data.items.map((movie: any) => ({
@@ -49,10 +48,10 @@ export async function getMoviesByCategory(category: string): Promise<Movie[]> {
   }
 }
 
-// 3. Hàm lấy chi tiết phim (Giữ nguyên)
+// 3. Hàm lấy chi tiết phim - ĐÃ THÊM CACHE
 export async function getMovieDetails(slug: string) {
   try {
-    const res = await fetch(`https://phimapi.com/phim/${slug}`);
+    const res = await fetch(`https://phimapi.com/phim/${slug}`, { next: { revalidate: 3600 } });
     if (!res.ok) throw new Error('Failed to fetch details');
     return await res.json();
   } catch (error) {
@@ -61,6 +60,7 @@ export async function getMovieDetails(slug: string) {
   }
 }
 
+// 4. Hàm tìm kiếm - KHÔNG CACHE (Vì dữ liệu do user gõ ngẫu nhiên)
 export async function searchMovies(keyword: string) {
   try {
     const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&limit=5`);
@@ -80,9 +80,10 @@ export async function searchMovies(keyword: string) {
   }
 }
 
+// 5. Hàm lấy phim theo Thể loại (Trang chủ) - ĐÃ THÊM CACHE
 export async function getMoviesByGenre(slug: string) {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/the-loai/${slug}?limit=10`);
+    const res = await fetch(`https://phimapi.com/v1/api/the-loai/${slug}?limit=10`, { next: { revalidate: 3600 } });
     if (!res.ok) return [];
     const data = await res.json();
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
@@ -99,17 +100,16 @@ export async function getMoviesByGenre(slug: string) {
   }
 }
 
-// Thay thế hàm này ở cuối file lib/api.ts
+// 6. Hàm Phân trang Thể loại - ĐÃ THÊM CACHE
 export async function getMoviesByGenrePaginated(slug: string, page: number = 1, limit: number = 64) {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/the-loai/${slug}?limit=${limit}&page=${page}`);
+    const res = await fetch(`https://phimapi.com/v1/api/the-loai/${slug}?limit=${limit}&page=${page}`, { next: { revalidate: 3600 } });
     if (!res.ok) return { items: [], pagination: null, title: 'Danh mục phim' };
     
     const data = await res.json();
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
 
     const items = data.data?.items?.map((movie: any) => {
-      // Bảo vệ an toàn 100%: Lỡ phim không có poster dọc thì mượn tạm ảnh thumb ngang
       const imgUrl = movie.poster_url || movie.thumb_url || '';
       return {
         id: movie._id,
@@ -130,16 +130,16 @@ export async function getMoviesByGenrePaginated(slug: string, page: number = 1, 
   }
 }
 
+// 7. Hàm Phân trang Quốc gia - ĐÃ THÊM CACHE
 export async function getMoviesByCountryPaginated(slug: string, page: number = 1, limit: number = 64) {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/quoc-gia/${slug}?limit=${limit}&page=${page}`);
+    const res = await fetch(`https://phimapi.com/v1/api/quoc-gia/${slug}?limit=${limit}&page=${page}`, { next: { revalidate: 3600 } });
     if (!res.ok) return { items: [], pagination: null, title: 'Danh mục quốc gia' };
     
     const data = await res.json();
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
 
     const items = data.data?.items?.map((movie: any) => {
-      // Bảo vệ an toàn: Lấy ảnh dọc, không có thì mượn ảnh ngang
       const imgUrl = movie.poster_url || movie.thumb_url || '';
       return {
         id: movie._id,

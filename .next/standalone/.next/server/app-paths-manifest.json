@@ -1,7 +1,0 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/phim/[slug]/page": "app/phim/[slug]/page.js",
-  "/page": "app/page.js",
-  "/quoc-gia/[slug]/page": "app/quoc-gia/[slug]/page.js",
-  "/the-loai/[slug]/page": "app/the-loai/[slug]/page.js"
-}

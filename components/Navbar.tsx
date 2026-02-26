@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Bell, User, ChevronDown, Menu, Sun, Moon } from 'lucide-react';
+// Import thêm icon History và Settings
+import { Search, Bell, User, ChevronDown, Menu, Sun, Moon, LogOut, History, Settings, Heart } from 'lucide-react';
 import { searchMovies } from '@/lib/api';
+import { useSession, signOut } from 'next-auth/react'; 
 
 const GENRES = [
   { name: 'Hành Động', slug: 'hanh-dong' }, { name: 'Tình Cảm', slug: 'tinh-cam' }, { name: 'Hài Hước', slug: 'hai-huoc' },
@@ -16,7 +18,6 @@ const GENRES = [
   { name: 'Phim 18+', slug: 'phim-18' }
 ];
 
-// Mảng 45 Quốc gia trích xuất từ hình ảnh của bạn
 const COUNTRIES = [
   { name: 'Trung Quốc', slug: 'trung-quoc' }, { name: 'Hàn Quốc', slug: 'han-quoc' }, { name: 'Nhật Bản', slug: 'nhat-ban' }, { name: 'Thái Lan', slug: 'thai-lan' }, { name: 'Âu Mỹ', slug: 'au-my' },
   { name: 'Đài Loan', slug: 'dai-loan' }, { name: 'Hồng Kông', slug: 'hong-kong' }, { name: 'Ấn Độ', slug: 'an-do' }, { name: 'Anh', slug: 'anh' }, { name: 'Pháp', slug: 'phap' },
@@ -30,6 +31,8 @@ const COUNTRIES = [
 ];
 
 export default function Navbar() {
+  const { data: session } = useSession();
+
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -75,16 +78,17 @@ export default function Navbar() {
     <div className="fixed top-0 left-0 w-full z-[100] flex justify-center pointer-events-none">
       <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-6xl mt-6 rounded-full px-6 md:px-8 py-3 transition-colors duration-300 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] bg-white/60 dark:bg-black/40 border border-black/10 dark:border-white/20">
         
+        {/* LOGO */}
         <div className="flex items-center shrink-0">
           <Link href="/" className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-wider flex items-center gap-1">
             <span className="text-gray-900 dark:text-white text-2xl md:text-3xl leading-none"></span> Macflix
           </Link>
         </div>
 
+        {/* MENU CHÍNH */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-white/80">
           <Link href="/" className="hover:text-black dark:hover:text-white transition-colors">Trang chủ</Link>
           
-          {/* Menu Thể loại */}
           <div className="relative group py-2 cursor-pointer">
             <div className="flex items-center gap-1 hover:text-black dark:hover:text-white transition-colors">
               Thể loại <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
@@ -105,15 +109,12 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Menu Quốc Gia (Đã nâng cấp lên 5 cột giống hình chụp) */}
           <div className="relative group py-2 cursor-pointer">
             <div className="flex items-center gap-1 hover:text-black dark:hover:text-white transition-colors">
               Quốc Gia <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
             </div>
-            {/* Tăng chiều rộng lên 750px để chứa 5 cột */}
             <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 w-[750px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-50">
               <div className="bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col p-5">
-                {/* Lưới 5 cột */}
                 <div className="grid grid-cols-5 gap-x-2 gap-y-2">
                   {COUNTRIES.map((country) => (
                     <Link 
@@ -127,12 +128,14 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-
-          <Link href="#" className="hover:text-black dark:hover:text-white transition-colors">Danh sách</Link>
+          
+          {/* Đã xóa chữ Lịch sử ở đây cho Menu gọn gàng */}
         </div>
 
         {/* --- CÔNG CỤ PHẢI --- */}
         <div className="flex items-center gap-4 md:gap-6 text-gray-700 dark:text-white/80 shrink-0">
+          
+          {/* TÌM KIẾM */}
           <div className="hidden lg:flex relative items-center">
             <div className="flex items-center gap-2 bg-black/5 dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-full px-4 py-1.5 backdrop-blur-sm transition-all focus-within:bg-white dark:focus-within:bg-[#1a1a1a] focus-within:ring-2 focus-within:ring-cyan-500/50">
               <Search className="w-4 h-4 text-gray-500 dark:text-white/50" />
@@ -167,12 +170,57 @@ export default function Navbar() {
 
           <button className="lg:hidden hover:text-black dark:hover:text-white transition-transform hover:scale-110"><Search className="w-5 h-5" /></button>
           <button className="hover:text-black dark:hover:text-white transition-transform hover:scale-110"><Bell className="w-5 h-5" /></button>
+          
           <button onClick={toggleTheme} className="hover:text-black dark:hover:text-white transition-transform hover:scale-110 hover:rotate-12" title="Đổi giao diện Sáng/Tối">
             {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#D9251D] to-orange-500 flex items-center justify-center text-white cursor-pointer hover:ring-2 hover:ring-red-500/50 transition-all shadow-lg">
-            <User className="w-4 h-4" />
-          </div>
+
+          {/* LOGIC ĐĂNG NHẬP / ĐĂNG XUẤT */}
+          {session ? (
+            <div className="relative group cursor-pointer pointer-events-auto">
+              {/* Avatar */}
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-lg hover:ring-2 hover:ring-cyan-500/50 transition-all">
+                {session.user?.name?.charAt(0).toUpperCase() || 'U'}
+              </div>
+              
+              {/* Menu Đăng xuất (Có chứa Lịch sử và Tài khoản) */}
+              <div className="absolute top-full right-0 mt-2 w-56 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 overflow-hidden transform origin-top-right scale-95 group-hover:scale-100 z-50 pointer-events-auto flex flex-col">
+                
+                {/* Thông tin user */}
+                <div className="px-4 py-3 border-b border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                  <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{session.user?.name}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-white/50 truncate mt-0.5">{session.user?.email}</p>
+                </div>
+                
+                {/* Lịch sử và Cài đặt */}
+                <div className="py-2 border-b border-black/5 dark:border-white/10 flex flex-col gap-1">
+                  <Link href="/ca-nhan" className="px-4 py-2 text-sm text-gray-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-colors flex items-center gap-2 font-medium">
+                    <Settings className="w-4 h-4" /> Tùy chỉnh thông tin
+                  </Link>
+                  <Link href="/lich-su" className="px-4 py-2 text-sm text-gray-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-colors flex items-center gap-2 font-medium">
+                    <History className="w-4 h-4" /> Lịch sử xem phim
+                  </Link>
+                  <Link href="/yeu-thich" className="px-4 py-2 text-sm text-gray-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-2 font-medium">
+                    <Heart className="w-4 h-4" /> Phim yêu thích
+                  </Link>
+                </div>
+
+                {/* Đăng xuất */}
+                <button 
+                  onClick={() => signOut()}
+                  className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-300 transition-colors flex items-center gap-2 font-medium"
+                >
+                  <LogOut className="w-4 h-4" /> Đăng xuất
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Nút hình người khi CHƯA đăng nhập */
+            <Link href="/dang-nhap" className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#D9251D] to-orange-500 flex items-center justify-center text-white cursor-pointer hover:ring-2 hover:ring-red-500/50 transition-all shadow-lg pointer-events-auto">
+              <User className="w-4 h-4" />
+            </Link>
+          )}
+
           <button className="md:hidden hover:text-black dark:hover:text-white transition-colors"><Menu className="w-6 h-6" /></button>
         </div>
       </nav>

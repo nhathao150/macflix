@@ -1,25 +1,31 @@
-import type {Metadata} from 'next';
-import { Inter } from 'next/font/google';
+import type { Metadata } from 'next';
 import './globals.css';
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-sans',
-});
+// 1. Import trạm phát sóng của NextAuth (từ file Providers.tsx của bạn)
+import { AuthProvider } from './Providers'; 
+// 2. Import trạm phát sóng của Modal Popup (lưu ý dùng ./context cho chuẩn đường dẫn)
+import { ModalProvider } from '@/context/ModalContext';
 
 export const metadata: Metadata = {
-  title: 'Liquid Glass Movies',
-  description: 'A glassmorphism-styled movie streaming application interface.',
+  title: 'Macflix',
+  description: 'Trải nghiệm xem phim mượt mà',
 };
 
-export default function RootLayout({children}: {children: React.ReactNode}) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className={`${inter.variable} dark`}>
-      <body className="font-sans antialiased text-white min-h-screen bg-slate-950 overflow-x-hidden relative" suppressHydrationWarning>
-        {/* Abstract Background */}
-        <div className="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-900/40 via-purple-900/40 to-emerald-900/40 opacity-80 blur-3xl"></div>
-        <div className="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-orange-900/30 via-rose-900/30 to-cyan-900/30 opacity-80 blur-3xl"></div>
-        {children}
+    <html lang="vi">
+      <body>
+        {/* Lớp giáp 1: Quản lý tài khoản (NextAuth) nằm ngoài cùng */}
+        <AuthProvider>
+          {/* Lớp giáp 2: Quản lý Popup (Modal) nằm bên trong */}
+          <ModalProvider>
+            {children}
+          </ModalProvider>
+        </AuthProvider>
       </body>
     </html>
   );

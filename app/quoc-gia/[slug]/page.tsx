@@ -4,8 +4,9 @@ import { useEffect, useState, Suspense } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Image from 'next/image';
-import Link from 'next/link';
-import { getMoviesByCountryPaginated } from '@/lib/api'; // Dùng hàm mới
+// 1. IMPORT HOOK GỌI POPUP
+import { useModal } from '@/context/ModalContext';
+import { getMoviesByCountryPaginated } from '@/lib/api'; 
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -14,6 +15,9 @@ function CountryContent() {
   const slug = params.slug as string;
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  // 2. LẤY HÀM openModal TỪ CONTEXT
+  const { openModal } = useModal();
 
   const pageParam = searchParams.get('page');
   const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
@@ -78,9 +82,11 @@ function CountryContent() {
               className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4 md:gap-6"
             >
               {movies.map((movie, index) => (
-                <Link 
-                  href={`/phim/${movie.slug}`} 
+                
+                
+                <div 
                   key={`${movie.id}-${index}`}
+                  onClick={() => openModal(movie)}
                   className="group flex flex-col cursor-pointer"
                 >
                   <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-[#141414]">
@@ -101,7 +107,7 @@ function CountryContent() {
                   <h3 className="text-xs md:text-sm font-bold text-white/90 group-hover:text-cyan-400 transition-colors line-clamp-2 leading-snug">
                     {movie.title}
                   </h3>
-                </Link>
+                </div>
               ))}
             </motion.div>
 

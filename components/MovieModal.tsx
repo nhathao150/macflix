@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
 import { getMovieDetails, getMoviesByGenre } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+// 1. IMPORT NÚT TRÁI TIM YÊU THÍCH VÀO ĐÂY
+import FavoriteButton from '@/components/FavoriteButton';
 
 interface MovieModalProps {
   isOpen: boolean;
@@ -147,6 +149,19 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-transparent" />
                       
+                      {/* 2. CHÈN NÚT TRÁI TIM YÊU THÍCH NGAY TRÊN POSTER */}
+                      {movieData && (
+                         <div className="absolute bottom-16 right-6 md:bottom-20 md:right-12 z-20">
+                            <FavoriteButton 
+                                movieData={{
+                                    slug: movieData.slug,
+                                    name: movieData.name,
+                                    imageSrc: backdropUrl
+                                }} 
+                            />
+                         </div>
+                      )}
+
                       {trailerId && (
                          <div className="absolute inset-0 flex items-center justify-center">
                           <button onClick={() => setMediaMode('trailer')} className="bg-white/20 hover:bg-white/30 text-white rounded-full p-3 md:px-5 md:py-2.5 flex items-center gap-2 backdrop-blur-sm border border-white/30 transition-all group shadow-xl">
@@ -172,7 +187,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                     
                     {/* Tiêu đề Phim */}
                     <div>
-                        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white mb-2 drop-shadow-xl uppercase">
+                        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white mb-2 drop-shadow-xl uppercase w-4/5">
                             {movieData?.name || movie?.title}
                         </h1>
                         <p className="text-white/70 text-sm font-medium">Tên gốc: {movieData?.origin_name}</p>
@@ -185,24 +200,12 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                               Có Liên Quan
                           </div>
 
-                          {/* Container relative để chứa nút absolute */}
                           <div className="relative group/list">
-                              {/* Nút trượt trái (Hero Style) */}
-                              <button
-                                onClick={() => scrollSimilar('left')}
-                                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/10 flex items-center justify-center transition-all opacity-0 group-hover/list:opacity-100 hidden md:flex"
-                              >
-                                <ChevronLeft className="w-6 h-6 text-white" />
-                              </button>
-
-                              {/* Thanh cuộn danh sách */}
+                              <button onClick={() => scrollSimilar('left')} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/10 flex items-center justify-center transition-all opacity-0 group-hover/list:opacity-100 hidden md:flex"><ChevronLeft className="w-6 h-6 text-white" /></button>
+                              
                               <div ref={similarMoviesRef} className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x">
                                   {similarMovies.map((sim, idx) => (
-                                      <div 
-                                        key={idx} 
-                                        onClick={() => handleWatchSimilar(sim.slug)}
-                                        className="shrink-0 w-32 md:w-40 cursor-pointer group snap-start"
-                                      >
+                                      <div key={idx} onClick={() => handleWatchSimilar(sim.slug)} className="shrink-0 w-32 md:w-40 cursor-pointer group snap-start">
                                           <div className="relative aspect-[2/3] rounded-xl overflow-hidden mb-2 border border-white/10">
                                               <Image src={sim.imageSrc} alt={sim.title} fill className="object-cover transition-transform duration-300 group-hover:scale-110" />
                                           </div>
@@ -211,13 +214,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                                   ))}
                               </div>
 
-                              {/* Nút trượt phải (Hero Style) */}
-                              <button
-                                onClick={() => scrollSimilar('right')}
-                                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/10 flex items-center justify-center transition-all opacity-0 group-hover/list:opacity-100 hidden md:flex"
-                              >
-                                <ChevronRight className="w-6 h-6 text-white" />
-                              </button>
+                              <button onClick={() => scrollSimilar('right')} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/10 flex items-center justify-center transition-all opacity-0 group-hover/list:opacity-100 hidden md:flex"><ChevronRight className="w-6 h-6 text-white" /></button>
                           </div>
                       </div>
                     )}

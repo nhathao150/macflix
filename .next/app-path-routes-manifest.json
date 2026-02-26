@@ -1,7 +1,0 @@
-{
-  "/_not-found/page": "/_not-found",
-  "/phim/[slug]/page": "/phim/[slug]",
-  "/page": "/",
-  "/quoc-gia/[slug]/page": "/quoc-gia/[slug]",
-  "/the-loai/[slug]/page": "/the-loai/[slug]"
-}
