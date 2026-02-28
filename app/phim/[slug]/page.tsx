@@ -39,9 +39,13 @@ export default function MovieDetailPage() {
   const [playbackRate, setPlaybackRate] = useState(1);
   const [isSpeedMenuOpen, setIsSpeedMenuOpen] = useState(false);
 
-  const [subtitleTracks, setSubtitleTracks] = useState<any[]>([]); // Any is kept here for Hls track / TextTrack compatibility, but we can type as any[] or a union. Actually I will use any[] here to avoid strict DOM type errors, wait, I can just use `TextTrack[]`
+  const [subtitleTracks, setSubtitleTracks] = useState<any[]>([]);
   const [activeSubIndex, setActiveSubIndex] = useState(-1);
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+
+  // === THÊM STATE CHO TOUCH GESTURES ===
+  const lastTapRef = useRef<number>(0);
+  const [seekFeedback, setSeekFeedback] = useState<'forward' | 'backward' | null>(null);
 
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
@@ -322,6 +326,39 @@ export default function MovieDetailPage() {
     }
   };
 
+  const handleVideoInteraction = (e: React.MouseEvent | React.TouchEvent) => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300; // ms
+
+    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      // Nhấn đúp (Double tap)
+      const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+      const { innerWidth } = window;
+      
+      if (clientX < innerWidth / 2) {
+        skipTime(-10);
+        setSeekFeedback('backward');
+      } else {
+        skipTime(10);
+        setSeekFeedback('forward');
+      }
+      setTimeout(() => setSeekFeedback(null), 500);
+      lastTapRef.current = 0; // Reset
+    } else {
+      // Nhấn đơn (Single tap)
+      // Nếu controls đang ẩn (thường gặp dể di chuột ra/hoặc trên điện thoại), bấm 1 lần là hiện
+      // Nếu đang hiện, bấm 1 lần là play/pause
+      if (!isControlsVisible) {
+        setIsControlsVisible(true);
+        if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+        controlsTimeoutRef.current = setTimeout(() => setIsControlsVisible(false), 3000);
+      } else {
+        togglePlay();
+      }
+      lastTapRef.current = now;
+    }
+  };
+
   const skipTime = (seconds: number) => {
     if (videoRef.current) {
       videoRef.current.currentTime += seconds;
@@ -492,7 +529,13 @@ export default function MovieDetailPage() {
           ref={playerContainerRef} 
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          className={`relative w-full aspect-video bg-black rounded-2xl md:rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/10 group select-none flex flex-col justify-center ${!isPlaying || isControlsVisible ? 'cursor-auto' : 'cursor-none'}`}
+          onClick={() => {
+            // Chạm vào container cũng hiện controls trên mobile
+            setIsControlsVisible(true);
+            if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+            controlsTimeoutRef.current = setTimeout(() => setIsControlsVisible(false), 3000);
+          }}
+          className={`relative w-full aspect-video bg-black overflow-hidden group select-none flex flex-col justify-center touch-manipulation ${!isPlaying || isControlsVisible ? 'cursor-auto' : 'cursor-none'} ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-2xl md:rounded-3xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]'}`}
         >
             {hasLinkMovie ? (
                 <>
@@ -500,7 +543,7 @@ export default function MovieDetailPage() {
                     ref={videoRef} 
                     className="w-full h-full object-contain bg-black outline-none cursor-pointer" 
                     poster={bannerUrl} 
-                    onClick={togglePlay}
+                    onClick={(e) => { e.stopPropagation(); handleVideoInteraction(e); }}
                     onTimeUpdate={handleTimeUpdate}
                     onLoadedMetadata={handleLoadedMetadata}
                     onPlay={() => setIsPlaying(true)}
@@ -509,18 +552,24 @@ export default function MovieDetailPage() {
                     playsInline
                   />
 
-                  {/* THANH TOP BAR (GÓC TRÁI PIP/SHARE - GÓC PHẢI VOLUME) */}
-                  <div className={`absolute top-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-b from-black/80 to-transparent flex justify-between items-start z-20 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                      
-                      <div className="pointer-events-auto flex items-center gap-3 bg-[#1a1a1c]/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg">
-                          <button onClick={togglePiP} className="text-white/70 hover:text-white hover:scale-110 transition" title="Picture in Picture">
-                              <PictureInPicture className="w-4 h-4 md:w-5 md:h-5" />
-                          </button>
-                          <div className="w-[1px] h-4 bg-white/20"></div>
-                          <button onClick={handleShare} className="text-white/70 hover:text-white hover:scale-110 transition" title="Chia sẻ">
-                              <Share className="w-4 h-4 md:w-5 md:h-5" />
-                          </button>
+                  {/* HIỆU ỨNG TUA NHANH 10S */}
+                  <div className={`absolute inset-y-0 left-0 w-[30%] bg-gradient-to-r from-white/20 to-transparent flex items-center justify-center transition-opacity duration-300 pointer-events-none rounded-l-2xl md:rounded-l-3xl ${seekFeedback === 'backward' ? 'opacity-100' : 'opacity-0'}`}>
+                      <div className="flex flex-col items-center gap-2 animate-bounce">
+                          <RotateCcw className="w-8 h-8 md:w-12 md:h-12 text-white" />
+                          <span className="text-white font-bold text-sm md:text-lg">-10s</span>
                       </div>
+                  </div>
+                  <div className={`absolute inset-y-0 right-0 w-[30%] bg-gradient-to-l from-white/20 to-transparent flex items-center justify-center transition-opacity duration-300 pointer-events-none rounded-r-2xl md:rounded-r-3xl ${seekFeedback === 'forward' ? 'opacity-100' : 'opacity-0'}`}>
+                      <div className="flex flex-col items-center gap-2 animate-bounce">
+                          <RotateCw className="w-8 h-8 md:w-12 md:h-12 text-white" />
+                          <span className="text-white font-bold text-sm md:text-lg">+10s</span>
+                      </div>
+                  </div>
+
+                  {/* THANH TOP BAR (GÓC PHẢI VOLUME) */}
+                  <div className={`absolute top-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-b from-black/80 to-transparent flex justify-end items-start z-20 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                      
+                      {/* ĐÃ XÓA GÓC TRÁI PIP/SHARE ĐỂ TRÁNH ĐÈ LÊN GIAO DIỆN NATIVE IPAD */}
 
                       <div className="pointer-events-auto flex items-center group/vol bg-[#1a1a1c]/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg">
                           <button 
@@ -539,7 +588,7 @@ export default function MovieDetailPage() {
                                   step={0.01}
                                   value={isMuted ? 0 : volume}
                                   onChange={handleVolumeChange}
-                                  className="w-full h-1 rounded-full appearance-none cursor-pointer hover:h-1.5 transition-all accent-white"
+                                  className="w-full h-1 rounded-full appearance-none cursor-pointer hover:h-1.5 transition-all accent-white custom-slider"
                                   style={{ background: `linear-gradient(to right, white ${(isMuted ? 0 : volume) * 100}%, rgba(255, 255, 255, 0.3) ${(isMuted ? 0 : volume) * 100}%)` }}
                               />
                           </div>
@@ -582,9 +631,12 @@ export default function MovieDetailPage() {
                               <div className="flex items-center gap-4 bg-[#1a1a1c]/80 backdrop-blur-xl px-4 py-2 md:px-5 md:py-2.5 rounded-full border border-white/10 shadow-2xl shrink-0">
                                   
                                   {/* Nút Phụ Đề */}
-                                  <div className="relative" onMouseLeave={() => setIsSubMenuOpen(false)}>
+                                  <div className="relative" onMouseLeave={() => window.innerWidth > 768 && setIsSubMenuOpen(false)}>
                                       {isSubMenuOpen && (
-                                          <div className="absolute bottom-full right-0 pb-6 w-max min-w-[180px] z-50">
+                                          <>
+                                              {/* Nền ảo hỗ trợ đóng menu trên điện thoại/iPad khi chạm ra ngoài */}
+                                              <div className="fixed inset-0 z-40" onClick={() => setIsSubMenuOpen(false)} />
+                                              <div className="absolute bottom-full right-0 pb-6 w-max min-w-[180px] z-50">
                                               <div className="bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)] flex flex-col py-2 animate-in fade-in slide-in-from-bottom-2">
                                                   <div className="px-4 py-2 text-xs font-bold text-white/50 border-b border-white/10 uppercase mb-1">Ngôn ngữ hỗ trợ</div>
                                                   <button onClick={() => changeSubtitle(-1)} className={`px-4 py-3 text-sm text-left hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-normal leading-snug ${activeSubIndex === -1 ? 'text-cyan-400 font-bold' : 'text-white/80 font-medium'}`}>Tắt phụ đề</button>
@@ -596,24 +648,29 @@ export default function MovieDetailPage() {
                                                       <div className="px-4 py-3 text-sm text-white/40 italic flex items-center gap-2">Bản mặc định (Vietsub)</div>
                                                   )}
                                               </div>
-                                          </div>
+                                              </div>
+                                          </>
                                       )}
-                                      <button onClick={() => setIsSubMenuOpen(!isSubMenuOpen)} onMouseEnter={() => { setIsSubMenuOpen(true); setIsSpeedMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Phụ đề"><Subtitles className="w-4 h-4 md:w-5 md:h-5" /></button>
+                                      <button onClick={() => setIsSubMenuOpen(!isSubMenuOpen)} onMouseEnter={() => { if (window.innerWidth > 768) { setIsSubMenuOpen(true); setIsSpeedMenuOpen(false); } }} className={`hover:scale-110 transition flex items-center justify-center ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Phụ đề"><Subtitles className="w-4 h-4 md:w-5 md:h-5" /></button>
                                   </div>
 
                                   {/* Nút Tốc Độ */}
-                                  <div className="relative" onMouseLeave={() => setIsSpeedMenuOpen(false)}>
+                                  <div className="relative" onMouseLeave={() => window.innerWidth > 768 && setIsSpeedMenuOpen(false)}>
                                       {isSpeedMenuOpen && (
-                                          <div className="absolute bottom-full right-0 pb-6 w-36 z-50">
+                                          <>
+                                              {/* Nền ảo hỗ trợ đóng menu trên điện thoại/iPad khi chạm ra ngoài */}
+                                              <div className="fixed inset-0 z-40" onClick={() => setIsSpeedMenuOpen(false)} />
+                                              <div className="absolute bottom-full right-0 pb-6 w-36 z-50">
                                               <div className="bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)] flex flex-col py-2 animate-in fade-in slide-in-from-bottom-2">
                                                   <div className="px-4 py-2 text-xs font-bold text-white/50 border-b border-white/10 uppercase mb-1">Tốc độ phát</div>
                                                   {speedOptions.map(rate => (
                                                       <button key={rate} onClick={() => changePlaybackRate(rate)} className={`px-4 py-2 text-sm text-left hover:bg-white/20 transition-colors flex items-center gap-2 ${playbackRate === rate ? 'text-cyan-400 font-bold' : 'text-white/80 font-medium'}`}>{rate === 1 ? 'Chuẩn (1x)' : `${rate}x`}</button>
                                                   ))}
                                               </div>
-                                          </div>
+                                              </div>
+                                          </>
                                       )}
-                                      <button onClick={() => setIsSpeedMenuOpen(!isSpeedMenuOpen)} onMouseEnter={() => { setIsSpeedMenuOpen(true); setIsSubMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Cài đặt tốc độ"><Settings className="w-4 h-4 md:w-5 md:h-5" /></button>
+                                      <button onClick={() => setIsSpeedMenuOpen(!isSpeedMenuOpen)} onMouseEnter={() => { if (window.innerWidth > 768) { setIsSpeedMenuOpen(true); setIsSubMenuOpen(false); } }} className={`hover:scale-110 transition flex items-center justify-center ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Cài đặt tốc độ"><Settings className="w-4 h-4 md:w-5 md:h-5" /></button>
                                   </div>
 
                                   {/* Nút Fullscreen */}
@@ -635,7 +692,7 @@ export default function MovieDetailPage() {
                                   max={duration || 100}
                                   value={currentTime}
                                   onChange={handleSeek}
-                                  className="flex-1 h-1.5 md:h-2 rounded-full appearance-none cursor-pointer hover:h-2.5 md:hover:h-3 transition-all relative z-10 accent-white shadow-lg"
+                                  className="flex-1 h-1.5 md:h-2 rounded-full appearance-none cursor-pointer hover:h-2.5 md:hover:h-3 transition-all relative z-10 accent-white shadow-lg custom-slider"
                                   style={{ background: `linear-gradient(to right, white ${progressPercent}%, rgba(255, 255, 255, 0.2) ${progressPercent}%)` }}
                               />
 
@@ -726,12 +783,15 @@ export default function MovieDetailPage() {
                             {episodeGroups.length > 1 && (
                                 <div className="relative group/tabs flex-1 overflow-hidden flex items-center w-full md:max-w-[75%] lg:max-w-[80%]">
                                     <button onClick={() => scrollTabs('left')} className="absolute left-0 z-10 w-8 h-8 items-center justify-center bg-[#141414]/90 hover:bg-[#2a2a2a] backdrop-blur-md border border-white/10 rounded-full transition-all opacity-0 group-hover/tabs:opacity-100 hidden md:flex"><ChevronLeft className="w-4 h-4 text-white" /></button>
-                                    <div ref={tabContainerRef} className="flex gap-2 overflow-x-auto scrollbar-hide bg-black/30 p-1 rounded-xl w-full px-2 md:px-8 snap-x">
+                                    <div ref={tabContainerRef} className="flex gap-2 overflow-x-auto scrollbar-hide touch-pan-x bg-black/30 p-1 rounded-xl w-full px-2 md:px-8 snap-x snap-mandatory">
                                         {episodeGroups.map((group, idx) => {
                                             const firstEp = group[0]?.name?.replace(/Tập\s*/i, '').trim();
                                             const lastEp = group[group.length - 1]?.name?.replace(/Tập\s*/i, '').trim();
                                             return (
-                                                <button key={idx} onClick={() => { setActiveGroupIndex(idx); setIsExpanded(false); }} className={`shrink-0 px-4 py-1.5 rounded-lg text-xs font-bold transition-all snap-start ${activeGroupIndex === idx ? 'bg-white text-black shadow-md' : 'text-white/60 hover:text-white hover:bg-white/10'}`}>Tập {firstEp} - {lastEp}</button>
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => { setActiveGroupIndex(idx); setIsExpanded(false); }}
+                                                    className={`shrink-0 px-4 py-2 text-sm font-bold rounded-lg transition-all snap-start snap-always ${activeGroupIndex === idx ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.5)]' : 'bg-transparent text-white/50 hover:bg-white/10 hover:text-white'}`}>Tập {firstEp} - {lastEp}</button>
                                             )
                                         })}
                                     </div>

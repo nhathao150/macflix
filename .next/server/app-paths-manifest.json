@@ -1,15 +1,4 @@
 {
-  "/api/favorites/route": "app/api/favorites/route.js",
   "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/api/auth/register/route": "app/api/auth/register/route.js",
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/history/route": "app/api/history/route.js",
-  "/dang-nhap/page": "app/dang-nhap/page.js",
-  "/lich-su/page": "app/lich-su/page.js",
-  "/page": "app/page.js",
-  "/phim/[slug]/page": "app/phim/[slug]/page.js",
-  "/phim/page": "app/phim/page.js",
-  "/quoc-gia/[slug]/page": "app/quoc-gia/[slug]/page.js",
-  "/the-loai/[slug]/page": "app/the-loai/[slug]/page.js",
-  "/yeu-thich/page": "app/yeu-thich/page.js"
+  "/phim/[slug]/page": "app/phim/[slug]/page.js"
 }
