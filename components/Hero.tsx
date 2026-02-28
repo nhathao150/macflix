@@ -4,10 +4,11 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Play, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Movie } from '@/types';
 
 interface HeroProps {
-  movies: any[];
-  onPlayClick: (movie: any) => void;
+  movies: Movie[];
+  onPlayClick: (movie: Movie) => void;
 }
 
 export default function Hero({ movies, onPlayClick }: HeroProps) {

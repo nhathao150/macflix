@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Hero from './Hero';
 import MovieRow from './MovieRow';
 import MovieModal from './MovieModal';
-import { Movie } from '../lib/api';
+import { Movie } from '@/types';
 
 interface HomeContentProps {
   heroMovies: Movie[];
@@ -24,10 +24,10 @@ export default function HomeContent({
   phimLe,
   hoatHinh
 }: HomeContentProps) {
-  const [selectedMovie, setSelectedMovie] = useState<any>(null);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleMovieClick = (movie: any) => {
+  const handleMovieClick = (movie: Movie) => {
     setSelectedMovie(movie);
     setIsModalOpen(true);
   };

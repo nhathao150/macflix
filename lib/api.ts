@@ -1,11 +1,8 @@
 // lib/api.ts
 
-export interface Movie {
-  id: string;
-  title: string;
-  imageSrc: string;
-  slug: string;
-}
+import { Movie, OphimMovie } from "@/types";
+
+export type { Movie };
 
 // 1. Hàm lấy phim mới hỗn hợp (Dùng cho Hero Banner) - Đã Cache
 export async function getNewMovies(page = 1, limit = 20): Promise<Movie[]> {
@@ -26,7 +23,7 @@ export async function getNewMovies(page = 1, limit = 20): Promise<Movie[]> {
     // Lấy tất cả items, sau đó mới filter theo limit
     const items = data.items.slice(0, limit);
     
-    return items.map((movie: any) => ({
+    return items.map((movie: OphimMovie) => ({
       id: movie._id,
       title: movie.name,
       imageSrc: movie.thumb_url?.startsWith('http') ? movie.thumb_url : `${imageDomain}${movie.thumb_url}`,
@@ -64,7 +61,7 @@ export async function getMoviesByCategory(category: string, limit = 20): Promise
     
     const imageDomain = data.data.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
     
-    return data.data.items.map((movie: any) => ({
+    return data.data.items.map((movie: OphimMovie) => ({
       id: movie._id,
       title: movie.name,
       imageSrc: movie.thumb_url?.startsWith('http') ? movie.thumb_url : `${imageDomain}/${movie.thumb_url}`,
@@ -96,7 +93,7 @@ export async function searchMovies(keyword: string) {
     const data = await res.json();
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
     
-    return data.data?.items?.map((movie: any) => ({
+    return data.data?.items?.map((movie: OphimMovie) => ({
       id: movie._id,
       title: movie.name,
       imageSrc: movie.thumb_url.startsWith('http') ? movie.thumb_url : `${imageDomain}/${movie.thumb_url}`,
@@ -116,7 +113,7 @@ export async function getMoviesByGenre(slug: string) {
     const data = await res.json();
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
     
-    return data.data?.items?.map((movie: any) => ({
+    return data.data?.items?.map((movie: OphimMovie) => ({
       id: movie._id,
       title: movie.name,
       imageSrc: movie.thumb_url.startsWith('http') ? movie.thumb_url : `${imageDomain}/${movie.thumb_url}`,
@@ -137,7 +134,7 @@ export async function getMoviesByGenrePaginated(slug: string, page: number = 1, 
     const data = await res.json();
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
 
-    const items = data.data?.items?.map((movie: any) => {
+    const items = data.data?.items?.map((movie: OphimMovie) => {
       const imgUrl = movie.poster_url || movie.thumb_url || '';
       return {
         id: movie._id,
@@ -167,7 +164,7 @@ export async function getMoviesByCountryPaginated(slug: string, page: number = 1
     const data = await res.json();
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
 
-    const items = data.data?.items?.map((movie: any) => {
+    const items = data.data?.items?.map((movie: OphimMovie) => {
       const imgUrl = movie.poster_url || movie.thumb_url || '';
       return {
         id: movie._id,
@@ -204,7 +201,7 @@ export async function getDanhSachPhimPaginated(slug: string, page: number = 1, l
 
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
 
-    const items = data.data?.items?.map((movie: any) => {
+    const items = data.data?.items?.map((movie: OphimMovie) => {
       const imgUrl = movie.poster_url || movie.thumb_url || '';
       return {
         id: movie._id,
@@ -238,7 +235,7 @@ export async function getNewMoviesPaginated(page: number = 1) {
 
     const imageDomain = data.pathImage || 'https://phimimg.com/';
 
-    const items = data.items.map((movie: any) => {
+    const items = data.items.map((movie: OphimMovie) => {
       const imgUrl = movie.poster_url || movie.thumb_url || '';
       return {
         id: movie._id,

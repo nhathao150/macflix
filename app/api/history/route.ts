@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectMongoDB } from "@/lib/mongodb";
 import User from "@/models/User";
+import { WatchHistoryItem } from "@/types";
 
 // Hàm tiện ích: Lấy thời điểm 6 tháng trước
 const getSixMonthsAgo = () => {
@@ -21,7 +22,7 @@ export async function GET(req: Request) {
 
     // Lọc: Chỉ lấy những phim xem trong vòng 6 tháng qua
     const sixMonthsAgo = getSixMonthsAgo();
-    const validHistory = (user.watchHistory || []).filter((item: any) => new Date(item.timestamp) >= sixMonthsAgo);
+    const validHistory = (user.watchHistory || []).filter((item: WatchHistoryItem) => new Date(item.timestamp) >= sixMonthsAgo);
 
     return NextResponse.json({ history: validHistory }, { status: 200 });
   } catch (error) {
@@ -41,7 +42,7 @@ export async function POST(req: Request) {
     
     // 1. Xóa phim này khỏi vị trí cũ (nếu có) và Lọc bỏ phim quá 6 tháng
     let history = user.watchHistory || [];
-    history = history.filter((item: any) => item.slug !== movieData.slug && new Date(item.timestamp) >= sixMonthsAgo);
+    history = history.filter((item: WatchHistoryItem) => item.slug !== movieData.slug && new Date(item.timestamp) >= sixMonthsAgo);
 
     // 2. Đẩy phim mới lên Top 1
     history.unshift({ ...movieData, timestamp: new Date() });

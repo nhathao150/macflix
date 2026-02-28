@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectMongoDB } from "@/lib/mongodb";
 import User from "@/models/User";
+import { FavoriteItem } from "@/types";
 
 const getSixMonthsAgo = () => {
   const d = new Date();
@@ -20,7 +21,7 @@ export async function GET(req: Request) {
     if (!user) return NextResponse.json({ message: "Không tìm thấy user" }, { status: 404 });
 
     const sixMonthsAgo = getSixMonthsAgo();
-    const validFavorites = (user.favorites || []).filter((item: any) => new Date(item.timestamp) >= sixMonthsAgo);
+    const validFavorites = (user.favorites || []).filter((item: FavoriteItem) => new Date(item.timestamp) >= sixMonthsAgo);
 
     return NextResponse.json({ favorites: validFavorites }, { status: 200 });
   } catch (error) {
@@ -41,10 +42,10 @@ export async function POST(req: Request) {
     let favorites = user.favorites || [];
     
     // Dọn dẹp phim quá 6 tháng trước khi thao tác
-    favorites = favorites.filter((item: any) => new Date(item.timestamp) >= sixMonthsAgo);
+    favorites = favorites.filter((item: FavoriteItem) => new Date(item.timestamp) >= sixMonthsAgo);
 
     // Kiểm tra xem phim đã có trong yêu thích chưa
-    const existingIndex = favorites.findIndex((item: any) => item.slug === movieData.slug);
+    const existingIndex = favorites.findIndex((item: FavoriteItem) => item.slug === movieData.slug);
 
     if (existingIndex >= 0) {
       // Nếu có rồi ➔ Bấm vào là XÓA

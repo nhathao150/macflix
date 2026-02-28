@@ -8,11 +8,12 @@ import { getMovieDetails, getMoviesByGenre } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 // 1. IMPORT NÚT TRÁI TIM YÊU THÍCH VÀO ĐÂY
 import FavoriteButton from '@/components/FavoriteButton';
+import { Movie, MovieDetails } from '@/types';
 
 interface MovieModalProps {
   isOpen: boolean;
   onClose: () => void;
-  movie: any;
+  movie: Movie | null;
 }
 
 const getYoutubeEmbedId = (url: string) => {
@@ -25,10 +26,10 @@ const getYoutubeEmbedId = (url: string) => {
 export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) {
   const router = useRouter();
   
-  const [movieDetails, setMovieDetails] = useState<any>(null);
+  const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [mediaMode, setMediaMode] = useState<'banner' | 'trailer'>('banner');
-  const [similarMovies, setSimilarMovies] = useState<any[]>([]);
+  const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
   
   const similarMoviesRef = useRef<HTMLDivElement>(null);
 
@@ -58,7 +59,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
           if (firstCategorySlug) {
             const similarData = await getMoviesByGenre(firstCategorySlug);
             const filteredSimilar = similarData
-              .filter((m: any) => m.slug !== movie.slug)
+              .filter((m: Movie) => m.slug !== movie.slug)
               .slice(0, 8);
             setSimilarMovies(filteredSimilar);
           }
@@ -105,7 +106,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
     ? (movieData.poster_url.startsWith('http') ? movieData.poster_url : `https://phimimg.com/${movieData.poster_url}`)
     : movie?.imageSrc;
 
-  const trailerId = getYoutubeEmbedId(movieData?.trailer_url);
+  const trailerId = getYoutubeEmbedId(movieData?.trailer_url || "");
   const episodesList = movieDetails?.episodes?.[0]?.server_data || [];
   const hasLinkMovie = episodesList.length > 0;
 
@@ -156,7 +157,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                                 movieData={{
                                     slug: movieData.slug,
                                     name: movieData.name,
-                                    imageSrc: backdropUrl
+                                    imageSrc: backdropUrl || ""
                                 }} 
                             />
                          </div>
@@ -201,7 +202,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                           </div>
 
                           <div className="relative group/list">
-                              <button onClick={() => scrollSimilar('left')} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/10 flex items-center justify-center transition-all opacity-0 group-hover/list:opacity-100 hidden md:flex"><ChevronLeft className="w-6 h-6 text-white" /></button>
+                              <button onClick={() => scrollSimilar('left')} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/10 items-center justify-center transition-all opacity-0 group-hover/list:opacity-100 hidden md:flex"><ChevronLeft className="w-6 h-6 text-white" /></button>
                               
                               <div ref={similarMoviesRef} className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x">
                                   {similarMovies.map((sim, idx) => (
@@ -214,7 +215,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                                   ))}
                               </div>
 
-                              <button onClick={() => scrollSimilar('right')} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/10 flex items-center justify-center transition-all opacity-0 group-hover/list:opacity-100 hidden md:flex"><ChevronRight className="w-6 h-6 text-white" /></button>
+                              <button onClick={() => scrollSimilar('right')} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/10 items-center justify-center transition-all opacity-0 group-hover/list:opacity-100 hidden md:flex"><ChevronRight className="w-6 h-6 text-white" /></button>
                           </div>
                       </div>
                     )}
@@ -278,7 +279,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                         <div className="bg-[#1c1c1e] border border-white/5 p-6 rounded-2xl">
                             <h4 className="text-base font-bold text-white mb-1 uppercase">{movieData?.name}</h4>
                             <p className="text-xs text-white/50 uppercase tracking-widest font-semibold mb-4">
-                                {movieData?.category?.map((c:any) => c.name).join(', ')}
+                                {movieData?.category?.map((c: { name: string }) => c.name).join(', ')}
                             </p>
                             <div 
                                 className="text-white/80 text-sm leading-relaxed"

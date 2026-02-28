@@ -2,10 +2,11 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
 import MovieModal from '@/components/MovieModal'; // Đường dẫn đến file MovieModal của bạn
+import { Movie } from '@/types';
 
 // Định nghĩa kiểu dữ liệu cho Context
 interface ModalContextType {
-  openModal: (movie: any) => void;
+  openModal: (movie: Movie) => void;
   closeModal: () => void;
 }
 
@@ -14,9 +15,9 @@ const ModalContext = createContext<ModalContextType | undefined>(undefined);
 // Provider bọc ngoài ứng dụng
 export function ModalProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedMovie, setSelectedMovie] = useState<any>(null);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const openModal = (movie: any) => {
+  const openModal = (movie: Movie) => {
     setSelectedMovie(movie);
     setIsOpen(true);
   };

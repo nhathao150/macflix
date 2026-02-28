@@ -24,7 +24,7 @@ export default function FavoriteButton({ movieData }: FavoriteButtonProps) {
         const res = await fetch(`/api/favorites?email=${session.user.email}`);
         const data = await res.json();
         if (res.ok && data.favorites) {
-          setIsFavorited(data.favorites.some((item: any) => item.slug === movieData.slug));
+          setIsFavorited(data.favorites.some((item: { slug: string }) => item.slug === movieData.slug));
         }
       } catch (error) {
         console.error("Lỗi check phim yêu thích:", error);

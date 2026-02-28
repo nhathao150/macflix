@@ -4,12 +4,13 @@ import { useRef } from 'react';
 import { ChevronLeft, ChevronRight, ChevronRight as ChevronRightIcon } from 'lucide-react';
 import MovieCard from './MovieCard';
 import Link from 'next/link';
+import { Movie } from '@/types';
 
 interface MovieRowProps {
   title: string;
-  movies: any[];
+  movies: Movie[];
   isTrending?: boolean;
-  onMovieClick: (movie: any) => void;
+  onMovieClick: (movie: Movie) => void;
   viewMoreLink?: string;
 }
 

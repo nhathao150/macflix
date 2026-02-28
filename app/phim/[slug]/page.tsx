@@ -8,6 +8,7 @@ import Hls from 'hls.js';
 import { ListVideo, CircleAlert, MoreHorizontal, ChevronUp, Mic2, ChevronLeft, ChevronRight, Heart, Play, Pause, Maximize, Minimize, Settings, Subtitles, Volume2, VolumeX, RotateCcw, RotateCw, PictureInPicture, Share } from 'lucide-react'; 
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { MovieDetails } from '@/types';
 
 const EPISODES_PER_GROUP = 100;
 const INITIAL_VISIBLE_EPISODES = 24; 
@@ -17,7 +18,7 @@ export default function MovieDetailPage() {
   const slug = params.slug as string;
   const { data: session } = useSession(); 
 
-  const [movieDetails, setMovieDetails] = useState<any>(null);
+  const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
   const [activeServerIndex, setActiveServerIndex] = useState(0);
@@ -38,7 +39,7 @@ export default function MovieDetailPage() {
   const [playbackRate, setPlaybackRate] = useState(1);
   const [isSpeedMenuOpen, setIsSpeedMenuOpen] = useState(false);
 
-  const [subtitleTracks, setSubtitleTracks] = useState<any[]>([]);
+  const [subtitleTracks, setSubtitleTracks] = useState<any[]>([]); // Any is kept here for Hls track / TextTrack compatibility, but we can type as any[] or a union. Actually I will use any[] here to avoid strict DOM type errors, wait, I can just use `TextTrack[]`
   const [activeSubIndex, setActiveSubIndex] = useState(-1);
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
 
@@ -100,7 +101,7 @@ export default function MovieDetailPage() {
         const data = await res.json();
         
         if (res.ok && data.history) {
-          const previousWatch = data.history.find((item: any) => item.slug === slug);
+          const previousWatch = data.history.find((item: { slug: string, serverIndex?: number, episodeIndex?: number }) => item.slug === slug);
           if (previousWatch) {
             setActiveServerIndex(previousWatch.serverIndex || 0);
             setCurrentEpisodeIndex(previousWatch.episodeIndex || 0);
@@ -128,7 +129,7 @@ export default function MovieDetailPage() {
         const res = await fetch(`/api/favorites?email=${userEmail}`);
         const data = await res.json();
         if (res.ok && data.favorites) {
-          const isFav = data.favorites.some((item: any) => item.slug === slug);
+          const isFav = data.favorites.some((item: { slug: string }) => item.slug === slug);
           setIsFavorited(isFav);
         }
       } catch (error) {
@@ -145,14 +146,16 @@ export default function MovieDetailPage() {
 
     const syncHistoryToDB = async () => {
       const currentEpName = episodesList[currentEpisodeIndex]?.name || '';
-      const bannerUrl = movieDetails.movie.thumb_url?.startsWith('http') 
-          ? movieDetails.movie.thumb_url 
-          : (movieDetails.movie.poster_url?.startsWith('http') ? movieDetails.movie.poster_url : `https://phimimg.com/${movieDetails.movie.poster_url}`);
+      const movieInfo = movieDetails?.movie;
+      if (!movieInfo) return;
+
+      const bannerUrl = movieInfo.thumb_url?.startsWith('http') 
+          ? movieInfo.thumb_url 
+          : (movieInfo.poster_url?.startsWith('http') ? movieInfo.poster_url : `https://phimimg.com/${movieInfo.poster_url}`);
 
       const movieData = {
         slug: slug,
-        name: movieDetails.movie.name,
-        imageSrc: bannerUrl,
+        name: movieInfo.name,
         episodeName: currentEpName,
         episodeIndex: currentEpisodeIndex,
         serverIndex: activeServerIndex,
@@ -171,7 +174,7 @@ export default function MovieDetailPage() {
 
     const timeoutId = setTimeout(() => { syncHistoryToDB(); }, 5000);
     return () => clearTimeout(timeoutId);
-  }, [movieDetails, currentEpisodeIndex, activeServerIndex, session, hasLoadedHistory, hasLinkMovie]);
+  }, [movieDetails, currentEpisodeIndex, activeServerIndex, session, hasLoadedHistory, hasLinkMovie, episodesList, slug]);
 
   // 5. NÚT TRÁI TIM
   const handleToggleFavorite = async () => {
@@ -182,13 +185,16 @@ export default function MovieDetailPage() {
     }
     setIsFavorited(!isFavorited);
 
-    const bannerUrl = movieDetails.movie.thumb_url?.startsWith('http') 
-        ? movieDetails.movie.thumb_url 
-        : (movieDetails.movie.poster_url?.startsWith('http') ? movieDetails.movie.poster_url : `https://phimimg.com/${movieDetails.movie.poster_url}`);
+    const movieInfo = movieDetails?.movie;
+    if (!movieInfo) return;
+
+    const bannerUrl = movieInfo.thumb_url?.startsWith('http') 
+        ? movieInfo.thumb_url 
+        : (movieInfo.poster_url?.startsWith('http') ? movieInfo.poster_url : `https://phimimg.com/${movieInfo.poster_url}`);
 
     const movieData = {
       slug: slug,
-      name: movieDetails.movie.name,
+      name: movieInfo.name,
       imageSrc: bannerUrl,
     };
 
@@ -212,7 +218,7 @@ export default function MovieDetailPage() {
     if (correctGroupIndex !== activeGroupIndex && !isNaN(correctGroupIndex)) {
       setActiveGroupIndex(correctGroupIndex);
     }
-  }, [currentEpisodeIndex]);
+  }, [currentEpisodeIndex, activeGroupIndex]);
 
   // 7. VIDEO PLAYER CHỐNG LAG & BẮT PHỤ ĐỀ
   useEffect(() => {
@@ -220,10 +226,33 @@ export default function MovieDetailPage() {
     const videoSrc = currentEpisode.link_m3u8;
     const video = videoRef.current;
     
-    setSubtitleTracks([]);
-    setActiveSubIndex(-1);
-
-    if (Hls.isSupported()) {
+    // 1. Nhận diện trình duyệt:
+    // iPadOS 13+ có thể báo là Mac, nên thêm check ontouchend để chắc chắn là thiết bị cảm ứng (iOS/iPadOS)
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+    
+    // 2. Quyết định phát:
+    if ((isSafari || isIOS) && video.canPlayType('application/vnd.apple.mpegurl')) {
+      // Bắt buộc dùng Native HLS cho toàn bộ hệ sinh thái iOS/iPadOS và Safari Desktop.
+      video.src = videoSrc;
+      video.load(); // Khởi động stream
+      
+      video.addEventListener('loadedmetadata', () => { 
+        video.play().catch((e) => {
+           console.log("Autoplay blocked by Safari:", e);
+        }); 
+        
+        const tracks = [];
+        for (let i = 0; i < video.textTracks.length; i++) {
+          if (video.textTracks[i].kind === 'subtitles' || video.textTracks[i].kind === 'captions') {
+            tracks.push(video.textTracks[i]);
+          }
+        }
+        setSubtitleTracks(tracks);
+      }, { once: true });
+    } else if (Hls.isSupported()) {
+      // iPad, Mac, Windows, Android -> Let hls.js handle it for maximum stability
+      // Since iPad supports MSE (MediaSource Extensions) on iPadOS 13+, hls.js works beautifully.
       const hls = new Hls({
         startLevel: -1, capLevelToPlayerSize: true, maxBufferLength: 60, maxMaxBufferLength: 600, maxBufferSize: 60 * 1000 * 1000, abrEwmaDefaultEstimate: 500000, 
       });
@@ -241,9 +270,9 @@ export default function MovieDetailPage() {
 
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = videoSrc;
+      video.load();
       video.addEventListener('loadedmetadata', () => { 
         video.play().catch(() => {}); 
-        
         const tracks = [];
         for (let i = 0; i < video.textTracks.length; i++) {
           if (video.textTracks[i].kind === 'subtitles' || video.textTracks[i].kind === 'captions') {
@@ -251,7 +280,7 @@ export default function MovieDetailPage() {
           }
         }
         setSubtitleTracks(tracks);
-      });
+      }, { once: true });
     }
 
     return () => { 
@@ -284,7 +313,7 @@ export default function MovieDetailPage() {
 
   const togglePlay = () => {
     if (videoRef.current?.paused) {
-      videoRef.current.play();
+      videoRef.current.play().catch(() => {});
       setIsPlaying(true);
     } else {
       videoRef.current?.pause();
@@ -302,7 +331,7 @@ export default function MovieDetailPage() {
   const handleTimeUpdate = () => setCurrentTime(videoRef.current?.currentTime || 0);
   const handleLoadedMetadata = () => setDuration(videoRef.current?.duration || 0);
 
-  const handleSeek = (e: any) => {
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const time = Number(e.target.value);
     if (videoRef.current) videoRef.current.currentTime = time;
     setCurrentTime(time);
@@ -369,7 +398,7 @@ export default function MovieDetailPage() {
     }
   };
 
-  const handleVolumeChange = (e: any) => {
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
     if (videoRef.current) {
       videoRef.current.volume = newVolume;
@@ -658,7 +687,7 @@ export default function MovieDetailPage() {
                 <span className="text-yellow-400">{movie.time}</span>
                  <span>•</span>
                 <span className="border border-white/20 px-1 rounded">{movie.quality}</span>
-                 {movie.category?.slice(0, 3).map((cat: any) => (
+                 {movie.category?.slice(0, 3).map((cat: { id: string, name: string }) => (
                     <span key={cat.id} className="hidden md:inline-block before:content-['•'] before:mr-2 before:opacity-50">
                         {cat.name}
                     </span>
@@ -675,7 +704,7 @@ export default function MovieDetailPage() {
                             <Mic2 className="w-5 h-5 text-yellow-400" /> Chọn Âm thanh / Phụ đề
                         </div>
                         <div className="flex flex-wrap gap-3">
-                            {servers.map((server: any, idx: number) => (
+                            {servers.map((server: { server_name: string }, idx: number) => (
                                 <button
                                     key={idx}
                                     onClick={() => { setActiveServerIndex(idx); setCurrentEpisodeIndex(0); setActiveGroupIndex(0); setIsExpanded(false); }}
@@ -696,7 +725,7 @@ export default function MovieDetailPage() {
                             </div>
                             {episodeGroups.length > 1 && (
                                 <div className="relative group/tabs flex-1 overflow-hidden flex items-center w-full md:max-w-[75%] lg:max-w-[80%]">
-                                    <button onClick={() => scrollTabs('left')} className="absolute left-0 z-10 w-8 h-8 flex items-center justify-center bg-[#141414]/90 hover:bg-[#2a2a2a] backdrop-blur-md border border-white/10 rounded-full transition-all opacity-0 group-hover/tabs:opacity-100 hidden md:flex"><ChevronLeft className="w-4 h-4 text-white" /></button>
+                                    <button onClick={() => scrollTabs('left')} className="absolute left-0 z-10 w-8 h-8 items-center justify-center bg-[#141414]/90 hover:bg-[#2a2a2a] backdrop-blur-md border border-white/10 rounded-full transition-all opacity-0 group-hover/tabs:opacity-100 hidden md:flex"><ChevronLeft className="w-4 h-4 text-white" /></button>
                                     <div ref={tabContainerRef} className="flex gap-2 overflow-x-auto scrollbar-hide bg-black/30 p-1 rounded-xl w-full px-2 md:px-8 snap-x">
                                         {episodeGroups.map((group, idx) => {
                                             const firstEp = group[0]?.name?.replace(/Tập\s*/i, '').trim();
@@ -706,12 +735,12 @@ export default function MovieDetailPage() {
                                             )
                                         })}
                                     </div>
-                                    <button onClick={() => scrollTabs('right')} className="absolute right-0 z-10 w-8 h-8 flex items-center justify-center bg-[#141414]/90 hover:bg-[#2a2a2a] backdrop-blur-md border border-white/10 rounded-full transition-all opacity-0 group-hover/tabs:opacity-100 hidden md:flex"><ChevronRight className="w-4 h-4 text-white" /></button>
+                                    <button onClick={() => scrollTabs('right')} className="absolute right-0 z-10 w-8 h-8 items-center justify-center bg-[#141414]/90 hover:bg-[#2a2a2a] backdrop-blur-md border border-white/10 rounded-full transition-all opacity-0 group-hover/tabs:opacity-100 hidden md:flex"><ChevronRight className="w-4 h-4 text-white" /></button>
                                 </div>
                             )}
                         </div>
                         <div className="flex flex-wrap gap-2 md:gap-3">
-                            {visibleEpisodes.map((ep: any, localIndex: number) => {
+                            {visibleEpisodes.map((ep: { slug: string, name: string }, localIndex: number) => {
                                 const globalIndex = activeGroupIndex * EPISODES_PER_GROUP + localIndex;
                                 const isPlaying = currentEpisodeIndex === globalIndex;
                                 return (

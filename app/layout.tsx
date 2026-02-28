@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi">
-      <body className={inter.className}>
+    <html lang="vi" suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
         {/* Lớp giáp 1: Quản lý tài khoản (NextAuth) nằm ngoài cùng */}
         <AuthProvider>
           {/* Lớp giáp 2: Quản lý Popup (Modal) nằm bên trong */}
