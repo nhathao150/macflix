@@ -31,7 +31,7 @@ function CountryContent() {
     const fetchMovies = async () => {
       setIsLoading(true);
       // Gọi API phim theo Quốc Gia
-      const data = await getMoviesByCountryPaginated(slug, currentPage, 64);
+      const data = await getMoviesByCountryPaginated(slug, currentPage, 48);
       
       setMovies(data.items);
       setPagination(data.pagination);

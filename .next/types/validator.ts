@@ -83,6 +83,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../app/phim/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/phim">> = Specific
+  const handler = {} as typeof import("../../app/phim/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../app/quoc-gia/[slug]/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/quoc-gia/[slug]">> = Specific
