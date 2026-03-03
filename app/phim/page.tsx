@@ -8,6 +8,14 @@ import { useModal } from '@/context/ModalContext';
 import { getDanhSachPhimPaginated, getNewMoviesPaginated } from '@/lib/api';
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { motion } from 'motion/react';
+import { Movie } from '@/types';
+
+interface Pagination {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  pageRanges: number;
+}
 
 function DanhMucContent() {
   const searchParams = useSearchParams();
@@ -18,8 +26,8 @@ function DanhMucContent() {
   const pageParam = searchParams.get('page');
   const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
 
-  const [movies, setMovies] = useState<any[]>([]);
-  const [pagination, setPagination] = useState<any>(null);
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
   const [pageTitle, setPageTitle] = useState('Đang tải...');
   const [isLoading, setIsLoading] = useState(true);
 

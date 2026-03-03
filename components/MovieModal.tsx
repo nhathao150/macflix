@@ -52,16 +52,29 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
         setSimilarMovies([]);
 
         try {
-          const data = await getMovieDetails(movie.slug);
+          // Fetch song song: chi tiết phim + phim tương tự cùng lúc
+          // Dùng movie prop để lấy slug sơm hơn thay vì chờ movieDetails
+          const [data, similarData] = await Promise.all([
+            getMovieDetails(movie.slug),
+            // Tạm fetch theo từ khóa từ slug phim gốc (sẽ lọc lại sau)
+            getMoviesByGenre('hanh-dong').catch(() => []) // fallback rỗng nếu lỗi
+          ]);
           setMovieDetails(data);
 
+          // Sau khi có data, fetch lại phim tương tự theo đúng thể loại
           const firstCategorySlug = data?.movie?.category?.[0]?.slug;
           if (firstCategorySlug) {
-            const similarData = await getMoviesByGenre(firstCategorySlug);
-            const filteredSimilar = similarData
+            const correctSimilarData = await getMoviesByGenre(firstCategorySlug);
+            const filteredSimilar = correctSimilarData
               .filter((m: Movie) => m.slug !== movie.slug)
               .slice(0, 8);
             setSimilarMovies(filteredSimilar);
+          } else if (similarData.length > 0) {
+            setSimilarMovies(
+              (similarData as Movie[])
+                .filter((m: Movie) => m.slug !== movie.slug)
+                .slice(0, 8)
+            );
           }
           
         } catch (error) {
@@ -142,7 +155,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
               <div className="flex-1 overflow-y-auto scrollbar-hide pb-20">
                 
                 {/* --- 1. MEDIA PLAYER (Banner/Trailer) --- */}
-                <div className="relative w-full aspect-[21/9] md:aspect-[16/6] bg-black">
+                <div className="relative w-full aspect-video bg-black">
                   {mediaMode === 'banner' && (
                     <div className="relative w-full h-full">
                       {backdropUrl && (
@@ -205,8 +218,8 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                               <button onClick={() => scrollSimilar('left')} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/10 items-center justify-center transition-all opacity-0 group-hover/list:opacity-100 hidden md:flex"><ChevronLeft className="w-6 h-6 text-white" /></button>
                               
                               <div ref={similarMoviesRef} className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x">
-                                  {similarMovies.map((sim, idx) => (
-                                      <div key={idx} onClick={() => handleWatchSimilar(sim.slug)} className="shrink-0 w-32 md:w-40 cursor-pointer group snap-start">
+                                  {similarMovies.map((sim) => (
+                                      <div key={sim.slug} onClick={() => handleWatchSimilar(sim.slug)} className="shrink-0 w-32 md:w-40 cursor-pointer group snap-start">
                                           <div className="relative aspect-[2/3] rounded-xl overflow-hidden mb-2 border border-white/10">
                                               <Image src={sim.imageSrc} alt={sim.title} fill className="object-cover transition-transform duration-300 group-hover:scale-110" />
                                           </div>
@@ -282,8 +295,15 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                                 {movieData?.category?.map((c: { name: string }) => c.name).join(', ')}
                             </p>
                             <div 
-                                className="text-white/80 text-sm leading-relaxed"
-                                dangerouslySetInnerHTML={{ __html: movieData?.content || 'Đang cập nhật nội dung...' }} 
+                                className="text-white/80 text-sm leading-relaxed prose prose-invert max-w-none"
+                                dangerouslySetInnerHTML={{ 
+                                  __html: (movieData?.content || 'Đang cập nhật nội dung...')
+                                    // Sanitize cơ bản: xóa script tags và event handlers
+                                    .replace(/<script[\s\S]*?<\/script>/gi, '')
+                                    .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
+                                    .replace(/on\w+\s*=\s*'[^']*'/gi, '')
+                                    .replace(/javascript:/gi, '')
+                                }} 
                             />
                         </div>
                     </div>

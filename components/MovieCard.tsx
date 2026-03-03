@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Play } from 'lucide-react';
+import { useState } from 'react';
 
 interface MovieCardProps {
   movie: {
@@ -12,17 +13,24 @@ interface MovieCardProps {
 }
 
 export default function MovieCard({ movie, isTrending }: MovieCardProps) {
+  const [isLoaded, setIsLoaded] = useState(false);
+
   return (
     <div className={`relative group cursor-pointer aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/10 shadow-lg ${
       isTrending ? 'w-[280px] md:w-[400px]' : 'w-[240px] md:w-[320px]'
     }`}>
+      {/* Shimmer skeleton khi ảnh chưa load */}
+      {!isLoaded && (
+        <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 animate-pulse" />
+      )}
       <Image
         src={movie.imageSrc}
         alt={movie.title}
         fill
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        className="object-cover transition-transform duration-500 group-hover:scale-110"
+        className={`object-cover transition-all duration-500 group-hover:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
         referrerPolicy="no-referrer"
+        onLoad={() => setIsLoaded(true)}
       />
       
       {/* Lớp phủ gradient đen ở dưới để hiện chữ cho rõ */}

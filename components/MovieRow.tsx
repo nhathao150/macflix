@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { ChevronLeft, ChevronRight, ChevronRight as ChevronRightIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import MovieCard from './MovieCard';
 import Link from 'next/link';
 import { Movie } from '@/types';
@@ -34,7 +34,7 @@ export default function MovieRow({ title, movies, isTrending, onMovieClick, view
       {title}
       {viewMoreLink && (
         <span className="flex items-center text-sm md:text-base font-normal text-gray-400 opacity-0 group-hover/title:opacity-100 transition-all duration-300 ml-3 group-hover/title:translate-x-2">
-          Xem tất cả <ChevronRightIcon className="w-4 h-4 ml-1" />
+          Xem tất cả <ChevronRight className="w-4 h-4 ml-1" />
         </span>
       )}
     </h2>

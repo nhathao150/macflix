@@ -19,9 +19,27 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'phimimg.com', // Thêm domain của API Phim.Live
+        hostname: 'phimimg.com',
         port: '',
         pathname: '/**', 
+      },
+      {
+        protocol: 'https',
+        hostname: '**.phimimg.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.ophim.xyz',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.phimapi.com',
+        port: '',
+        pathname: '/**',
       },
     ],
   },

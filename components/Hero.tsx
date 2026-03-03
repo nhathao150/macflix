@@ -56,7 +56,8 @@ export default function Hero({ movies, onPlayClick }: HeroProps) {
             alt={currentMovie.title} 
             fill 
             className="object-cover"
-            priority
+            priority={currentIndex === 0}
+            loading={currentIndex === 0 ? 'eager' : 'lazy'}
             referrerPolicy="no-referrer"
           />
         </motion.div>
@@ -85,16 +86,7 @@ export default function Hero({ movies, onPlayClick }: HeroProps) {
           {currentMovie.title}
         </motion.h1>
         
-        {/* Mô tả ngắn */}
-        <motion.p 
-          key={`desc-${currentIndex}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="max-w-2xl text-white/80 text-sm md:text-base leading-relaxed drop-shadow-md line-clamp-2 md:line-clamp-3 mt-2 mb-4"
-        >
-          Khám phá siêu phẩm {currentMovie.title} với chất lượng tuyệt đỉnh. Nhấn phát ngay để hòa mình vào thế giới điện ảnh đỉnh cao cùng Macflix.
-        </motion.p>
+
         
         {/* Các nút bấm */}
         <div className="flex items-center gap-4">

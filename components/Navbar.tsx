@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 // Import thêm icon History và Settings
@@ -37,10 +37,33 @@ export default function Navbar() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileTab, setMobileTab] = useState<'genre' | 'country'>('genre');
+  const [openDropdown, setOpenDropdown] = useState<'genre' | 'country' | null>(null);
+  const navRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Luôn đảm bảo giao diện có class dark khi load trang ban đầu (trùng với trạng thái isDarkMode = true)
     document.documentElement.classList.add('dark');
+  }, []);
+
+  // Đóng mobile menu khi resize lên desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) setIsMobileMenuOpen(false);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Đóng dropdown khi click ra ngoài navbar
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -58,12 +81,11 @@ export default function Navbar() {
   }, [searchTerm]);
 
   const closeDropdown = () => {
-    const elem = document.activeElement as HTMLElement;
-    if (elem) elem?.blur();
+    setOpenDropdown(null);
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full z-[100] flex justify-center pointer-events-none">
+    <div ref={navRef} className="fixed top-0 left-0 w-full z-[100] flex justify-center pointer-events-none">
       <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-6xl mt-6 rounded-full px-6 md:px-8 py-3 transition-colors duration-300 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] bg-white/60 dark:bg-black/40 border border-black/10 dark:border-white/20">
         
         {/* LOGO */}
@@ -77,44 +99,68 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-white/80">
           <Link href="/" className="hover:text-black dark:hover:text-white transition-colors">Trang chủ</Link>
           
-          <div className="relative group py-2 cursor-pointer">
-            <div className="flex items-center gap-1 hover:text-black dark:hover:text-white transition-colors">
-              Thể loại <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
-            </div>
-            <div className="absolute top-full left-0 pt-4 w-[450px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-50">
-              <div className="bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col p-4">
-                <div className="grid grid-cols-3 gap-x-2 gap-y-1">
-                  {GENRES.map((genre) => (
-                    <Link 
-                      key={genre.slug} href={`/the-loai/${genre.slug}`} onClick={closeDropdown}
-                      className="px-3 py-2 text-xs font-medium text-gray-600 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-black dark:hover:text-white rounded-lg transition-colors"
-                    >
-                      {genre.name}
-                    </Link>
-                  ))}
+          <div className="relative py-2">
+            <button
+              onClick={() => setOpenDropdown(openDropdown === 'genre' ? null : 'genre')}
+              className={`flex items-center gap-1 transition-colors ${
+                openDropdown === 'genre'
+                  ? 'text-black dark:text-white'
+                  : 'text-gray-700 dark:text-white/80 hover:text-black dark:hover:text-white'
+              }`}
+            >
+              Thể loại
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${
+                openDropdown === 'genre' ? 'rotate-180' : ''
+              }`} />
+            </button>
+            {openDropdown === 'genre' && (
+              <div className="absolute top-full left-0 pt-4 w-[450px] z-50">
+                <div className="bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col p-4">
+                  <div className="grid grid-cols-3 gap-x-2 gap-y-1">
+                    {GENRES.map((genre) => (
+                      <Link
+                        key={genre.slug} href={`/the-loai/${genre.slug}`} onClick={closeDropdown}
+                        className="px-3 py-2 text-xs font-medium text-gray-600 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-black dark:hover:text-white rounded-lg transition-colors"
+                      >
+                        {genre.name}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
-          <div className="relative group py-2 cursor-pointer">
-            <div className="flex items-center gap-1 hover:text-black dark:hover:text-white transition-colors">
-              Quốc Gia <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
-            </div>
-            <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 w-[750px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-50">
-              <div className="bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col p-5">
-                <div className="grid grid-cols-5 gap-x-2 gap-y-2">
-                  {COUNTRIES.map((country) => (
-                    <Link 
-                      key={country.slug} href={`/quoc-gia/${country.slug}`} onClick={closeDropdown}
-                      className="px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-black dark:hover:text-white rounded-lg transition-colors"
-                    >
-                      {country.name}
-                    </Link>
-                  ))}
+          <div className="relative py-2">
+            <button
+              onClick={() => setOpenDropdown(openDropdown === 'country' ? null : 'country')}
+              className={`flex items-center gap-1 transition-colors ${
+                openDropdown === 'country'
+                  ? 'text-black dark:text-white'
+                  : 'text-gray-700 dark:text-white/80 hover:text-black dark:hover:text-white'
+              }`}
+            >
+              Quốc Gia
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${
+                openDropdown === 'country' ? 'rotate-180' : ''
+              }`} />
+            </button>
+            {openDropdown === 'country' && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 w-[750px] z-50">
+                <div className="bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col p-5">
+                  <div className="grid grid-cols-5 gap-x-2 gap-y-2">
+                    {COUNTRIES.map((country) => (
+                      <Link
+                        key={country.slug} href={`/quoc-gia/${country.slug}`} onClick={closeDropdown}
+                        className="px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-black dark:hover:text-white rounded-lg transition-colors"
+                      >
+                        {country.name}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
           
           {/* Đã xóa chữ Lịch sử ở đây cho Menu gọn gàng */}
@@ -156,8 +202,17 @@ export default function Navbar() {
             )}
           </div>
 
+          {/* NÚT TÌM KIẾM MOBILE */}
           <button className="lg:hidden hover:text-black dark:hover:text-white transition-transform hover:scale-110"><Search className="w-5 h-5" /></button>
-          <button className="hover:text-black dark:hover:text-white transition-transform hover:scale-110"><Bell className="w-5 h-5" /></button>
+          
+          {/* CHUÔNG THÔNG BÁO - disabled v&agrave; có tooltip */}
+          <button 
+            title="Thông báo (sắp ra mắt)"
+            disabled
+            className="opacity-40 cursor-not-allowed"
+          >
+            <Bell className="w-5 h-5" />
+          </button>
 
           {/* LOGIC ĐĂNG NHẬP / ĐĂNG XUẤT */}
           {session ? (
@@ -205,9 +260,105 @@ export default function Navbar() {
             </Link>
           )}
 
-          <button className="md:hidden hover:text-black dark:hover:text-white transition-colors"><Menu className="w-6 h-6" /></button>
+          {/* NÚT HAMBURGER MOBILE */}
+          <button 
+            className="md:hidden hover:text-black dark:hover:text-white transition-colors"
+            onClick={() => setIsMobileMenuOpen(true)}
+          >
+            <Menu className="w-6 h-6" />
+          </button>
         </div>
       </nav>
+
+      {/* MOBILE DRAWER MENU */}
+      {isMobileMenuOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150]"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          {/* Drawer */}
+          <div className="fixed top-0 right-0 h-full w-[85vw] max-w-sm bg-[#0a0a0a] border-l border-white/10 z-[200] flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
+              <span className="text-white font-black text-xl">Macflix</span>
+              <button onClick={() => setIsMobileMenuOpen(false)} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                <span className="text-white text-lg leading-none">&times;</span>
+              </button>
+            </div>
+
+            {/* Tab chọn */}
+            <div className="flex mx-4 mt-4 rounded-xl bg-white/5 p-1">
+              <button
+                onClick={() => setMobileTab('genre')}
+                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
+                  mobileTab === 'genre' ? 'bg-white/20 text-white' : 'text-white/50'
+                }`}
+              >
+                Thể Loại
+              </button>
+              <button
+                onClick={() => setMobileTab('country')}
+                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
+                  mobileTab === 'country' ? 'bg-white/20 text-white' : 'text-white/50'
+                }`}
+              >
+                Quốc Gia
+              </button>
+            </div>
+
+            {/* Danh sách */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className="grid grid-cols-2 gap-2">
+                {mobileTab === 'genre'
+                  ? GENRES.map((genre) => (
+                    <a
+                      key={genre.slug}
+                      href={`/the-loai/${genre.slug}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="px-3 py-2.5 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors font-medium"
+                    >
+                      {genre.name}
+                    </a>
+                  ))
+                  : COUNTRIES.map((country) => (
+                    <a
+                      key={country.slug}
+                      href={`/quoc-gia/${country.slug}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="px-3 py-2.5 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors font-medium"
+                    >
+                      {country.name}
+                    </a>
+                  ))
+                }
+              </div>
+            </div>
+
+            {/* Footer - Link nhanh */}
+            <div className="px-4 py-4 border-t border-white/10 flex flex-col gap-2">
+              {session ? (
+                <>
+                  <a href="/lich-su" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors">
+                    <History className="w-4 h-4" /> Lịch sử xem
+                  </a>
+                  <a href="/yeu-thich" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors">
+                    <Heart className="w-4 h-4" /> Phim yêu thích
+                  </a>
+                  <button onClick={() => { signOut(); setIsMobileMenuOpen(false); }} className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors">
+                    <LogOut className="w-4 h-4" /> Đăng xuất
+                  </button>
+                </>
+              ) : (
+                <a href="/dang-nhap" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-white bg-gradient-to-r from-[#D9251D] to-orange-500 rounded-xl transition-opacity hover:opacity-80">
+                  <User className="w-4 h-4" /> Đăng nhập
+                </a>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
