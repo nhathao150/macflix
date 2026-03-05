@@ -1,30 +1,42 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-
-const inter = Inter({ subsets: ['latin'], display: 'swap' });
-
-// 1. Import trạm phát sóng của NextAuth (từ file Providers.tsx của bạn)
-import { AuthProvider } from './Providers'; 
-// 2. Import trạm phát sóng của Modal Popup (lưu ý dùng ./context cho chuẩn đường dẫn)
+import { AuthProvider } from './Providers';
 import { ModalProvider } from '@/context/ModalContext';
 
+// Inter với đủ font-weight cần thiết cho hierarchy rõ ràng
+const inter = Inter({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
 export const metadata: Metadata = {
-  title: 'Macflix',
-  description: 'Trải nghiệm xem phim mượt mà',
+  title: {
+    default: 'Macflix — Xem Phim HD Miễn Phí',
+    template: '%s | Macflix',
+  },
+  description:
+    'Macflix — Nền tảng xem phim trực tuyến miễn phí chất lượng cao. Hàng nghìn bộ phim lẻ, phim bộ, anime, phim chiếu rạp mới nhất với phụ đề tiếng Việt.',
+  keywords: ['xem phim online', 'phim HD', 'phim miễn phí', 'macflix', 'phim chiếu rạp', 'anime'],
+  openGraph: {
+    title: 'Macflix — Xem Phim HD Miễn Phí',
+    description: 'Nền tảng xem phim trực tuyến: phim lẻ, phim bộ, anime, phim chiếu rạp HD.',
+    locale: 'vi_VN',
+    type: 'website',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
-        {/* Lớp giáp 1: Quản lý tài khoản (NextAuth) nằm ngoài cùng */}
+      <body className={`${inter.variable} font-sans`} suppressHydrationWarning>
         <AuthProvider>
-          {/* Lớp giáp 2: Quản lý Popup (Modal) nằm bên trong */}
           <ModalProvider>
             {children}
           </ModalProvider>

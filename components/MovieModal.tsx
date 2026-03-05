@@ -8,6 +8,7 @@ import { getMovieDetails, getMoviesByGenre } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 // 1. IMPORT NÚT TRÁI TIM YÊU THÍCH VÀO ĐÂY
 import FavoriteButton from '@/components/FavoriteButton';
+import CastCard, { usePeoplesData } from '@/components/CastCard';
 import { Movie, MovieDetails } from '@/types';
 
 interface MovieModalProps {
@@ -30,6 +31,10 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
   const [isLoading, setIsLoading] = useState(false);
   const [mediaMode, setMediaMode] = useState<'banner' | 'trailer'>('banner');
   const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
+
+  // Lấy danh sách diễn viên + ảnh từ ophim peoples API
+  const movieSlug = movieDetails?.movie?.slug || movie?.slug;
+  const { peoples, photoBaseUrl } = usePeoplesData(movieSlug);
   
   const similarMoviesRef = useRef<HTMLDivElement>(null);
 
@@ -254,31 +259,37 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
 
                     {/* --- 4. DIỄN VIÊN & ĐOÀN LÀM PHIM --- */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-1 text-white/90 font-bold text-lg md:text-xl">
-                            Diễn Viên & Đoàn Làm Phim
+                        <div className="text-white/90 font-bold text-lg md:text-xl">
+                            Diễn Viên &amp; Đoàn Làm Phim
                         </div>
                         <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
-                            {[...(movieData?.director || []), ...(movieData?.actor || [])]
-                                .filter(name => name && name !== 'Đang cập nhật')
-                                .map((name, idx) => {
-                                    const colors = ['from-pink-500 to-rose-500', 'from-cyan-500 to-blue-500', 'from-purple-500 to-indigo-500', 'from-yellow-500 to-orange-500', 'from-emerald-400 to-teal-500'];
-                                    const randomColor = colors[idx % colors.length];
-                                    const initials = name.split(' ').map((n:string) => n[0]).join('').slice(0,2).toUpperCase();
-
-                                    return (
-                                        <div key={idx} className="shrink-0 flex flex-col items-center gap-2 w-20 text-center group cursor-pointer">
-                                            <div className={`w-16 h-16 rounded-full bg-gradient-to-tr ${randomColor} flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform border-2 border-transparent group-hover:border-white/20`}>
-                                                {initials}
-                                            </div>
-                                            <div>
-                                                <p className="text-[11px] font-bold text-white/90 line-clamp-1">{name}</p>
-                                                <p className="text-[10px] text-white/50">{movieData?.director?.includes(name) ? 'Đạo diễn' : 'Diễn viên'}</p>
-                                            </div>
-                                        </div>
-                                    )
-                                })
-                            }
-                            {(!movieData?.actor || movieData?.actor[0] === 'Đang cập nhật') && (
+                            {peoples.length > 0 ? (
+                                // Hiển thị trực tiếp từ peoples API — đủ ảnh, đúng người
+                                peoples.map((person, idx) => (
+                                    <CastCard
+                                        key={idx}
+                                        name={person.name}
+                                        role={person.known_for_department === 'Directing' ? 'Đạo diễn' : 'Diễn viên'}
+                                        colorIndex={idx}
+                                        variant="circle"
+                                        photoUrl={person.profile_path ? `${photoBaseUrl}${person.profile_path}` : undefined}
+                                    />
+                                ))
+                            ) : (
+                                // Fallback: dùng tên từ movie API nếu peoples API chưa load / không có
+                                [...(movieData?.director || []), ...(movieData?.actor || [])]
+                                    .filter(name => name && name !== 'Đang cập nhật')
+                                    .map((name, idx) => (
+                                        <CastCard
+                                            key={idx}
+                                            name={name}
+                                            role={movieData?.director?.includes(name) ? 'Đạo diễn' : 'Diễn viên'}
+                                            colorIndex={idx}
+                                            variant="circle"
+                                        />
+                                    ))
+                            )}
+                            {peoples.length === 0 && (!movieData?.actor || movieData?.actor[0] === 'Đang cập nhật') && (
                                 <p className="text-sm text-white/50">Đang cập nhật dữ liệu diễn viên...</p>
                             )}
                         </div>

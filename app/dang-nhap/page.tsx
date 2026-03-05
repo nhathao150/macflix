@@ -75,7 +75,7 @@ export default function AuthPage() {
   return (
     <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Nền mờ phía sau */}
-      <div className="absolute inset-0 bg-[#050505]/60 backdrop-blur-sm z-0" />
+      <div className="absolute inset-0 bg-[#010030]/60 backdrop-blur-sm z-0" />
 
       {/* Box Form Kính mờ (Glassmorphism) */}
       <motion.div 
@@ -89,10 +89,10 @@ export default function AuthPage() {
         </Link>
 
         <div className="text-center mt-6 mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 mb-4 shadow-lg">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4 shadow-lg" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
             <span className="text-white text-2xl leading-none"></span>
           </div>
-          <h2 className="text-2xl font-black text-white uppercase tracking-widest">
+          <h2 className="font-black text-white uppercase tracking-widest">
             {isLogin ? 'Đăng nhập Macflix' : 'Tạo tài khoản'}
           </h2>
           <p className="text-white/50 text-sm mt-2">
@@ -127,7 +127,7 @@ export default function AuthPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required={!isLogin}
-                className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
+                className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#F042FF]/50 focus:border-[#F042FF]/50 transition-all"
               />
             </div>
           )}
@@ -143,7 +143,7 @@ export default function AuthPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
+              className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#F042FF]/50 focus:border-[#F042FF]/50 transition-all"
             />
           </div>
 
@@ -158,7 +158,7 @@ export default function AuthPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
+              className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#F042FF]/50 focus:border-[#F042FF]/50 transition-all"
             />
           </div>
 
@@ -166,7 +166,8 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3.5 mt-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_25px_rgba(6,182,212,0.5)] flex items-center justify-center disabled:opacity-70"
+            className="w-full py-3.5 mt-2 text-white font-bold rounded-xl transition-all flex items-center justify-center disabled:opacity-70 shadow-[0_0_20px_rgba(240,66,255,0.3)] hover:shadow-[0_0_25px_rgba(240,66,255,0.5)] hover:opacity-90"
+            style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -186,7 +187,7 @@ export default function AuthPage() {
                 setError('');
                 setSuccess('');
               }}
-              className="ml-2 text-cyan-400 font-bold hover:text-cyan-300 transition-colors"
+              className="ml-2 font-bold transition-colors" style={{color:'#F042FF'}}
             >
               {isLogin ? 'Đăng ký ngay' : 'Đăng nhập'}
             </button>

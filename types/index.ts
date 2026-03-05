@@ -27,6 +27,7 @@ export interface FavoriteItem {
 
 export interface MovieDetails {
   movie: {
+    tmdb?: { type: string; id: string | null };
     name: string;
     origin_name: string;
     content: string;

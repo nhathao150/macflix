@@ -9,6 +9,7 @@ import { ListVideo, CircleAlert, MoreHorizontal, ChevronUp, Mic2, ChevronLeft, C
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { MovieDetails } from '@/types';
+import CastCard, { useTmdbActorPhotos } from '@/components/CastCard';
 
 const EPISODES_PER_GROUP = 100;
 const INITIAL_VISIBLE_EPISODES = 24; 
@@ -20,6 +21,9 @@ export default function MovieDetailPage() {
 
   const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Lấy ảnh diễn viên từ ophim peoples API
+  const actorPhotoMap = useTmdbActorPhotos(slug);
   
   const [activeServerIndex, setActiveServerIndex] = useState(0);
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
@@ -826,22 +830,17 @@ export default function MovieDetailPage() {
         {/* ẨN LINE NẾU KHÔNG CÓ CAST & CREW */}
         {validCast.length > 0 && (
             <div className="pt-4 border-t border-white/10">
-                <h3 className="text-xs font-bold mb-4 uppercase tracking-wider text-white/70">Cast & Crew</h3>
-                <div className="flex flex-wrap gap-4">
-                    {validCast.map((name, idx) => {
-                        const colors = ['from-pink-500 to-rose-500', 'from-cyan-500 to-blue-500', 'from-purple-500 to-indigo-500', 'from-yellow-500 to-orange-500'];
-                        const randomColor = colors[idx % colors.length];
-                        const initials = name.split(' ').map((n:string) => n[0]).join('').slice(0,2).toUpperCase();
-                        return (
-                            <div key={idx} className="flex items-center gap-3 bg-[#141414] border border-white/5 pr-4 rounded-full hover:bg-white/10 transition-colors cursor-pointer group">
-                                <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${randomColor} flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:scale-105 transition-transform`}>{initials}</div>
-                                <div>
-                                    <p className="text-xs font-bold text-white line-clamp-1">{name}</p>
-                                    <p className="text-[10px] text-white/50">{movie.director?.includes(name) ? 'Đạo diễn' : 'Diễn viên'}</p>
-                                </div>
-                            </div>
-                        )
-                    })}
+                <h3 className="text-xs font-bold mb-4 uppercase tracking-wider text-white/70">Cast &amp; Crew</h3>
+                <div className="flex flex-wrap gap-3">
+                    {validCast.map((name, idx) => (
+                        <CastCard
+                            key={idx}
+                            name={name}
+                            role={movie.director?.includes(name) ? 'Đạo diễn' : 'Diễn viên'}
+                            colorIndex={idx}
+                            photoUrl={actorPhotoMap.get(name.toLowerCase())}
+                        />
+                    ))}
                 </div>
             </div>
         )}

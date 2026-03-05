@@ -33,13 +33,13 @@ export default function Hero({ movies, onPlayClick }: HeroProps) {
   }, [nextSlide, heroMovies.length]);
 
   if (heroMovies.length === 0) {
-    return <div className="w-full h-[60vh] md:h-[85vh] bg-[#050505] animate-pulse" />;
+    return <div className="w-full h-[60vh] md:h-[85vh] bg-[#010030] animate-pulse" />;
   }
 
   const currentMovie = heroMovies[currentIndex];
 
   return (
-    <div className="relative w-full h-[65vh] md:h-[85vh] bg-[#050505] overflow-hidden group">
+    <div className="relative w-full h-[65vh] md:h-[85vh] bg-[#010030] overflow-hidden group">
       
       {/* KHU VỰC ẢNH NỀN VỚI HIỆU ỨNG CROSSFADE MƯỢT MÀ */}
       <AnimatePresence mode="wait">
@@ -64,8 +64,8 @@ export default function Hero({ movies, onPlayClick }: HeroProps) {
       </AnimatePresence>
 
       {/* LỚP PHỦ GRADIENT */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/90 via-[#050505]/50 to-transparent w-full md:w-[70%]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#010030] via-[#010030]/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#010030]/90 via-[#010030]/50 to-transparent w-full md:w-[70%]" />
       
       {/* NỘI DUNG CHÍNH */}
       <div className="absolute bottom-0 left-0 w-full p-6 md:p-16 pb-16 md:pb-24 flex flex-col items-start gap-4 z-20">
@@ -76,15 +76,12 @@ export default function Hero({ movies, onPlayClick }: HeroProps) {
         </span>
 
         {/* Tiêu đề phim */}
-        <motion.h1 
+        <h1 
           key={`title-${currentIndex}`}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight uppercase max-w-4xl drop-shadow-2xl line-clamp-3 leading-tight"
+          className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight uppercase max-w-4xl drop-shadow-2xl line-clamp-3 leading-tight"
         >
           {currentMovie.title}
-        </motion.h1>
+        </h1>
         
 
         

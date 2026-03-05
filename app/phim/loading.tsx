@@ -3,7 +3,7 @@
 
 export default function Loading() {
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="min-h-screen bg-[#010030] text-white">
       {/* Navbar placeholder */}
       <div className="fixed top-0 left-0 w-full z-[100] flex justify-center">
         <div className="w-[95%] max-w-6xl mt-6 rounded-full h-14 bg-white/5 animate-pulse" />

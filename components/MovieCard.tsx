@@ -43,7 +43,7 @@ export default function MovieCard({ movie, isTrending }: MovieCardProps) {
         </h3>
         
         {/* Nút Play nhỏ ở góc */}
-        <button className="shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 group-hover:bg-[#D9251D] group-hover:border-transparent backdrop-blur-md flex items-center justify-center transition-all border border-white/30 shadow-lg">
+        <button className="shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center transition-all border border-white/30 shadow-lg hover:border-transparent hover:scale-110" style={{}} onMouseEnter={e => (e.currentTarget.style.background='#7226FF')} onMouseLeave={e => (e.currentTarget.style.background='')}>
           <Play className="w-4 h-4 md:w-5 md:h-5 text-white fill-white" />
         </button>
       </div>

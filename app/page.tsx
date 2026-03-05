@@ -23,7 +23,7 @@ export default async function Home() {
   const heroMovies = phimMoi.slice(0, 5);
 
   return (
-    <main className="min-h-screen pb-20 bg-[#050505]">
+    <main className="min-h-screen pb-20 bg-[#010030]">
       <Navbar />
       <HomeContent 
         heroMovies={heroMovies}

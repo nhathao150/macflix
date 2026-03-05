@@ -30,10 +30,10 @@ export default function MovieRow({ title, movies, isTrending, onMovieClick, view
   };
 
   const titleContent = (
-    <h2 className="text-xl md:text-2xl font-bold text-white mb-4 px-4 md:px-12 drop-shadow-md flex items-center group/title cursor-pointer w-fit">
+    <h2 className="font-bold text-white mb-4 px-4 md:px-12 drop-shadow-md flex items-center group/title cursor-pointer w-fit">
       {title}
       {viewMoreLink && (
-        <span className="flex items-center text-sm md:text-base font-normal text-gray-400 opacity-0 group-hover/title:opacity-100 transition-all duration-300 ml-3 group-hover/title:translate-x-2">
+        <span className="flex items-center text-sm font-normal text-gray-400 opacity-0 group-hover/title:opacity-100 transition-all duration-300 ml-3 group-hover/title:translate-x-2">
           Xem tất cả <ChevronRight className="w-4 h-4 ml-1" />
         </span>
       )}

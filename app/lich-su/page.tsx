@@ -39,14 +39,14 @@ export default function HistoryPage() {
 
   if (isLoading || status === 'loading') {
     return (
-      <main className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <Loader2 className="w-10 h-10 text-cyan-500 animate-spin" />
+      <main className="min-h-screen bg-[#010030] flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin" style={{color:'#F042FF'}} />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white selection:bg-cyan-500/30 pb-20">
+    <main className="min-h-screen bg-[#010030] text-white selection:bg-[#F042FF]/30 pb-20">
       <Navbar />
 
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 pt-[120px]">
@@ -54,7 +54,7 @@ export default function HistoryPage() {
         <div className="mb-8 flex items-end justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-3">
             <History className="w-8 h-8 md:w-10 md:h-10 text-cyan-400" />
-            <h1 className="text-2xl md:text-3xl font-black tracking-widest text-white uppercase drop-shadow-md">
+            <h1 className="font-black tracking-widest text-white uppercase drop-shadow-md">
               Lịch sử xem phim
             </h1>
           </div>
@@ -65,9 +65,9 @@ export default function HistoryPage() {
           // 1. NẾU CHƯA ĐĂNG NHẬP
           <div className="text-center mt-32 flex flex-col items-center gap-4 bg-white/5 p-8 rounded-3xl border border-white/10 max-w-md mx-auto backdrop-blur-sm shadow-xl">
             <AlertCircle className="w-16 h-16 text-yellow-500 opacity-80" />
-            <h2 className="text-xl font-bold">Bạn chưa đăng nhập</h2>
+            <h2 className="text-lg font-bold">Bạn chưa đăng nhập</h2>
             <p className="text-white/50 text-sm">Vui lòng đăng nhập để đồng bộ và xem lại lịch sử các bộ phim bạn đã cày nhé!</p>
-            <Link href="/dang-nhap" className="mt-4 px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 rounded-full font-bold transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:scale-105">
+            <Link href="/dang-nhap" className="mt-4 px-8 py-3 text-white rounded-full font-bold transition-all hover:opacity-90 hover:scale-105 shadow-[0_0_20px_rgba(240,66,255,0.3)]" style={{background:'linear-gradient(135deg,#F042FF,#7226FF)'}}>
               Đăng nhập ngay
             </Link>
           </div>
@@ -80,7 +80,7 @@ export default function HistoryPage() {
                 key={`${movie.slug}-${index}`}
                 className="group flex flex-col cursor-pointer"
               >
-                <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-[#141414]">
+                <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-[#160078/20]">
                   <Image 
                     src={movie.imageSrc || '/placeholder-image.jpg'} 
                     alt={movie.name} 
@@ -95,11 +95,11 @@ export default function HistoryPage() {
                     </div>
                   </div>
                   {/* Nhãn xanh góc dưới báo tập đang xem */}
-                  <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-md px-2 py-1 rounded text-[10px] font-bold text-cyan-400 border border-white/10 shadow-lg">
+                  <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-md px-2 py-1 rounded text-[10px] font-bold border border-white/10 shadow-lg" style={{color:'#87F5F5'}}>
                     Đang xem: {movie.episodeName}
                   </div>
                 </div>
-                <h3 className="text-xs md:text-sm font-bold text-white/90 group-hover:text-cyan-400 transition-colors line-clamp-2 leading-snug">
+                <h3 className="text-xs font-semibold text-white/90 group-hover:text-white transition-colors line-clamp-2 leading-snug">
                   {movie.name}
                 </h3>
               </Link>

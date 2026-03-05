@@ -33,6 +33,7 @@ const COUNTRIES = [
 
 export default function Navbar() {
   const { data: session } = useSession();
+  const [userAvatar, setUserAvatar] = useState<string>('');
 
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -45,6 +46,22 @@ export default function Navbar() {
   useEffect(() => {
     document.documentElement.classList.add('dark');
   }, []);
+
+  // Fetch avatar khi user đăng nhập
+  useEffect(() => {
+    let cancelled = false;
+    const email = session?.user?.email;
+    const fetchAvatar = async () => {
+      if (!email) { if (!cancelled) setUserAvatar(''); return; }
+      try {
+        const r = await fetch(`/api/profile?email=${email}`);
+        const d = await r.json();
+        if (!cancelled) setUserAvatar(d.avatar || '');
+      } catch { if (!cancelled) setUserAvatar(''); }
+    };
+    fetchAvatar();
+    return () => { cancelled = true; };
+  }, [session?.user?.email]);
 
   // Đóng mobile menu khi resize lên desktop
   useEffect(() => {
@@ -218,8 +235,12 @@ export default function Navbar() {
           {session ? (
             <div className="relative group cursor-pointer pointer-events-auto">
               {/* Avatar */}
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-lg hover:ring-2 hover:ring-cyan-500/50 transition-all">
-                {session.user?.name?.charAt(0).toUpperCase() || 'U'}
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shadow-lg hover:ring-2 hover:ring-[#F042FF]/50 transition-all overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
+                {userAvatar ? (
+                  <Image src={userAvatar} alt="avatar" width={32} height={32} className="w-full h-full object-cover" />
+                ) : (
+                  session.user?.name?.charAt(0).toUpperCase() || 'U'
+                )}
               </div>
               
               {/* Menu Đăng xuất (Có chứa Lịch sử và Tài khoản) */}
@@ -255,7 +276,7 @@ export default function Navbar() {
             </div>
           ) : (
             /* Nút hình người khi CHƯA đăng nhập */
-            <Link href="/dang-nhap" className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#D9251D] to-orange-500 flex items-center justify-center text-white cursor-pointer hover:ring-2 hover:ring-red-500/50 transition-all shadow-lg pointer-events-auto">
+            <Link href="/dang-nhap" className="w-8 h-8 rounded-full flex items-center justify-center text-white cursor-pointer hover:ring-2 hover:ring-[#F042FF]/50 transition-all shadow-lg pointer-events-auto" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
               <User className="w-4 h-4" />
             </Link>
           )}

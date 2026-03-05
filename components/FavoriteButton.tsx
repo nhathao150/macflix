@@ -71,9 +71,10 @@ export default function FavoriteButton({ movieData }: FavoriteButtonProps) {
       <Heart 
         className={`w-6 h-6 transition-all duration-300 ${
           isFavorited 
-          ? 'text-red-500 fill-red-500 drop-shadow-[0_0_12px_rgba(239,68,68,0.8)] scale-110' 
+          ? 'scale-110' 
           : 'text-white/70 group-hover/fav:text-white'
-        }`} 
+        }`}
+        style={isFavorited ? {color:'#F042FF', fill:'#F042FF', filter:'drop-shadow(0 0 12px rgba(240,66,255,0.8))'} : {}} 
       />
     </button>
   );

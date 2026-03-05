@@ -1,6 +1,7 @@
 {
   "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
   "/api/favorites/route": "app/api/favorites/route.js",
+  "/api/profile/route": "app/api/profile/route.js",
   "/api/history/route": "app/api/history/route.js",
   "/page": "app/page.js",
   "/phim/[slug]/page": "app/phim/[slug]/page.js"
