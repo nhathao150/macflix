@@ -357,7 +357,7 @@ export default function MovieDetailPage() {
         if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
         controlsTimeoutRef.current = setTimeout(() => setIsControlsVisible(false), 3000);
       } else {
-        togglePlay();
+        setIsControlsVisible(false);
       }
       lastTapRef.current = now;
     }
@@ -552,6 +552,11 @@ export default function MovieDetailPage() {
                     onLoadedMetadata={handleLoadedMetadata}
                     onPlay={() => setIsPlaying(true)}
                     onPause={() => { setIsPlaying(false); setIsControlsVisible(true); }}
+                    onEnded={() => {
+                      if (currentEpisodeIndex < episodesList.length - 1) {
+                         setCurrentEpisodeIndex(prev => prev + 1);
+                      }
+                    }}
                     autoPlay
                     playsInline
                   />

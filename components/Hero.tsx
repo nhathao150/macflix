@@ -89,13 +89,13 @@ export default function Hero({ movies, onPlayClick }: HeroProps) {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => onPlayClick(currentMovie)}
-            className="flex items-center justify-center gap-2 bg-white text-black px-8 py-3.5 rounded-full font-bold hover:bg-white/80 transition-all hover:scale-105"
+            className="flex items-center justify-center gap-2 bg-white text-black px-8 py-3.5 rounded-full font-bold hover:bg-white/80 transition-all hover:scale-105 active:scale-95"
           >
             <Play className="w-5 h-5 fill-current" />
             <span className="text-base md:text-lg">Phát ngay</span>
           </button>
           
-          <button className="flex items-center justify-center w-12 h-12 bg-white/10 text-white backdrop-blur-md border border-white/20 rounded-full hover:bg-white/20 transition-all hover:scale-105">
+          <button className="flex items-center justify-center w-12 h-12 bg-white/10 text-white backdrop-blur-md border border-white/20 rounded-full hover:bg-white/20 transition-all hover:scale-105 active:scale-95">
             <Plus className="w-6 h-6" />
           </button>
         </div>
@@ -104,13 +104,13 @@ export default function Hero({ movies, onPlayClick }: HeroProps) {
       {/* NÚT ĐIỀU HƯỚNG MŨI TÊN */}
       <button 
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 opacity-0 group-hover:opacity-100 transition-opacity p-2 text-white/50 hover:text-white"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 opacity-0 group-hover:opacity-100 transition-all active:scale-90 p-2 text-white/50 hover:text-white"
       >
         <ChevronLeft className="w-12 h-12 drop-shadow-xl" />
       </button>
       <button 
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 opacity-0 group-hover:opacity-100 transition-opacity p-2 text-white/50 hover:text-white"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 opacity-0 group-hover:opacity-100 transition-all active:scale-90 p-2 text-white/50 hover:text-white"
       >
         <ChevronRight className="w-12 h-12 drop-shadow-xl" />
       </button>

@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@custom-variant dark (&:where(.dark, .dark *));
+
 
 /* ================================================
    TYPOGRAPHY BASE — Chuẩn SEO
@@ -21,6 +21,22 @@
     line-height: 1.625;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom Scrollbar for entire website */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #010030;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #334155;
   }
 
   /* Heading Scale — tỉ lệ Major Third (×1.25) */

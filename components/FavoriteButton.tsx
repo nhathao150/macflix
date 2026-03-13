@@ -65,7 +65,7 @@ export default function FavoriteButton({ movieData }: FavoriteButtonProps) {
   return (
     <button
       onClick={handleToggle}
-      className="absolute top-4 right-4 z-50 w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/70 hover:scale-110 transition-all group/fav shadow-xl"
+      className="absolute top-4 right-4 z-50 w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/70 hover:scale-110 active:scale-95 transition-all group/fav shadow-xl"
       title={isFavorited ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
     >
       <Heart 

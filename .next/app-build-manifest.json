@@ -6,55 +6,35 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/ca-nhan/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/ca-nhan/page.js"
+      "static/chunks/app/page.js"
     ],
     "/api/auth/[...nextauth]/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/auth/[...nextauth]/route.js"
     ],
-    "/dang-nhap/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/dang-nhap/page.js"
-    ],
-    "/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
-    ],
     "/api/profile/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/profile/route.js"
-    ],
-    "/phim/loading": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/phim/loading.js"
-    ],
-    "/phim/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/phim/page.js"
-    ],
-    "/yeu-thich/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/yeu-thich/page.js"
     ],
     "/api/favorites/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/favorites/route.js"
     ],
-    "/lich-su/page": [
+    "/phim/loading": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/lich-su/page.js"
+      "static/chunks/app/phim/loading.js"
+    ],
+    "/phim/[slug]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/phim/[slug]/page.js"
     ],
     "/api/history/route": [
       "static/chunks/webpack.js",
@@ -66,15 +46,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/the-loai/[slug]/page.js"
     ],
-    "/phim/[slug]/page": [
+    "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/phim/[slug]/page.js"
-    ],
-    "/quoc-gia/[slug]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/quoc-gia/[slug]/page.js"
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

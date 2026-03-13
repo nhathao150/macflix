@@ -16,7 +16,7 @@ export default function MovieCard({ movie, isTrending }: MovieCardProps) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
-    <div className={`relative group cursor-pointer aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/10 shadow-lg ${
+    <div className={`relative group cursor-pointer aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/10 shadow-lg hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] active:scale-95 transition-all duration-300 ${
       isTrending ? 'w-[280px] md:w-[400px]' : 'w-[240px] md:w-[320px]'
     }`}>
       {/* Shimmer skeleton khi ảnh chưa load */}
