@@ -545,7 +545,7 @@ export default function MovieDetailPage() {
                 <>
                   <video 
                     ref={videoRef} 
-                    className="w-full h-full object-contain bg-black outline-none cursor-pointer" 
+                    className={`w-full h-full object-contain bg-black outline-none ${!isPlaying || isControlsVisible ? 'cursor-pointer' : 'cursor-none'}`}
                     poster={bannerUrl} 
                     onClick={(e) => { e.stopPropagation(); handleVideoInteraction(e); }}
                     onTimeUpdate={handleTimeUpdate}
