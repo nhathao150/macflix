@@ -263,7 +263,12 @@ export default function MovieDetailPage() {
       // iPad, Mac, Windows, Android -> Let hls.js handle it for maximum stability
       // Since iPad supports MSE (MediaSource Extensions) on iPadOS 13+, hls.js works beautifully.
       const hls = new Hls({
-        startLevel: -1, capLevelToPlayerSize: true, maxBufferLength: 60, maxMaxBufferLength: 600, maxBufferSize: 60 * 1000 * 1000, abrEwmaDefaultEstimate: 500000, 
+        startLevel: -1, 
+        capLevelToPlayerSize: true, 
+        maxBufferLength: 15, // Giảm từ 60 xuống 15 giây
+        maxMaxBufferLength: 30, // Giảm từ 600 xuống 30 giây
+        maxBufferSize: 15 * 1000 * 1000, // Giảm buffer size tối đa xuống 15MB
+        abrEwmaDefaultEstimate: 500000, 
       });
       hlsRef.current = hls; 
       

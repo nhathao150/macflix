@@ -1,11 +1,9 @@
 {
-  "/api/favorites/route": "app/api/favorites/route.js",
-  "/api/profile/route": "app/api/profile/route.js",
-  "/api/history/route": "app/api/history/route.js",
   "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/ca-nhan/page": "app/ca-nhan/page.js",
-  "/lich-su/page": "app/lich-su/page.js",
-  "/page": "app/page.js",
+  "/api/profile/route": "app/api/profile/route.js",
+  "/api/favorites/route": "app/api/favorites/route.js",
+  "/api/history/route": "app/api/history/route.js",
+  "/phim/[slug]/page": "app/phim/[slug]/page.js",
   "/the-loai/[slug]/page": "app/the-loai/[slug]/page.js",
-  "/phim/[slug]/page": "app/phim/[slug]/page.js"
+  "/page": "app/page.js"
 }
