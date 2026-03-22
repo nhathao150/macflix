@@ -167,6 +167,7 @@ export default function MovieDetailPage() {
         episodeName: currentEpName,
         episodeIndex: currentEpisodeIndex,
         serverIndex: activeServerIndex,
+        imageSrc: bannerUrl,
       };
 
       try {

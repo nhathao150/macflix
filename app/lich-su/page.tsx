@@ -24,7 +24,24 @@ export default function HistoryPage() {
           const res = await fetch(`/api/history?email=${session.user.email}`);
           const data = await res.json();
           if (res.ok) {
-            setHistory(data.history);
+            const historyData = data.history;
+            const updatedHistory = await Promise.all(historyData.map(async (item: any) => {
+              let imgSrc = item.imageSrc || '/placeholder-image.jpg';
+              if (imgSrc === '/placeholder-image.jpg') {
+                try {
+                  const apiRes = await fetch(`https://phimapi.com/phim/${item.slug}`);
+                  const detail = await apiRes.json();
+                  if (detail && detail.status && detail.movie) {
+                    const imgUrl = detail.movie.thumb_url || detail.movie.poster_url;
+                    imgSrc = imgUrl.startsWith('http') ? imgUrl : `https://phimimg.com/${imgUrl}`;
+                  }
+                } catch (e) {
+                  // ignore
+                }
+              }
+              return { ...item, imageSrc: imgSrc };
+            }));
+            setHistory(updatedHistory);
           }
         } catch (error) {
           console.error("Lỗi tải lịch sử:", error);

@@ -42,13 +42,27 @@ export default function HomeContent({
             new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
           ).slice(0, 10);
           
-          const historyMovies: Movie[] = sortedHistory.map((item: any) => {
-            // Cố gắng tìm ảnh hd từ database, nếu không móc tạm từ API
+          // Cố gắng tìm ảnh hd từ database, hoặc từ API
+          const historyMovies: Movie[] = await Promise.all(sortedHistory.map(async (item: any) => {
             let imgSrc = '/placeholder-image.jpg';
             // Logic tìm ảnh từ mảng phimMoi trước (để lấy cache)
             const matchedMovie = [...phimMoi, ...chieuRap, ...phimBo, ...phimLe, ...hoatHinh].find(m => m.slug === item.slug);
             if (matchedMovie) {
                imgSrc = matchedMovie.imageSrc;
+            } else if (item.imageSrc) {
+               imgSrc = item.imageSrc;
+            } else {
+               // Lấy từ API nếu cũ quá không có ảnh
+               try {
+                 const res = await fetch(`https://phimapi.com/phim/${item.slug}`);
+                 const detail = await res.json();
+                 if (detail && detail.status && detail.movie) {
+                   const imgUrl = detail.movie.thumb_url || detail.movie.poster_url;
+                   imgSrc = imgUrl.startsWith('http') ? imgUrl : `https://phimimg.com/${imgUrl}`;
+                 }
+               } catch (e) {
+                 console.error("Lỗi lấy ảnh tạm", e);
+               }
             }
             return {
               id: item._id || item.slug,
@@ -56,7 +70,7 @@ export default function HomeContent({
               slug: item.slug,
               imageSrc: imgSrc
             }
-          });
+          }));
           setContinueWatchingMovies(historyMovies);
         }
       } catch (error) {
@@ -77,7 +91,7 @@ export default function HomeContent({
       <Hero movies={heroMovies} onPlayClick={handleMovieClick} />
       
       {/* Các hàng phim đã được phân loại chuẩn chỉ */}
-      <div className="flex flex-col gap-2 mt-[-40px] relative z-40">
+      <div className="flex flex-col gap-2 mt-4 relative z-40">
         
         {/* Hàng "Tiếp tục xem" (nếu có) */}
         {continueWatchingMovies.length > 0 && (

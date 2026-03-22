@@ -43,7 +43,7 @@ export default function MovieRow({ title, movies, isTrending, onMovieClick, view
   return (
     <div className="w-full relative py-6">
       {viewMoreLink ? (
-        <Link href={viewMoreLink}>
+        <Link href={viewMoreLink} className="inline-block w-fit">
           {titleContent}
         </Link>
       ) : (

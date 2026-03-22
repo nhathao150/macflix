@@ -64,8 +64,8 @@ export default function Hero({ movies, onPlayClick }: HeroProps) {
       </AnimatePresence>
 
       {/* LỚP PHỦ GRADIENT */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#010030] via-[#010030]/20 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#010030]/90 via-[#010030]/50 to-transparent w-full md:w-[70%]" />
+      <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent w-full md:w-[60%] pointer-events-none" />
       
       {/* NỘI DUNG CHÍNH */}
       <div className="absolute bottom-0 left-0 w-full p-6 md:p-16 pb-16 md:pb-24 flex flex-col items-start gap-4 z-20">
