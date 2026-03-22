@@ -2,9 +2,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Hero from './Hero';
 import MovieRow from './MovieRow';
-import MovieModal from './MovieModal';
+const MovieModal = dynamic(() => import('./MovieModal'), { ssr: false });
 import { Movie } from '@/types';
 import { useSession } from 'next-auth/react';
 
