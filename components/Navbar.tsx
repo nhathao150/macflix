@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-// Import thêm icon History và Settings
+import { useRouter } from 'next/navigation';
 import { Search, Bell, User, ChevronDown, Menu, LogOut, History, Settings, Heart } from 'lucide-react';
 import { searchMovies } from '@/lib/api';
-import { useSession, signOut } from 'next-auth/react'; 
+import { useSession, signOut } from 'next-auth/react';
 
 const GENRES = [
   { name: 'Hành Động', slug: 'hanh-dong' }, { name: 'Tình Cảm', slug: 'tinh-cam' }, { name: 'Hài Hước', slug: 'hai-huoc' },
@@ -33,6 +33,7 @@ const COUNTRIES = [
 
 export default function Navbar() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [userAvatar, setUserAvatar] = useState<string>('');
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -101,14 +102,46 @@ export default function Navbar() {
     setOpenDropdown(null);
   };
 
+  const handleSearchSubmit = () => {
+    if (!searchTerm.trim()) return;
+    setSearchResults([]);
+    router.push(`/tim-kiem?q=${encodeURIComponent(searchTerm.trim())}`);
+    setSearchTerm('');
+  };
+
   return (
     <div ref={navRef} className="fixed top-0 left-0 w-full z-[100] flex justify-center pointer-events-none">
       <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-6xl mt-6 rounded-full px-6 md:px-8 py-3 transition-colors duration-300 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] bg-white/60 dark:bg-black/40 border border-black/10 dark:border-white/20">
         
         {/* LOGO */}
         <div className="flex items-center shrink-0">
-          <Link href="/" className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-wider flex items-center gap-1">
-            <span className="text-gray-900 dark:text-white text-2xl md:text-3xl leading-none"></span> Macflix
+          <Link href="/" className="flex items-center group">
+            <svg
+              viewBox="0 0 160 44"
+              height="36"
+              aria-label="Macflix"
+              xmlns="http://www.w3.org/2000/svg"
+              className="transition-opacity duration-200 group-hover:opacity-80"
+            >
+              <defs>
+                <linearGradient id="macflix-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#d070ff" />
+                  <stop offset="100%" stopColor="#7226FF" />
+                </linearGradient>
+              </defs>
+              <text
+                x="4"
+                y="36"
+                fontFamily="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+                fontWeight="900"
+                fontSize="38"
+                fontStyle="italic"
+                fill="url(#macflix-grad)"
+                letterSpacing="-1"
+              >
+                Macflix
+              </text>
+            </svg>
           </Link>
         </div>
 
@@ -188,35 +221,54 @@ export default function Navbar() {
           
           {/* TÌM KIẾM */}
           <div className="hidden lg:flex relative items-center">
-            <div className="flex items-center gap-2 bg-black/5 dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-full px-4 py-1.5 backdrop-blur-sm transition-all focus-within:bg-white dark:focus-within:bg-[#1a1a1a] focus-within:ring-2 focus-within:ring-cyan-500/50">
-              <Search className="w-4 h-4 text-gray-500 dark:text-white/50" />
-              <input 
-                type="text" placeholder="Tìm kiếm phim..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-transparent border-none outline-none text-xs text-black dark:text-white w-24 focus:w-48 transition-all duration-300 placeholder:text-gray-500 dark:placeholder:text-white/50"
+            <div className="flex items-center gap-2 bg-black/5 dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-full px-4 py-1.5 backdrop-blur-sm transition-all focus-within:bg-white dark:focus-within:bg-[#1a1a1a] focus-within:ring-2 focus-within:ring-[#d070ff]/50">
+              <Search
+                className="w-4 h-4 text-gray-500 dark:text-white/50 cursor-pointer hover:text-[#d070ff] transition-colors"
+                onClick={handleSearchSubmit}
+              />
+              <input
+                type="text"
+                placeholder="Tìm kiếm phim..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
+                className="bg-transparent border-none outline-none text-sm text-black dark:text-white w-36 focus:w-56 transition-all duration-300 placeholder:text-gray-500 dark:placeholder:text-white/50"
               />
             </div>
 
             {searchTerm && (
-              <div className="absolute top-full right-0 mt-4 w-72 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col p-2 z-50 overflow-hidden">
+              <div className="absolute top-full right-0 mt-4 w-80 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col p-2 z-50 overflow-hidden">
                 {isSearching ? (
                    <div className="p-4 flex justify-center items-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900 dark:border-white"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#d070ff]"></div>
                    </div>
                 ) : searchResults.length > 0 ? (
-                  searchResults.map((movie) => (
-                    <Link href={`/phim/${movie.slug}`} key={movie.id} onClick={() => setSearchTerm('')} className="flex items-center gap-3 p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-colors group">
-                      <Image src={movie.imageSrc || '/placeholder-image.jpg'} alt={movie.title} width={40} height={56} className="w-10 h-14 object-cover rounded-md shadow-sm group-hover:scale-105 transition-transform" />
-                      <div className="flex flex-col">
-                        <span className="text-sm font-bold text-gray-800 dark:text-white line-clamp-1">{movie.title}</span>
-                        <span className="text-[10px] text-gray-500 dark:text-white/50 uppercase">Xem chi tiết</span>
-                      </div>
-                    </Link>
-                  ))
+                  <>
+                    {searchResults.map((movie) => (
+                      <Link href={`/phim/${movie.slug}`} key={movie.id} onClick={() => setSearchTerm('')} className="flex items-center gap-3 p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-colors group">
+                        <Image src={movie.imageSrc || '/placeholder-image.jpg'} alt={movie.title} width={40} height={56} className="w-10 h-14 object-cover rounded-md shadow-sm group-hover:scale-105 transition-transform" />
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold text-gray-800 dark:text-white line-clamp-1">{movie.title}</span>
+                          <span className="text-[10px] text-gray-500 dark:text-white/50 uppercase">Xem chi tiết</span>
+                        </div>
+                      </Link>
+                    ))}
+                    {/* Nút xem tất cả */}
+                    <button
+                      onClick={handleSearchSubmit}
+                      className="mt-1 mx-1 mb-1 py-2.5 rounded-xl text-xs font-bold text-white text-center transition-opacity hover:opacity-80 flex items-center justify-center gap-2"
+                      style={{ background: 'linear-gradient(135deg, #d070ff, #7226FF)' }}
+                    >
+                      <Search className="w-3.5 h-3.5" />
+                      Xem tất cả kết quả cho &ldquo;{searchTerm}&rdquo;
+                    </button>
+                  </>
                 ) : (
-                  <div className="p-4 text-center text-xs text-gray-500 dark:text-white/50 font-medium">Không tìm thấy</div>
+                  <div className="p-4 text-center text-xs text-gray-500 dark:text-white/50 font-medium">Không tìm thấy kết quả nào</div>
                 )}
               </div>
             )}
+
           </div>
 
           {/* NÚT TÌM KIẾM MOBILE */}

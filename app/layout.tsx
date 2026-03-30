@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from './Providers';
 import { ModalProvider } from '@/context/ModalContext';
+import Footer from '@/components/Footer';
 
 // Inter với đủ font-weight cần thiết cho hierarchy rõ ràng
 const inter = Inter({
@@ -30,15 +31,23 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.png', type: 'image/png' }, // fallback cho trình duyệt cũ
+    ],
+    apple: '/favicon.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans`} suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans flex flex-col min-h-screen`} suppressHydrationWarning>
         <AuthProvider>
           <ModalProvider>
-            {children}
+            <div className="flex-1">{children}</div>
+            <Footer />
           </ModalProvider>
         </AuthProvider>
       </body>

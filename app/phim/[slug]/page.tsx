@@ -646,7 +646,7 @@ export default function MovieDetailPage() {
                               <div className="flex items-center gap-4 bg-[#1a1a1c]/80 backdrop-blur-xl px-4 py-2 md:px-5 md:py-2.5 rounded-full border border-white/10 shadow-2xl shrink-0">
                                   
                                   {/* Nút Phụ Đề */}
-                                  <div className="relative" onMouseLeave={() => window.innerWidth > 768 && setIsSubMenuOpen(false)}>
+                                  <div className="relative">
                                       {isSubMenuOpen && (
                                           <>
                                               {/* Nền ảo hỗ trợ đóng menu trên điện thoại/iPad khi chạm ra ngoài */}
@@ -666,11 +666,11 @@ export default function MovieDetailPage() {
                                               </div>
                                           </>
                                       )}
-                                      <button onClick={() => setIsSubMenuOpen(!isSubMenuOpen)} onMouseEnter={() => { if (window.innerWidth > 768) { setIsSubMenuOpen(true); setIsSpeedMenuOpen(false); } }} className={`hover:scale-110 transition flex items-center justify-center ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Phụ đề"><Subtitles className="w-4 h-4 md:w-5 md:h-5" /></button>
+                                      <button onClick={() => { setIsSubMenuOpen(!isSubMenuOpen); setIsSpeedMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Phụ đề"><Subtitles className="w-4 h-4 md:w-5 md:h-5" /></button>
                                   </div>
 
                                   {/* Nút Tốc Độ */}
-                                  <div className="relative" onMouseLeave={() => window.innerWidth > 768 && setIsSpeedMenuOpen(false)}>
+                                  <div className="relative">
                                       {isSpeedMenuOpen && (
                                           <>
                                               {/* Nền ảo hỗ trợ đóng menu trên điện thoại/iPad khi chạm ra ngoài */}
@@ -685,7 +685,7 @@ export default function MovieDetailPage() {
                                               </div>
                                           </>
                                       )}
-                                      <button onClick={() => setIsSpeedMenuOpen(!isSpeedMenuOpen)} onMouseEnter={() => { if (window.innerWidth > 768) { setIsSpeedMenuOpen(true); setIsSubMenuOpen(false); } }} className={`hover:scale-110 transition flex items-center justify-center ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Cài đặt tốc độ"><Settings className="w-4 h-4 md:w-5 md:h-5" /></button>
+                                      <button onClick={() => { setIsSpeedMenuOpen(!isSpeedMenuOpen); setIsSubMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Cài đặt tốc độ"><Settings className="w-4 h-4 md:w-5 md:h-5" /></button>
                                   </div>
 
                                   {/* Nút Fullscreen */}

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#cc44ff"/>
+      <stop offset="100%" stop-color="#6600ff"/>
+    </linearGradient>
+  </defs>
+  <text x="50" y="88" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-style="italic" font-size="95" text-anchor="middle" fill="url(#g)">M</text>
+</svg>

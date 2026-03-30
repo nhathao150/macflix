@@ -85,10 +85,10 @@ export async function getMovieDetails(slug: string) {
   }
 }
 
-// 4. Hàm tìm kiếm - KHÔNG CACHE (Vì dữ liệu do user gõ ngẫu nhiên)
+// 4. Hàm tìm kiếm nhanh (dropdown) - KHÔNG CACHE
 export async function searchMovies(keyword: string) {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&limit=5`);
+    const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&limit=6`);
     if (!res.ok) return [];
     const data = await res.json();
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
@@ -96,7 +96,7 @@ export async function searchMovies(keyword: string) {
     return data.data?.items?.map((movie: OphimMovie) => ({
       id: movie._id,
       title: movie.name,
-      imageSrc: movie.thumb_url.startsWith('http') ? movie.thumb_url : `${imageDomain}/${movie.thumb_url}`,
+      imageSrc: movie.thumb_url?.startsWith('http') ? movie.thumb_url : `${imageDomain}/${movie.thumb_url}`,
       slug: movie.slug
     })) || [];
   } catch (error) {
@@ -104,6 +104,35 @@ export async function searchMovies(keyword: string) {
     return [];
   }
 }
+
+// 4b. Hàm tìm kiếm có phân trang (trang kết quả)
+export async function searchMoviesPaginated(keyword: string, page: number = 1, limit: number = 48) {
+  try {
+    const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&limit=${limit}&page=${page}`);
+    if (!res.ok) return { items: [], pagination: null };
+    const data = await res.json();
+    const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
+
+    const items = data.data?.items?.map((movie: OphimMovie) => {
+      const imgUrl = movie.poster_url || movie.thumb_url || '';
+      return {
+        id: movie._id,
+        title: movie.name,
+        imageSrc: imgUrl.startsWith('http') ? imgUrl : `${imageDomain}/${imgUrl}`,
+        slug: movie.slug
+      };
+    }) || [];
+
+    return {
+      items,
+      pagination: data.data?.params?.pagination
+    };
+  } catch (error) {
+    console.error("Lỗi tìm kiếm phân trang:", error);
+    return { items: [], pagination: null };
+  }
+}
+
 
 // 5. Hàm lấy phim theo Thể loại (Trang chủ) - ĐÃ THÊM CACHE
 export async function getMoviesByGenre(slug: string) {
@@ -253,5 +282,41 @@ export async function getNewMoviesPaginated(page: number = 1) {
   } catch (error) {
     console.error(`Lỗi fetch API phim mới phân trang:`, error);
     return { items: [], pagination: null, title: 'Lỗi tải dữ liệu' };
+  }
+}
+
+// 10. Hàm lọc phim theo Quốc Gia + Thể Loại
+export async function getMoviesByCountryAndGenre(
+  countrySlug: string,
+  genreSlug: string,
+  page: number = 1,
+  limit: number = 48
+) {
+  try {
+    const url = `https://phimapi.com/v1/api/quoc-gia/${countrySlug}?limit=${limit}&page=${page}&category=${genreSlug}`;
+    const res = await fetch(url, { next: { revalidate: 3600 } });
+    if (!res.ok) return { items: [], pagination: null, title: '' };
+
+    const data = await res.json();
+    const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
+
+    const items = data.data?.items?.map((movie: OphimMovie) => {
+      const imgUrl = movie.poster_url || movie.thumb_url || '';
+      return {
+        id: movie._id,
+        title: movie.name,
+        imageSrc: imgUrl.startsWith('http') ? imgUrl : `${imageDomain}/${imgUrl}`,
+        slug: movie.slug
+      };
+    }) || [];
+
+    return {
+      items,
+      pagination: data.data?.params?.pagination,
+      title: data.data?.seoOnPage?.titleHead || ''
+    };
+  } catch (error) {
+    console.error(`Lỗi fetch API quốc gia+thể loại:`, error);
+    return { items: [], pagination: null, title: '' };
   }
 }
