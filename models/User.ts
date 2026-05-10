@@ -18,7 +18,7 @@ const userSchema = new Schema(
         timestamp: { type: Date, default: Date.now }
       }
     ],
-    // Mảng 2: Phim yêu thích (MỚI)
+    // Mảng 2: Phim yêu thích
     favorites: [
       {
         slug: String,

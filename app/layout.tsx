@@ -4,6 +4,7 @@ import './globals.css';
 import { AuthProvider } from './Providers';
 import { ModalProvider } from '@/context/ModalContext';
 import Footer from '@/components/Footer';
+import WelcomeWrapper from '@/components/WelcomeWrapper';
 
 // Inter với đủ font-weight cần thiết cho hierarchy rõ ràng
 const inter = Inter({
@@ -46,8 +47,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.variable} font-sans flex flex-col min-h-screen`} suppressHydrationWarning>
         <AuthProvider>
           <ModalProvider>
-            <div className="flex-1">{children}</div>
-            <Footer />
+            <WelcomeWrapper>
+              <div className="flex-1">{children}</div>
+              <Footer />
+            </WelcomeWrapper>
           </ModalProvider>
         </AuthProvider>
       </body>
