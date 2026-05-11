@@ -4,8 +4,8 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Hero from './Hero';
-import MovieRow from './MovieRow';
-const MovieModal = dynamic(() => import('./MovieModal'), { ssr: false });
+import MovieRow from '../movies/MovieRow';
+const MovieModal = dynamic(() => import('../movies/MovieModal'), { ssr: false });
 import { Movie } from '@/types';
 import { useSession } from 'next-auth/react';
 

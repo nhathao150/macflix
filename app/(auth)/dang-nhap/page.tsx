@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, User, ArrowRight, Loader2, Play } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2, Play, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function AuthPage() {
@@ -17,6 +17,7 @@ export default function AuthPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   
   // State xử lý UI
   const [error, setError] = useState('');
@@ -56,10 +57,9 @@ export default function AuthPage() {
         const data = await res.json();
 
         if (res.ok) {
-          setSuccess('Đăng ký thành công! Đang chuyển sang đăng nhập...');
+          setSuccess('Đăng ký thành công! Chuyển hướng để xác thực email...');
           setTimeout(() => {
-            setIsLogin(true); // Tự động chuyển về form đăng nhập
-            setSuccess('');
+            router.push(`/xac-thuc-email?email=${encodeURIComponent(email)}`);
           }, 2000);
         } else {
           setError(data.message || 'Có lỗi xảy ra, vui lòng thử lại.');
@@ -153,14 +153,32 @@ export default function AuthPage() {
               <Lock className="h-5 w-5 text-white/40" />
             </div>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Mật khẩu"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#F042FF]/50 focus:border-[#F042FF]/50 transition-all"
+              className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-11 pr-12 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#F042FF]/50 focus:border-[#F042FF]/50 transition-all"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 pr-4 flex items-center text-white/40 hover:text-white transition-colors focus:outline-none"
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
           </div>
+
+          {/* Quên mật khẩu */}
+          <AnimatePresence>
+            {isLogin && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex justify-end mt-1">
+                <Link href="/quen-mat-khau" className="text-sm text-white/60 hover:text-[#F042FF] transition-colors">
+                  Quên mật khẩu?
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Nút Submit */}
           <button

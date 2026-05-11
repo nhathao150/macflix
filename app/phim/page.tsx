@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/layout/Navbar';
 import Image from 'next/image';
 import { useModal } from '@/context/ModalContext';
 import { getDanhSachPhimPaginated, getNewMoviesPaginated } from '@/lib/api';

@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode } from 'react';
-import MovieModal from '@/components/MovieModal'; // Đường dẫn đến file MovieModal của bạn
+import MovieModal from '@/components/movies/MovieModal'; // Đường dẫn đến file MovieModal của bạn
 import { Movie } from '@/types';
 
 // Định nghĩa kiểu dữ liệu cho Context

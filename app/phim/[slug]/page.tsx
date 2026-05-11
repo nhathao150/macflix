@@ -2,14 +2,14 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/layout/Navbar';
 import { getMovieDetails } from '@/lib/api';
 import Hls from 'hls.js';
 import { ListVideo, CircleAlert, MoreHorizontal, ChevronUp, Mic2, ChevronLeft, ChevronRight, Heart, Play, Pause, Maximize, Minimize, Settings, Subtitles, Volume2, VolumeX, RotateCcw, RotateCw, PictureInPicture, Share } from 'lucide-react'; 
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { MovieDetails } from '@/types';
-import CastCard, { useTmdbActorPhotos } from '@/components/CastCard';
+import CastCard, { useTmdbActorPhotos } from '@/components/movies/CastCard';
 
 const EPISODES_PER_GROUP = 100;
 const INITIAL_VISIBLE_EPISODES = 24; 

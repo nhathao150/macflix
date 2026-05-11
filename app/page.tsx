@@ -1,6 +1,6 @@
 // app/page.tsx
-import Navbar from '@/components/Navbar';
-import HomeContent from '@/components/HomeContent';
+import Navbar from '@/components/layout/Navbar';
+import HomeContent from '@/components/home/HomeContent';
 import { getNewMovies, getMoviesByCategory } from '@/lib/api';
 
 export default async function Home() {

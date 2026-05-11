@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/layout/Navbar';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, Play, Loader2, AlertCircle } from 'lucide-react';

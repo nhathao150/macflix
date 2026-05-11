@@ -3,8 +3,8 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from './Providers';
 import { ModalProvider } from '@/context/ModalContext';
-import Footer from '@/components/Footer';
-import WelcomeWrapper from '@/components/WelcomeWrapper';
+import Footer from '@/components/layout/Footer';
+import WelcomeWrapper from '@/components/ui/WelcomeWrapper';
 
 // Inter với đủ font-weight cần thiết cho hierarchy rõ ràng
 const inter = Inter({

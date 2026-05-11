@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/layout/Navbar';
 import Image from 'next/image';
 import Link from 'next/link';
 import {

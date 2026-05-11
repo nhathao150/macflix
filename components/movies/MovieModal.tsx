@@ -7,8 +7,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { getMovieDetails, getMoviesByGenre } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 // 1. IMPORT NÚT TRÁI TIM YÊU THÍCH VÀO ĐÂY
-import FavoriteButton from '@/components/FavoriteButton';
-import CastCard, { usePeoplesData } from '@/components/CastCard';
+import FavoriteButton from '@/components/ui/FavoriteButton';
+import CastCard, { usePeoplesData } from '@/components/movies/CastCard';
 import { Movie, MovieDetails } from '@/types';
 
 interface MovieModalProps {

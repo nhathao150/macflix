@@ -24,6 +24,10 @@ const authOptions = {
           throw new Error("Không tìm thấy tài khoản!");
         }
 
+        if (user.isVerified === false) {
+          throw new Error("Tài khoản chưa được xác thực email!");
+        }
+
         // So sánh mật khẩu mã hóa
         const passwordsMatch = await bcrypt.compare(password, user.password);
         if (!passwordsMatch) {
