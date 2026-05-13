@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Code, User, Github, Globe } from 'lucide-react';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { Code, User, Github, Globe, LucideIcon } from 'lucide-react';
 
-const IconButton = ({ Icon }) => (
+const IconButton = ({ Icon }: { Icon: LucideIcon }) => (
   <motion.div
     className="p-4 rounded-full bg-black/40 border border-purple-500/30 cursor-pointer transition-all duration-300 shadow-[0_0_20px_rgba(168,85,247,0.2)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:border-purple-500/60"
     whileHover={{ scale: 1.1 }}
@@ -14,7 +14,7 @@ const IconButton = ({ Icon }) => (
   </motion.div>
 );
 
-const WelcomeScreen = ({ onLoadingComplete }) => {
+const WelcomeScreen = ({ onLoadingComplete }: { onLoadingComplete?: () => void }) => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 1 },
     visible: {
       opacity: 1,
@@ -37,7 +37,7 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
@@ -51,7 +51,7 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
     }
   };
 
-  const textContainerVariants = {
+  const textContainerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -59,7 +59,7 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
     }
   };
 
-  const letterVariants = {
+  const letterVariants: Variants = {
     hidden: { opacity: 0, y: 40, scale: 0.8 },
     visible: {
       opacity: 1,
