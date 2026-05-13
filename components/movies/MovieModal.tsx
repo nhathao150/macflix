@@ -160,7 +160,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
               <div className="flex-1 overflow-y-auto scrollbar-hide pb-20">
                 
                 {/* --- 1. MEDIA PLAYER (Banner/Trailer) --- */}
-                <div className="relative w-full aspect-video bg-black">
+                <div className={`relative w-full aspect-video bg-black transition-all duration-300 ${mediaMode === 'trailer' ? 'mt-14 md:mt-16' : ''}`}>
                   {mediaMode === 'banner' && (
                     <div className="relative w-full h-full">
                       {backdropUrl && (
@@ -194,7 +194,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
 
                   {mediaMode === 'trailer' && trailerId && (
                     <div className="w-full h-full relative bg-black">
-                      <button onClick={() => setMediaMode('banner')} className="absolute top-4 left-4 z-10 bg-black/50 hover:bg-black/70 text-white px-4 py-2 rounded-full flex items-center gap-2 text-sm backdrop-blur-md border border-white/10 transition-colors">
+                      <button onClick={() => setMediaMode('banner')} className="absolute -top-12 md:-top-14 left-4 z-10 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full flex items-center gap-2 text-sm backdrop-blur-md border border-white/10 transition-colors">
                         <ArrowLeft className="w-4 h-4" /> Đóng Trailer
                       </button>
                       <iframe src={`https://www.youtube.com/embed/${trailerId}?autoplay=1&rel=0`} title="Trailer" allowFullScreen className="w-full h-full"></iframe>
@@ -202,7 +202,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                   )}
                 </div>
 
-                <div className="px-6 md:px-12 -mt-10 md:-mt-16 relative z-10 space-y-12">
+                <div className={`px-6 md:px-12 relative z-10 space-y-12 ${mediaMode === 'banner' ? '-mt-10 md:-mt-16' : 'mt-4 md:mt-6'}`}>
                     
                     {/* Tiêu đề Phim */}
                     <div>
