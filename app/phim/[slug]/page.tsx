@@ -221,13 +221,17 @@ export default function MovieDetailPage() {
     }
   };
 
-  // 6. CHUYỂN TẬP TỰ ĐỘNG
+  // 6. CHUYỂN NHÓM TẬP TỰ ĐỘNG KHI CHUYỂN TẬP (chỉ chạy khi episode thay đổi, không ghi đè click tab)
+  const prevEpisodeIndexRef = useRef(currentEpisodeIndex);
   useEffect(() => {
-    const correctGroupIndex = Math.floor(currentEpisodeIndex / EPISODES_PER_GROUP);
-    if (correctGroupIndex !== activeGroupIndex && !isNaN(correctGroupIndex)) {
-      setActiveGroupIndex(correctGroupIndex);
+    if (prevEpisodeIndexRef.current !== currentEpisodeIndex) {
+      prevEpisodeIndexRef.current = currentEpisodeIndex;
+      const correctGroupIndex = Math.floor(currentEpisodeIndex / EPISODES_PER_GROUP);
+      if (!isNaN(correctGroupIndex)) {
+        setActiveGroupIndex(correctGroupIndex);
+      }
     }
-  }, [currentEpisodeIndex, activeGroupIndex]);
+  }, [currentEpisodeIndex]);
 
   // 7. VIDEO PLAYER CHỐNG LAG & BẮT PHỤ ĐỀ
   useEffect(() => {
@@ -483,6 +487,70 @@ export default function MovieDetailPage() {
     }
   };
   // ==============================================
+
+  // === KEYBOARD SHORTCUTS ===
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Bỏ qua nếu user đang gõ vào input/textarea
+      const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+      switch (e.key) {
+        case 'f':
+        case 'F':
+          e.preventDefault();
+          toggleFullScreen();
+          break;
+
+        case ' ':
+        case 'Spacebar':
+          e.preventDefault();
+          togglePlay();
+          break;
+
+        case 'ArrowLeft':
+          e.preventDefault();
+          skipTime(-10);
+          setSeekFeedback('backward');
+          setTimeout(() => setSeekFeedback(null), 500);
+          break;
+
+        case 'ArrowRight':
+          e.preventDefault();
+          skipTime(10);
+          setSeekFeedback('forward');
+          setTimeout(() => setSeekFeedback(null), 500);
+          break;
+
+        case 'ArrowUp':
+          e.preventDefault();
+          if (videoRef.current) {
+            const newVol = Math.min(1, videoRef.current.volume + 0.1);
+            videoRef.current.volume = newVol;
+            videoRef.current.muted = false;
+            setVolume(newVol);
+            setIsMuted(false);
+          }
+          break;
+
+        case 'ArrowDown':
+          e.preventDefault();
+          if (videoRef.current) {
+            const newVol = Math.max(0, videoRef.current.volume - 0.1);
+            videoRef.current.volume = newVol;
+            videoRef.current.muted = newVol === 0;
+            setVolume(newVol);
+            setIsMuted(newVol === 0);
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // ===========================
 
   const scrollTabs = (direction: 'left' | 'right') => {
     if (tabContainerRef.current) {
@@ -796,21 +864,43 @@ export default function MovieDetailPage() {
                                 <ListVideo className="w-5 h-5 text-cyan-400" /> Chọn tập phim
                             </div>
                             {episodeGroups.length > 1 && (
-                                <div className="relative group/tabs flex-1 overflow-hidden flex items-center w-full md:max-w-[75%] lg:max-w-[80%]">
-                                    <button onClick={() => scrollTabs('left')} className="absolute left-0 z-10 w-8 h-8 items-center justify-center bg-[#141414]/90 hover:bg-[#2a2a2a] backdrop-blur-md border border-white/10 rounded-full transition-all opacity-0 group-hover/tabs:opacity-100 hidden md:flex"><ChevronLeft className="w-4 h-4 text-white" /></button>
-                                    <div ref={tabContainerRef} className="flex gap-2 overflow-x-auto scrollbar-hide touch-pan-x bg-black/30 p-1 rounded-xl w-full px-2 md:px-8 snap-x snap-mandatory">
+                                <div className="relative w-full md:max-w-[75%] lg:max-w-[80%] group/tabs">
+                                    {/* Nút cuộn trái */}
+                                    <button
+                                        type="button"
+                                        onClick={() => scrollTabs('left')}
+                                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-[#141414]/90 hover:bg-white/20 backdrop-blur-md border border-white/10 rounded-full transition-all opacity-0 group-hover/tabs:opacity-100 hidden md:flex"
+                                    ><ChevronLeft className="w-4 h-4 text-white" /></button>
+
+                                    {/* Container cuộn ngang */}
+                                    <div
+                                        ref={tabContainerRef}
+                                        className="flex gap-2 overflow-x-auto scrollbar-hide py-1 px-0 md:px-8"
+                                    >
                                         {episodeGroups.map((group, idx) => {
                                             const firstEp = group[0]?.name?.replace(/Tập\s*/i, '').trim();
                                             const lastEp = group[group.length - 1]?.name?.replace(/Tập\s*/i, '').trim();
                                             return (
                                                 <button
                                                     key={idx}
-                                                    onClick={() => { setActiveGroupIndex(idx); setIsExpanded(false); }}
-                                                    className={`shrink-0 px-4 py-2 text-sm font-bold rounded-lg transition-all snap-start snap-always ${activeGroupIndex === idx ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.5)]' : 'bg-transparent text-white/50 hover:bg-white/10 hover:text-white'}`}>Tập {firstEp} - {lastEp}</button>
-                                            )
+                                                    type="button"
+                                                    onClick={(e) => { e.stopPropagation(); setActiveGroupIndex(idx); setIsExpanded(false); }}
+                                                    className={`shrink-0 px-4 py-2 text-sm font-bold rounded-lg transition-all border whitespace-nowrap cursor-pointer ${
+                                                        activeGroupIndex === idx
+                                                            ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.5)]'
+                                                            : 'bg-black/40 text-white/50 border-white/10 hover:bg-white/10 hover:text-white'
+                                                    }`}
+                                                >Tập {firstEp} - {lastEp}</button>
+                                            );
                                         })}
                                     </div>
-                                    <button onClick={() => scrollTabs('right')} className="absolute right-0 z-10 w-8 h-8 items-center justify-center bg-[#141414]/90 hover:bg-[#2a2a2a] backdrop-blur-md border border-white/10 rounded-full transition-all opacity-0 group-hover/tabs:opacity-100 hidden md:flex"><ChevronRight className="w-4 h-4 text-white" /></button>
+
+                                    {/* Nút cuộn phải */}
+                                    <button
+                                        type="button"
+                                        onClick={() => scrollTabs('right')}
+                                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-[#141414]/90 hover:bg-white/20 backdrop-blur-md border border-white/10 rounded-full transition-all opacity-0 group-hover/tabs:opacity-100 hidden md:flex"
+                                    ><ChevronRight className="w-4 h-4 text-white" /></button>
                                 </div>
                             )}
                         </div>
