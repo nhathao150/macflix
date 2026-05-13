@@ -8,7 +8,7 @@ const userSchema = new Schema(
     avatar: { type: String, default: '' },
     isVerified: { type: Boolean, default: false },
     verificationToken: { type: String },
-    verificationTokenExpires: { type: Date },
+    verificationTokenExpires: { type: Date, expires: 0 },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
     // Mảng 1: Lịch sử xem phim
