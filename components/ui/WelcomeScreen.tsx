@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Code, User, Github, Globe, LucideIcon } from 'lucide-react';
 
-const IconButton = ({ Icon }: { Icon: LucideIcon }) => (
+const IconButton = ({ Icon }: { Icon: React.ElementType }) => (
   <motion.div
     className="p-4 rounded-full bg-black/40 border border-purple-500/30 cursor-pointer transition-all duration-300 shadow-[0_0_20px_rgba(168,85,247,0.2)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:border-purple-500/60"
     whileHover={{ scale: 1.1 }}
