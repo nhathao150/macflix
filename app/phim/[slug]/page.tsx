@@ -1,14 +1,15 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
-import { getMovieDetails } from '@/lib/api';
+import { getMovieDetails, getMoviesByGenre, searchMoviesPaginated } from '@/lib/api';
 import Hls from 'hls.js';
-import { ListVideo, CircleAlert, MoreHorizontal, ChevronUp, Mic2, ChevronLeft, ChevronRight, Heart, Play, Pause, Maximize, Minimize, Settings, Subtitles, Volume2, VolumeX, RotateCcw, RotateCw, PictureInPicture, Share } from 'lucide-react'; 
+import { ListVideo, CircleAlert, MoreHorizontal, ChevronUp, Mic2, ChevronLeft, ChevronRight, Heart, Play, Pause, Maximize, Minimize, Settings, Subtitles, Volume2, VolumeX, RotateCcw, RotateCw, PictureInPicture, Share, Film } from 'lucide-react'; 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { MovieDetails } from '@/types';
+import { MovieDetails, Movie } from '@/types';
 import CastCard, { useTmdbActorPhotos } from '@/components/movies/CastCard';
 
 const EPISODES_PER_GROUP = 100;
@@ -21,6 +22,8 @@ export default function MovieDetailPage() {
 
   const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [relatedMovies, setRelatedMovies] = useState<Movie[]>([]);
+  const router = useRouter();
 
   // Lấy ảnh diễn viên từ ophim peoples API
   const actorPhotoMap = useTmdbActorPhotos(slug);
@@ -232,6 +235,89 @@ export default function MovieDetailPage() {
       }
     }
   }, [currentEpisodeIndex]);
+
+  // FETCH PHIM LIÊN QUAN - THÔNG MINH HƠN
+  useEffect(() => {
+    if (!movieDetails?.movie) return;
+
+    const fetchSmartRelated = async () => {
+      const movieName = movieDetails.movie.name || '';
+      const originName = movieDetails.movie.origin_name || '';
+
+      // === BƯỚC 1: Trích xuất "tên gốc của series" ===
+      // Xoá các suffix/infix số phần, season, movie, colon-subtitle, v.v.
+      // VD: "One Piece: The Movie"  → "One Piece"
+      //     "Đảo Hải Tặc 1: Đảo Châu Báu" → "Đảo Hải Tặc"
+      //     "ReZero Season 4"        → "ReZero"
+      //     "Naruto Shippuden"       → "Naruto Shippuden" (giữ nguyên)
+      const stripSeriesNumber = (name: string) =>
+        name
+          // bỏ ": bất cứ thứ gì" (subtitle sau dấu hai chấm)
+          .replace(/\s*:.*$/, '')
+          // bỏ suffix có từ khoá số phần
+          .replace(/\s*([-–]?\s*(phần|season|part|movie|film|tập|ep|episode|mùa)\s*\d+)$/gi, '')
+          // bỏ số đứng cuối tên (VD: "Đảo Hải Tặc 1")
+          .replace(/\s+\d+$/, '')
+          .trim();
+
+      const seriesKeywordEn = stripSeriesNumber(originName);
+      const seriesKeywordVi = stripSeriesNumber(movieName);
+      const TOTAL_SLOTS = 12;
+
+      // === BƯỚC 2: Search song song keyword EN và VI, merge + dedup ===
+      let seriesMovies: Movie[] = [];
+      try {
+        const searches = await Promise.allSettled([
+          seriesKeywordEn.length >= 2
+            ? searchMoviesPaginated(seriesKeywordEn, 1, 20)
+            : Promise.resolve({ items: [] }),
+          // Chỉ search VI nếu khác EN để tránh duplicate request
+          seriesKeywordVi.length >= 2 && seriesKeywordVi.toLowerCase() !== seriesKeywordEn.toLowerCase()
+            ? searchMoviesPaginated(seriesKeywordVi, 1, 20)
+            : Promise.resolve({ items: [] }),
+        ]);
+
+        const seen = new Set<string>([slug]); // loại phim hiện tại
+        for (const result of searches) {
+          if (result.status === 'fulfilled') {
+            for (const m of result.value.items as Movie[]) {
+              if (!seen.has(m.slug)) {
+                seen.add(m.slug);
+                seriesMovies.push(m);
+              }
+            }
+          }
+        }
+        seriesMovies = seriesMovies.slice(0, TOTAL_SLOTS);
+      } catch {
+        seriesMovies = [];
+      }
+
+      // === BƯỚC 3: Nếu chưa đủ slot → lấp đầy bằng phim cùng thể loại ===
+      let combined = [...seriesMovies];
+      if (combined.length < TOTAL_SLOTS) {
+        const categorySlug = movieDetails.movie.category[0]?.slug;
+        if (categorySlug) {
+          try {
+            const genreMovies = await getMoviesByGenre(categorySlug);
+            const existingSlugs = new Set(combined.map((m) => m.slug));
+            existingSlugs.add(slug);
+            const extra = (genreMovies as Movie[])
+              .filter((m) => !existingSlugs.has(m.slug))
+              .slice(0, TOTAL_SLOTS - combined.length);
+            combined = [...combined, ...extra];
+          } catch {
+            // ignore
+          }
+        }
+      }
+
+      setRelatedMovies(combined.slice(0, TOTAL_SLOTS));
+    };
+
+    fetchSmartRelated();
+  }, [movieDetails, slug]);
+
 
   // 7. VIDEO PLAYER CHỐNG LAG & BẮT PHỤ ĐỀ
   useEffect(() => {
@@ -944,6 +1030,42 @@ export default function MovieDetailPage() {
                     ))}
                 </div>
             </div>
+        )}
+
+        {/* PHIM LIÊN QUAN */}
+        {relatedMovies.length > 0 && (
+          <div className="pt-6 border-t border-white/10">
+            <div className="flex items-center gap-2 mb-5">
+              <Film className="w-5 h-5 text-cyan-400" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-white/80">Phim Liên Quan</h3>
+            </div>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-6 gap-3 md:gap-4">
+              {relatedMovies.map((movie) => (
+                <div
+                  key={movie.slug}
+                  onClick={() => router.push(`/phim/${movie.slug}`)}
+                  className="group flex flex-col cursor-pointer"
+                >
+                  <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden mb-2 border border-white/5 bg-white/5">
+                    <Image
+                      src={movie.imageSrc}
+                      alt={movie.title}
+                      fill
+                      sizes="(max-width: 640px) 33vw, 17vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                      <div className="w-10 h-10 rounded-full bg-white/20 border border-white/40 flex items-center justify-center">
+                        <Play className="w-4 h-4 text-white fill-white ml-0.5" />
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs font-semibold text-white/80 group-hover:text-white transition-colors line-clamp-2 leading-snug">{movie.title}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </main>

@@ -96,6 +96,7 @@ export async function searchMovies(keyword: string) {
     return data.data?.items?.map((movie: OphimMovie) => ({
       id: movie._id,
       title: movie.name,
+      originName: movie.origin_name,
       imageSrc: movie.thumb_url?.startsWith('http') ? movie.thumb_url : `${imageDomain}/${movie.thumb_url}`,
       slug: movie.slug
     })) || [];
@@ -118,6 +119,7 @@ export async function searchMoviesPaginated(keyword: string, page: number = 1, l
       return {
         id: movie._id,
         title: movie.name,
+        originName: movie.origin_name,
         imageSrc: imgUrl.startsWith('http') ? imgUrl : `${imageDomain}/${imgUrl}`,
         slug: movie.slug
       };
@@ -134,20 +136,25 @@ export async function searchMoviesPaginated(keyword: string, page: number = 1, l
 }
 
 
-// 5. Hàm lấy phim theo Thể loại (Trang chủ) - ĐÃ THÊM CACHE
+// 5. Hàm lấy phim theo Thể loại (Trang chủ)
 export async function getMoviesByGenre(slug: string) {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/the-loai/${slug}?limit=10`, { next: { revalidate: 3600 } });
+    const res = await fetch(`https://phimapi.com/v1/api/the-loai/${slug}?limit=24`);
     if (!res.ok) return [];
     const data = await res.json();
+    if (!data?.data?.items) return [];
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
     
-    return data.data?.items?.map((movie: OphimMovie) => ({
-      id: movie._id,
-      title: movie.name,
-      imageSrc: movie.thumb_url.startsWith('http') ? movie.thumb_url : `${imageDomain}/${movie.thumb_url}`,
-      slug: movie.slug
-    })) || [];
+    return data.data.items.map((movie: OphimMovie) => {
+      const imgUrl = movie.poster_url || movie.thumb_url || '';
+      return {
+        id: movie._id,
+        title: movie.name,
+        originName: movie.origin_name,
+        imageSrc: imgUrl.startsWith('http') ? imgUrl : `${imageDomain}/${imgUrl}`,
+        slug: movie.slug
+      };
+    });
   } catch (error) {
     console.error(`Lỗi fetch API thể loại ${slug}:`, error);
     return [];

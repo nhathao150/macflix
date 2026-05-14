@@ -1,14 +1,16 @@
 export interface Movie {
   id: string;
   title: string;
+  originName?: string;
   imageSrc: string;
   slug: string;
-  category?: { id: string; name: string }[];
+  category?: { id: string; name: string; slug: string }[];
 }
 
 export interface OphimMovie {
   _id: string;
   name: string;
+  origin_name?: string;
   slug: string;
   thumb_url: string;
   poster_url?: string;
@@ -43,7 +45,7 @@ export interface MovieDetails {
     year: number;
     actor: string[];
     director: string[];
-    category: { id: string; name: string }[];
+    category: { id: string; name: string; slug: string }[];
     country: { id: string; name: string }[];
     trailer_url: string;
     slug: string;

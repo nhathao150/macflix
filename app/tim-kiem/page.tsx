@@ -122,6 +122,9 @@ function SearchContent() {
                     <h3 className="text-xs font-semibold text-white/90 group-hover:text-white transition-colors line-clamp-2 leading-snug">
                       {movie.title}
                     </h3>
+                    {movie.originName && movie.originName !== movie.title && (
+                      <p className="text-[10px] text-white/40 line-clamp-1 mt-0.5 leading-snug italic">{movie.originName}</p>
+                    )}
                   </div>
                 ))}
               </div>
