@@ -4,10 +4,12 @@ import { Movie, OphimMovie } from "@/types";
 
 export type { Movie };
 
+const MOVIE_API_URL = process.env.NEXT_PUBLIC_MOVIE_API_URL || 'https://phimapi.com';
+
 // 1. Hàm lấy phim mới hỗn hợp (Dùng cho Hero Banner) - Đã Cache
 export async function getNewMovies(page = 1, limit = 20): Promise<Movie[]> {
   try {
-    const res = await fetch(`https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=${page}`, { next: { revalidate: 3600 } });
+    const res = await fetch(`${MOVIE_API_URL}/danh-sach/phim-moi-cap-nhat?page=${page}`, { next: { revalidate: 3600 } });
     if (!res.ok) {
       console.error(`Lỗi HTTP getNewMovies: ${res.status}`);
       return [];
@@ -38,7 +40,7 @@ export async function getNewMovies(page = 1, limit = 20): Promise<Movie[]> {
 // 2. Hàm lấy phim theo từng Danh Mục - Đã Cache
 export async function getMoviesByCategory(category: string, limit = 20): Promise<Movie[]> {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/danh-sach/${category}?limit=${limit}`, { next: { revalidate: 3600 } });
+    const res = await fetch(`${MOVIE_API_URL}/v1/api/danh-sach/${category}?limit=${limit}`, { next: { revalidate: 3600 } });
     if (!res.ok) {
       console.warn(`Cảnh báo: HTTP ${res.status} khi lấy danh mục ${category}`);
       return [];
@@ -76,7 +78,7 @@ export async function getMoviesByCategory(category: string, limit = 20): Promise
 // 3. Hàm lấy chi tiết phim - ĐÃ THÊM CACHE
 export async function getMovieDetails(slug: string) {
   try {
-    const res = await fetch(`https://phimapi.com/phim/${slug}`, { next: { revalidate: 3600 } });
+    const res = await fetch(`${MOVIE_API_URL}/phim/${slug}`, { next: { revalidate: 3600 } });
     if (!res.ok) throw new Error('Failed to fetch details');
     return await res.json();
   } catch (error) {
@@ -88,7 +90,7 @@ export async function getMovieDetails(slug: string) {
 // 4. Hàm tìm kiếm nhanh (dropdown) - KHÔNG CACHE
 export async function searchMovies(keyword: string) {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&limit=6`);
+    const res = await fetch(`${MOVIE_API_URL}/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&limit=6`);
     if (!res.ok) return [];
     const data = await res.json();
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
@@ -109,7 +111,7 @@ export async function searchMovies(keyword: string) {
 // 4b. Hàm tìm kiếm có phân trang (trang kết quả)
 export async function searchMoviesPaginated(keyword: string, page: number = 1, limit: number = 48) {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&limit=${limit}&page=${page}`);
+    const res = await fetch(`${MOVIE_API_URL}/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&limit=${limit}&page=${page}`);
     if (!res.ok) return { items: [], pagination: null };
     const data = await res.json();
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
@@ -139,7 +141,7 @@ export async function searchMoviesPaginated(keyword: string, page: number = 1, l
 // 5. Hàm lấy phim theo Thể loại (Trang chủ)
 export async function getMoviesByGenre(slug: string) {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/the-loai/${slug}?limit=24`);
+    const res = await fetch(`${MOVIE_API_URL}/v1/api/the-loai/${slug}?limit=24`);
     if (!res.ok) return [];
     const data = await res.json();
     if (!data?.data?.items) return [];
@@ -162,9 +164,12 @@ export async function getMoviesByGenre(slug: string) {
 }
 
 // 6. Hàm Phân trang Thể loại - ĐÃ THÊM CACHE
-export async function getMoviesByGenrePaginated(slug: string, page: number = 1, limit: number = 64) {
+export async function getMoviesByGenrePaginated(slug: string, page: number = 1, limit: number = 24, country: string = '', year: string = '') {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/the-loai/${slug}?limit=${limit}&page=${page}`, { next: { revalidate: 3600 } });
+    let url = `${MOVIE_API_URL}/v1/api/the-loai/${slug}?limit=${limit}&page=${page}`;
+    if (country) url += `&country=${country}`;
+    if (year) url += `&year=${year}`;
+    const res = await fetch(url, { next: { revalidate: 3600 } });
     if (!res.ok) return { items: [], pagination: null, title: 'Danh mục phim' };
     
     const data = await res.json();
@@ -192,9 +197,12 @@ export async function getMoviesByGenrePaginated(slug: string, page: number = 1, 
 }
 
 // 7. Hàm Phân trang Quốc gia - ĐÃ THÊM CACHE
-export async function getMoviesByCountryPaginated(slug: string, page: number = 1, limit: number = 64) {
+export async function getMoviesByCountryPaginated(slug: string, page: number = 1, limit: number = 24, category: string = '', year: string = '') {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/quoc-gia/${slug}?limit=${limit}&page=${page}`, { next: { revalidate: 3600 } });
+    let url = `${MOVIE_API_URL}/v1/api/quoc-gia/${slug}?limit=${limit}&page=${page}`;
+    if (category) url += `&category=${category}`;
+    if (year) url += `&year=${year}`;
+    const res = await fetch(url, { next: { revalidate: 3600 } });
     if (!res.ok) return { items: [], pagination: null, title: 'Danh mục quốc gia' };
     
     const data = await res.json();
@@ -222,9 +230,13 @@ export async function getMoviesByCountryPaginated(slug: string, page: number = 1
 }
 
 // 8. Hàm Phân trang cho các Danh Mục (phim-bo, phim-le, hoat-hinh, tv-shows) - ĐÃ THÊM CACHE
-export async function getDanhSachPhimPaginated(slug: string, page: number = 1, limit: number = 64) {
+export async function getDanhSachPhimPaginated(slug: string, page: number = 1, limit: number = 24, category: string = '', country: string = '', year: string = '') {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/danh-sach/${slug}?limit=${limit}&page=${page}`, { next: { revalidate: 3600 } });
+    let url = `${MOVIE_API_URL}/v1/api/danh-sach/${slug}?limit=${limit}&page=${page}`;
+    if (category) url += `&category=${category}`;
+    if (country) url += `&country=${country}`;
+    if (year) url += `&year=${year}`;
+    const res = await fetch(url, { next: { revalidate: 3600 } });
     if (!res.ok) {
         console.warn(`Cảnh báo HTTP ${res.status}: không tìm thấy danh mục phân trang ${slug}`);
         return { items: [], pagination: null, title: 'Danh sách phim' };
@@ -261,7 +273,7 @@ export async function getDanhSachPhimPaginated(slug: string, page: number = 1, l
 // 9. Hàm Phân trang cho Phim Mới (API này cấu trúc riêng) - ĐÃ THÊM CACHE
 export async function getNewMoviesPaginated(page: number = 1) {
   try {
-    const res = await fetch(`https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=${page}`, { next: { revalidate: 3600 } });
+    const res = await fetch(`${MOVIE_API_URL}/danh-sach/phim-moi-cap-nhat?page=${page}`, { next: { revalidate: 3600 } });
     if (!res.ok) return { items: [], pagination: null, title: 'Phim Mới Cập Nhật' };
     
     const data = await res.json();
@@ -292,15 +304,16 @@ export async function getNewMoviesPaginated(page: number = 1) {
   }
 }
 
-// 10. Hàm lọc phim theo Quốc Gia + Thể Loại
 export async function getMoviesByCountryAndGenre(
   countrySlug: string,
   genreSlug: string,
   page: number = 1,
-  limit: number = 48
+  limit: number = 24,
+  year: string = ''
 ) {
   try {
-    const url = `https://phimapi.com/v1/api/quoc-gia/${countrySlug}?limit=${limit}&page=${page}&category=${genreSlug}`;
+    let url = `${MOVIE_API_URL}/v1/api/quoc-gia/${countrySlug}?limit=${limit}&page=${page}&category=${genreSlug}`;
+    if (year) url += `&year=${year}`;
     const res = await fetch(url, { next: { revalidate: 3600 } });
     if (!res.ok) return { items: [], pagination: null, title: '' };
 
