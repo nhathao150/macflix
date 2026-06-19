@@ -1060,6 +1060,15 @@ export default function MovieDetailPage() {
                                       <button onClick={() => { setIsSpeedMenuOpen(!isSpeedMenuOpen); setIsSubMenuOpen(false); }} className={`w-11 h-11 md:w-auto md:h-auto hover:scale-110 active-scale transition flex items-center justify-center ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Cài đặt tốc độ"><Settings className="w-5 h-5 md:w-5 md:h-5" /></button>
                                   </div>
 
+                                  {/* Nút Tỷ Lệ Màn Hình (Fit/Fill) */}
+                                  <button 
+                                      onClick={(e) => { e.stopPropagation(); changeFitMode(videoFitMode === 'contain' ? 'cover' : 'contain'); }} 
+                                      className={`w-11 h-11 md:w-auto md:h-auto hover:scale-110 active-scale transition flex items-center justify-center ${videoFitMode === 'cover' ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} 
+                                      title={videoFitMode === 'cover' ? "Tỷ lệ gốc (Vừa màn hình)" : "Phóng to (Tràn màn hình)"}
+                                  >
+                                      {videoFitMode === 'cover' ? <Minimize className="w-5 h-5 md:w-5 md:h-5 rotate-45" /> : <Maximize className="w-5 h-5 md:w-5 md:h-5 rotate-45" />}
+                                  </button>
+
                                   {/* Nút Fullscreen */}
                                   <button onClick={toggleFullScreen} className="w-11 h-11 md:w-auto md:h-auto text-white/70 hover:text-white hover:scale-110 transition flex items-center justify-center active-scale" title="Toàn màn hình">
                                       {isFullscreen ? <Minimize className="w-5 h-5 md:w-5 md:h-5" /> : <Maximize className="w-5 h-5 md:w-5 md:h-5" />}
