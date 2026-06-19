@@ -802,9 +802,9 @@ export default function MovieDetailPage() {
                   </div>
               </div>
 
-              {/* THANH TOP BAR (GÓC PHẢI VOLUME) */}
+              {/* THANH TOP BAR (GÓC PHẢI VOLUME - ẨN TRÊN MOBILE VÌ DÙNG PHÍM CỨNG) */}
               <div className={`absolute top-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-b from-black/80 to-transparent flex justify-end items-start z-20 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                  <div className="pointer-events-auto flex items-center group/vol bg-[#1a1a1c]/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg">
+                  <div className="pointer-events-auto hidden md:flex items-center group/vol bg-[#1a1a1c]/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg">
                       <button 
                           onClick={toggleMute} 
                           className="text-white/70 hover:text-white hover:scale-110 transition flex items-center justify-center shrink-0" 
@@ -849,10 +849,10 @@ export default function MovieDetailPage() {
               <div className={`absolute bottom-0 left-0 right-0 p-4 md:p-8 pt-32 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end z-10 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                   <div className="pointer-events-auto flex flex-col w-full gap-3 md:gap-5">
                       
-                      {/* DÒNG 1: TÊN PHIM VÀ CÁC NÚT CÀI ĐẶT */}
-                      <div className="flex items-end justify-between w-full">
+                      {/* DÒNG 1: TÊN PHIM VÀ CÁC NÚT CÀI ĐẶT (ẨN TÊN PHIM TRÊN MOBILE ĐỂ TRÁNH TRÀN ĐÈ) */}
+                      <div className="flex items-end justify-end md:justify-between w-full">
                           
-                          <div className="flex flex-col drop-shadow-lg pr-4 cursor-default">
+                          <div className="hidden md:flex flex-col drop-shadow-lg pr-4 cursor-default">
                               <p className="text-[10px] md:text-sm font-bold text-white/70 tracking-widest mb-1 uppercase">
                                   {currentEpisode?.name || 'Đang tải tập...'}
                               </p>
