@@ -142,7 +142,7 @@ export default function Navbar() {
         </div>
 
         {/* MENU CHÍNH */}
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-white/80">
+        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-white/80 ml-10">
           <Link href="/" className="hover:text-white transition-colors">Trang chủ</Link>
           
           <div className="relative py-2">
