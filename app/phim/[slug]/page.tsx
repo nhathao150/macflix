@@ -802,9 +802,57 @@ export default function MovieDetailPage() {
                   </div>
               </div>
 
-              {/* THANH TOP BAR (GÓC PHẢI VOLUME - ẨN TRÊN MOBILE VÌ DÙNG PHÍM CỨNG) */}
-              <div className={`absolute top-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-b from-black/80 to-transparent flex justify-end items-start z-20 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                  <div className="pointer-events-auto hidden md:flex items-center group/vol bg-[#1a1a1c]/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg">
+              {/* THANH TOP BAR (CÀI ĐẶT GÓC PHẢI TRÊN CÙNG MOBILE, VOLUME TRÊN DESKTOP) */}
+              <div className={`absolute top-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-b from-black/80 to-transparent flex justify-end items-start gap-3 z-20 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                  
+                  {/* CỤM NÚT CÀI ĐẶT/PHỤ ĐỀ TRÊN MOBILE (ẨN KHI FULLSCREEN HOẶC TRÊN DESKTOP) */}
+                  <div className={`pointer-events-auto flex items-center gap-3 bg-[#1a1a1c]/80 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-2xl shrink-0 md:hidden ${isFullscreen ? 'hidden' : 'flex'}`}>
+                      {/* Nút Phụ Đề */}
+                      <div className="relative">
+                          {isSubMenuOpen && (
+                              <>
+                                  {/* Nền ảo hỗ trợ đóng menu trên điện thoại/iPad khi chạm ra ngoài */}
+                                  <div className="fixed inset-0 z-40" onClick={() => setIsSubMenuOpen(false)} />
+                                  <div className="absolute top-full right-0 mt-3 w-max min-w-[180px] z-50">
+                                  <div className="bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)] flex flex-col py-2 animate-in fade-in slide-in-from-top-2">
+                                      <div className="px-4 py-2 text-xs font-bold text-white/50 border-b border-white/10 uppercase mb-1">Ngôn ngữ hỗ trợ</div>
+                                      <button onClick={() => changeSubtitle(-1)} className={`px-4 py-3 text-sm text-left hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-normal leading-snug ${activeSubIndex === -1 ? 'text-cyan-400 font-bold' : 'text-white/80 font-medium'}`}>Tắt phụ đề</button>
+                                      {subtitleTracks.length > 0 ? (
+                                          subtitleTracks.map((track, idx) => (
+                                              <button key={idx} onClick={() => changeSubtitle(idx)} className={`px-4 py-3 text-sm text-left hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-normal leading-snug ${activeSubIndex === idx ? 'text-cyan-400 font-bold' : 'text-white/80 font-medium'}`}>{track.name || track.label || track.language || `Ngôn ngữ ${idx + 1}`}</button>
+                                          ))
+                                      ) : (
+                                          <div className="px-4 py-3 text-sm text-white/40 italic flex items-center gap-2">Bản mặc định (Vietsub)</div>
+                                      )}
+                                  </div>
+                                  </div>
+                              </>
+                          )}
+                          <button onClick={() => { setIsSubMenuOpen(!isSubMenuOpen); setIsSpeedMenuOpen(false); }} className={`w-8 h-8 hover:scale-110 active-scale transition flex items-center justify-center ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Phụ đề"><Subtitles className="w-4 h-4" /></button>
+                      </div>
+
+                      {/* Nút Tốc Độ */}
+                      <div className="relative">
+                          {isSpeedMenuOpen && (
+                              <>
+                                  {/* Nền ảo hỗ trợ đóng menu trên điện thoại/iPad khi chạm ra ngoài */}
+                                  <div className="fixed inset-0 z-40" onClick={() => setIsSpeedMenuOpen(false)} />
+                                  <div className="absolute top-full right-0 mt-3 w-36 z-50">
+                                  <div className="bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.8)] flex flex-col py-2 animate-in fade-in slide-in-from-top-2">
+                                      <div className="px-4 py-2 text-xs font-bold text-white/50 border-b border-white/10 uppercase mb-1">Tốc độ phát</div>
+                                      {speedOptions.map(rate => (
+                                          <button key={rate} onClick={() => changePlaybackRate(rate)} className={`px-4 py-2 text-sm text-left hover:bg-white/20 transition-colors flex items-center gap-2 ${playbackRate === rate ? 'text-cyan-400 font-bold' : 'text-white/80 font-medium'}`}>{rate === 1 ? 'Chuẩn (1x)' : `${rate}x`}</button>
+                                      ))}
+                                  </div>
+                                  </div>
+                              </>
+                          )}
+                          <button onClick={() => { setIsSpeedMenuOpen(!isSpeedMenuOpen); setIsSubMenuOpen(false); }} className={`w-8 h-8 hover:scale-110 active-scale transition flex items-center justify-center ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Cài đặt tốc độ"><Settings className="w-4 h-4" /></button>
+                      </div>
+                  </div>
+
+                  {/* THANH TĂNG GIẢM ÂM LƯỢNG (HIỆN KHI FULLSCREEN HOẶC TRÊN DESKTOP) */}
+                  <div className={`pointer-events-auto items-center group/vol bg-[#1a1a1c]/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg ${isFullscreen ? 'flex' : 'hidden md:flex'}`}>
                       <button 
                           onClick={toggleMute} 
                           className="text-white/70 hover:text-white hover:scale-110 transition flex items-center justify-center shrink-0" 
@@ -849,10 +897,10 @@ export default function MovieDetailPage() {
               <div className={`absolute bottom-0 left-0 right-0 p-4 md:p-8 pt-32 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end z-10 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                   <div className="pointer-events-auto flex flex-col w-full gap-3 md:gap-5">
                       
-                      {/* DÒNG 1: TÊN PHIM VÀ CÁC NÚT CÀI ĐẶT (ẨN TÊN PHIM TRÊN MOBILE ĐỂ TRÁNH TRÀN ĐÈ) */}
-                      <div className="flex items-end justify-end md:justify-between w-full">
+                      {/* DÒNG 1: TÊN PHIM VÀ CÁC NÚT CÀI ĐẶT (HIỆN KHI FULLSCREEN HOẶC TRÊN DESKTOP) */}
+                      <div className={`items-end justify-between w-full ${isFullscreen ? 'flex' : 'hidden md:flex'}`}>
                           
-                          <div className="hidden md:flex flex-col drop-shadow-lg pr-4 cursor-default">
+                          <div className={`flex flex-col drop-shadow-lg pr-4 cursor-default ${isFullscreen ? 'flex' : 'hidden md:flex'}`}>
                               <p className="text-[10px] md:text-sm font-bold text-white/70 tracking-widest mb-1 uppercase">
                                   {currentEpisode?.name || 'Đang tải tập...'}
                               </p>
@@ -915,6 +963,16 @@ export default function MovieDetailPage() {
 
                       {/* DÒNG 2: THANH TIMELINE TOÀN MÀN HÌNH */}
                       <div className="flex items-center gap-3 md:gap-4 w-full cursor-default">
+                          
+                          {/* Nút Thu Phóng Trên Mobile (Chỉ hiện khi KHÔNG FULLSCREEN & TRÊN MOBILE) */}
+                          <button 
+                              onClick={toggleFullScreen}
+                              className={`hover:scale-110 active-scale transition flex items-center justify-center text-white/70 hover:text-white shrink-0 md:hidden ${isFullscreen ? 'hidden' : 'flex'}`}
+                              title="Toàn màn hình"
+                          >
+                              <Maximize className="w-5 h-5" />
+                          </button>
+
                           <span className="text-xs md:text-sm text-white/90 font-medium shrink-0 w-12 md:w-16 text-left font-mono drop-shadow-md">
                               {formatTime(currentTime)}
                           </span>
