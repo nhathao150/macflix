@@ -58,6 +58,12 @@ export default function MovieDetailPage() {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
 
+  // === STATE CHO ZOOM ASPECT RATIO (FIT / COVER) ===
+  const [videoFitMode, setVideoFitMode] = useState<'contain' | 'cover'>('contain');
+  const [zoomToast, setZoomToast] = useState<string | null>(null);
+  const initialPinchDistanceRef = useRef<number | null>(null);
+  const isPinchingRef = useRef<boolean>(false);
+
   // STATE: Quản lý việc tự động ẩn giao diện
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -474,6 +480,44 @@ export default function MovieDetailPage() {
     }
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      isPinchingRef.current = true;
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      initialPinchDistanceRef.current = Math.sqrt(dx * dx + dy * dy);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (isPinchingRef.current && e.touches.length === 2 && initialPinchDistanceRef.current !== null) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const currentDistance = Math.sqrt(dx * dx + dy * dy);
+      const diff = currentDistance - initialPinchDistanceRef.current;
+      
+      if (Math.abs(diff) > 40) {
+        if (diff > 0) {
+          changeFitMode('cover');
+        } else {
+          changeFitMode('contain');
+        }
+        initialPinchDistanceRef.current = currentDistance;
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    isPinchingRef.current = false;
+    initialPinchDistanceRef.current = null;
+  };
+
+  const changeFitMode = (mode: 'contain' | 'cover') => {
+    if (videoFitMode === mode) return;
+    setVideoFitMode(mode);
+    setZoomToast(mode === 'cover' ? 'Tràn màn hình (Zoom to Fill)' : 'Vừa màn hình (Vừa tỷ lệ gốc)');
+  };
+
   const skipTime = (seconds: number) => {
     if (videoRef.current) {
       videoRef.current.currentTime += seconds;
@@ -542,6 +586,13 @@ export default function MovieDetailPage() {
       }
     };
   }, [hasLinkMovie]);
+
+  useEffect(() => {
+    if (zoomToast) {
+      const timeout = setTimeout(() => setZoomToast(null), 1500);
+      return () => clearTimeout(timeout);
+    }
+  }, [zoomToast]);
 
   const changePlaybackRate = (rate: number) => {
     if (videoRef.current) videoRef.current.playbackRate = rate;
@@ -797,7 +848,7 @@ export default function MovieDetailPage() {
             >
               <video 
                 ref={videoRef} 
-                className="w-full h-full object-contain bg-black outline-none pointer-events-none"
+                className={`w-full h-full object-${videoFitMode} bg-black outline-none pointer-events-none transition-all duration-300`}
                 poster={bannerUrl} 
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
@@ -820,7 +871,17 @@ export default function MovieDetailPage() {
               <div 
                 className="absolute inset-0 z-0 cursor-pointer"
                 onClick={(e) => { e.stopPropagation(); handleVideoInteraction(e); }}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
               />
+
+              {/* TOAST THÔNG BÁO THU PHÓNG */}
+              {zoomToast && (
+                <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 z-50 text-white font-bold text-xs pointer-events-none animate-in fade-in zoom-in-95 duration-200">
+                    {zoomToast}
+                </div>
+              )}
 
               {/* HIỆU ỨNG TUA NHANH 10S */}
               <div className={`absolute inset-y-0 left-0 w-[30%] bg-gradient-to-r from-white/20 to-transparent flex items-center justify-center transition-opacity duration-300 pointer-events-none rounded-l-2xl md:rounded-l-3xl ${seekFeedback === 'backward' ? 'opacity-100' : 'opacity-0'}`}>
