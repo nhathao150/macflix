@@ -768,9 +768,8 @@ export default function MovieDetailPage() {
             >
               <video 
                 ref={videoRef} 
-                className={`w-full h-full object-contain bg-black outline-none ${!isPlaying || isControlsVisible ? 'cursor-pointer' : 'cursor-none'}`}
+                className="w-full h-full object-contain bg-black outline-none pointer-events-none"
                 poster={bannerUrl} 
-                onClick={(e) => { e.stopPropagation(); handleVideoInteraction(e); }}
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
                 onPlay={() => setIsPlaying(true)}
@@ -788,6 +787,12 @@ export default function MovieDetailPage() {
                 playsInline
               />
 
+              {/* Lớp phủ tương tác (Click/Touch Overlay) thay thế trực tiếp click vào video */}
+              <div 
+                className="absolute inset-0 z-0 cursor-pointer"
+                onClick={(e) => { e.stopPropagation(); handleVideoInteraction(e); }}
+              />
+
               {/* HIỆU ỨNG TUA NHANH 10S */}
               <div className={`absolute inset-y-0 left-0 w-[30%] bg-gradient-to-r from-white/20 to-transparent flex items-center justify-center transition-opacity duration-300 pointer-events-none rounded-l-2xl md:rounded-l-3xl ${seekFeedback === 'backward' ? 'opacity-100' : 'opacity-0'}`}>
                   <div className="flex flex-col items-center gap-2 animate-bounce">
@@ -803,7 +808,7 @@ export default function MovieDetailPage() {
               </div>
 
               {/* THANH TOP BAR (CÀI ĐẶT GÓC PHẢI TRÊN CÙNG MOBILE, VOLUME TRÊN DESKTOP) */}
-              <div className={`absolute top-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-b from-black/80 to-transparent flex justify-end items-start gap-3 z-20 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+              <div className={`absolute top-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-b from-black/80 to-transparent flex justify-end items-start gap-3 z-20 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={(e) => e.stopPropagation()}>
                   
                   {/* CỤM NÚT CÀI ĐẶT/PHỤ ĐỀ TRÊN MOBILE (ẨN KHI FULLSCREEN HOẶC TRÊN DESKTOP) */}
                   <div className={`pointer-events-auto flex items-center gap-3 bg-[#1a1a1c]/80 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-2xl shrink-0 md:hidden ${isFullscreen ? 'hidden' : 'flex'}`}>
@@ -868,7 +873,7 @@ export default function MovieDetailPage() {
                               max={1}
                               step={0.01}
                               value={isMuted ? 0 : volume}
-                              onChange={handleVolumeChange}
+                              onChange={(e) => { e.stopPropagation(); handleVolumeChange(e); }}
                               className="w-full h-1 rounded-full appearance-none cursor-pointer hover:h-1.5 transition-all accent-white custom-slider"
                               style={{ background: `linear-gradient(to right, white ${(isMuted ? 0 : volume) * 100}%, rgba(255, 255, 255, 0.3) ${(isMuted ? 0 : volume) * 100}%)` }}
                           />
@@ -879,22 +884,25 @@ export default function MovieDetailPage() {
               {/* CỤM NÚT TRUNG TÂM (Play/Pause, Tua 10s) */}
               <div className={`absolute inset-0 flex items-center justify-center gap-6 md:gap-12 pointer-events-none transition-all duration-300 ${!isPlaying ? 'opacity-100 bg-black/40' : (isControlsVisible ? 'opacity-100 bg-black/10' : 'opacity-0')}`}>
                   
-                  <button onClick={() => skipTime(-10)} className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center border border-white/10 text-white hover:bg-white/20 hover:scale-110 transition shadow-xl">
+                  <button onClick={(e) => { e.stopPropagation(); skipTime(-10); }} className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center border border-white/10 text-white hover:bg-white/20 hover:scale-110 transition shadow-xl">
                       <RotateCcw className="w-5 h-5 md:w-7 md:h-7" />
                   </button>
 
-                  <button onClick={togglePlay} className="pointer-events-auto w-20 h-20 md:w-24 md:h-24 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 text-white shadow-2xl hover:bg-white/20 hover:scale-110 transition">
+                  <button onClick={(e) => { e.stopPropagation(); togglePlay(); }} className="pointer-events-auto w-20 h-20 md:w-24 md:h-24 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 text-white shadow-2xl hover:bg-white/20 hover:scale-110 transition">
                       {isPlaying ? <Pause className="w-10 h-10 md:w-12 md:h-12 fill-white" /> : <Play className="w-10 h-10 md:w-12 md:h-12 fill-white ml-2" />}
                   </button>
 
-                  <button onClick={() => skipTime(10)} className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center border border-white/10 text-white hover:bg-white/20 hover:scale-110 transition shadow-xl">
+                  <button onClick={(e) => { e.stopPropagation(); skipTime(10); }} className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center border border-white/10 text-white hover:bg-white/20 hover:scale-110 transition shadow-xl">
                       <RotateCw className="w-5 h-5 md:w-7 md:h-7" />
                   </button>
 
               </div>
 
               {/* THANH ĐIỀU KHIỂN DƯỚI ĐÁY */}
-              <div className={`absolute bottom-0 left-0 right-0 p-4 md:p-8 pt-32 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end z-10 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+              <div 
+                className={`absolute bottom-0 left-0 right-0 p-4 md:p-8 pt-32 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end z-10 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                onClick={(e) => e.stopPropagation()}
+              >
                   <div className="pointer-events-auto flex flex-col w-full gap-3 md:gap-5">
                       
                       {/* DÒNG 1: TÊN PHIM VÀ CÁC NÚT CÀI ĐẶT (HIỆN KHI FULLSCREEN HOẶC TRÊN DESKTOP) */}
