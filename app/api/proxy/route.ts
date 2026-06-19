@@ -10,9 +10,28 @@ export async function GET(request: NextRequest) {
 
   // Restrict to allowed movie API domains for security (SSRF prevention)
   const allowedDomains = ['phimapi.com', 'ophim1.com', 'phimimg.com'];
+  
+  // Dynamically append custom API URLs configured in environment variables
+  const envApiUrls = [
+    process.env.NEXT_PUBLIC_MOVIE_API_URL,
+    process.env.MOVIE_API_URL,
+    process.env.NEXT_PUBLIC_OPHIM_API_URL,
+    process.env.OPHIM_API_URL
+  ];
+  envApiUrls.forEach(urlStr => {
+    if (urlStr) {
+      try {
+        const hostname = new URL(urlStr).hostname;
+        if (hostname && !allowedDomains.includes(hostname)) {
+          allowedDomains.push(hostname);
+        }
+      } catch {}
+    }
+  });
+
   try {
     const parsedUrl = new URL(targetUrl);
-    if (!allowedDomains.some(domain => parsedUrl.hostname.endsWith(domain))) {
+    if (!allowedDomains.some(domain => parsedUrl.hostname === domain || parsedUrl.hostname.endsWith('.' + domain))) {
       return NextResponse.json({ error: 'Domain not allowed' }, { status: 403 });
     }
   } catch {
