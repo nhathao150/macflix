@@ -246,7 +246,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
         >
-          <div className="absolute inset-0 bg-[#050505]/80 backdrop-blur-md" onClick={onClose} />
+          <div className="absolute inset-0 bg-[#050505]/92" onClick={onClose} />
           
           <motion.div 
             initial={{ scale: 0.95, y: 20 }}
@@ -266,7 +266,10 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white"></div>
               </div>
             ) : (
-              <div className="flex-1 overflow-y-auto scrollbar-hide">
+              <div 
+                className="flex-1 overflow-y-auto scrollbar-hide"
+                style={{ transform: 'translate3d(0, 0, 0)', backfaceVisibility: 'hidden', WebkitOverflowScrolling: 'touch' }}
+              >
                 
                 {/* --- ZONE 1: HERO DISPLAY (GIỐNG HỆT HÌNH ẢNH MẪU) --- */}
                 <div className="relative w-full min-h-[85vh] md:min-h-[550px] flex items-center justify-center overflow-hidden">
