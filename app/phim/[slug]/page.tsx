@@ -910,10 +910,15 @@ export default function MovieDetailPage() {
                   </div>
               </div>
 
-              {/* CỤM NÚT TRUNG TÂM (Play/Pause, Tua 10s) */}
+              {/* LỚP PHỦ TỐI NỀN VIDEO (Thuần visual, không chặn click) */}
               <div 
-                className={`absolute inset-0 flex items-center justify-center gap-6 md:gap-12 transition-all duration-300 z-10 ${!isPlaying ? 'opacity-100 bg-black/40 pointer-events-auto' : (isControlsVisible ? 'opacity-100 bg-black/10 pointer-events-auto' : 'opacity-0 pointer-events-none')}`}
-                onClick={(e) => { e.stopPropagation(); handleVideoInteraction(e); }}
+                className={`absolute inset-0 transition-all duration-300 pointer-events-none z-10 ${!isPlaying ? 'opacity-100 bg-black/40' : (isControlsVisible ? 'opacity-100 bg-black/10' : 'opacity-0')}`}
+              />
+
+              {/* CỤM NÚT TRUNG TÂM (Play/Pause, Tua 10s - Thu nhỏ diện tích để tránh đè click) */}
+              <div 
+                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center gap-6 md:gap-12 transition-all duration-300 z-30 ${!isPlaying || isControlsVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                onClick={(e) => e.stopPropagation()}
               >
                   
                   <button onClick={(e) => { e.stopPropagation(); skipTime(-10); }} className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center border border-white/10 text-white hover:bg-white/20 hover:scale-110 transition shadow-xl">
