@@ -8,6 +8,7 @@ import MovieRow from '../movies/MovieRow';
 const MovieModal = dynamic(() => import('../movies/MovieModal'), { ssr: false });
 import { Movie } from '@/types';
 import { useSession } from 'next-auth/react';
+import { getMovieDetails } from '@/lib/api';
 
 interface HomeContentProps {
   heroMovies: Movie[];
@@ -54,17 +55,15 @@ export default function HomeContent({
                imgSrc = item.imageSrc;
             } else {
                // Lấy từ API nếu cũ quá không có ảnh
-                try {
-                  const MOVIE_API_URL = process.env.NEXT_PUBLIC_MOVIE_API_URL || 'https://phimapi.com';
-                  const res = await fetch(`${MOVIE_API_URL}/phim/${item.slug}`);
-                  const detail = await res.json();
-                 if (detail && detail.status && detail.movie) {
-                   const imgUrl = detail.movie.thumb_url || detail.movie.poster_url;
-                   imgSrc = imgUrl.startsWith('http') ? imgUrl : `https://phimimg.com/${imgUrl}`;
+                 try {
+                   const detail = await getMovieDetails(item.slug);
+                   if (detail && detail.movie) {
+                     const imgUrl = detail.movie.thumb_url || detail.movie.poster_url;
+                     imgSrc = imgUrl.startsWith('http') ? imgUrl : `https://phimimg.com/${imgUrl}`;
+                   }
+                 } catch (e) {
+                   console.error("Lỗi lấy ảnh tạm", e);
                  }
-               } catch (e) {
-                 console.error("Lỗi lấy ảnh tạm", e);
-               }
             }
             return {
               id: item._id || item.slug,

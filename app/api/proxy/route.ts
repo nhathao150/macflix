@@ -48,7 +48,15 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await res.json();
-    return NextResponse.json(data);
+    
+    // Tối ưu hóa của Senior Dev: Đặt Cache-Control để trình duyệt lưu bộ nhớ đệm (Browser Cache)
+    // Giảm thiểu tối đa việc tạo thêm request mạng không cần thiết khi người dùng lướt qua lại giữa các trang
+    const response = NextResponse.json(data);
+    response.headers.set(
+      'Cache-Control',
+      'public, max-age=1800, s-maxage=86400, stale-while-revalidate=600'
+    );
+    return response;
   } catch (error) {
     console.error('API Proxy error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

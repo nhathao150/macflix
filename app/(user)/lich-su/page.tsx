@@ -5,6 +5,7 @@ import Navbar from '@/components/layout/Navbar';
 import Link from 'next/link';
 import Image from 'next/image';
 import { History, Play, Loader2, AlertCircle } from 'lucide-react';
+import { getMovieDetails } from '@/lib/api';
 
 export default function HistoryPage() {
   const { data: session, status } = useSession();
@@ -29,10 +30,8 @@ export default function HistoryPage() {
               let imgSrc = item.imageSrc || '/placeholder-image.jpg';
               if (imgSrc === '/placeholder-image.jpg') {
                 try {
-                  const MOVIE_API_URL = process.env.NEXT_PUBLIC_MOVIE_API_URL || 'https://phimapi.com';
-                  const apiRes = await fetch(`${MOVIE_API_URL}/phim/${item.slug}`);
-                  const detail = await apiRes.json();
-                  if (detail && detail.status && detail.movie) {
+                  const detail = await getMovieDetails(item.slug);
+                  if (detail && detail.movie) {
                     const imgUrl = detail.movie.thumb_url || detail.movie.poster_url;
                     imgSrc = imgUrl.startsWith('http') ? imgUrl : `https://phimimg.com/${imgUrl}`;
                   }
