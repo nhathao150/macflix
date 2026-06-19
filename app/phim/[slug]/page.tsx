@@ -501,18 +501,47 @@ export default function MovieDetailPage() {
   };
 
   const toggleFullScreen = () => {
-    if (!document.fullscreenElement) {
-      playerContainerRef.current?.requestFullscreen().catch(err => console.error(err));
-    } else {
-      document.exitFullscreen();
+    if (videoRef.current) {
+      const video = videoRef.current;
+      if (!document.fullscreenElement && !(video as any).webkitDisplayingFullscreen) {
+        if (playerContainerRef.current?.requestFullscreen) {
+          playerContainerRef.current.requestFullscreen().catch(err => console.error(err));
+        } else if ((video as any).webkitEnterFullscreen) {
+          (video as any).webkitEnterFullscreen();
+        } else if ((video as any).webkitRequestFullscreen) {
+          (video as any).webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if ((video as any).webkitExitFullscreen) {
+          (video as any).webkitExitFullscreen();
+        }
+      }
     }
   };
 
   useEffect(() => {
     const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', handleFsChange);
-    return () => document.removeEventListener('fullscreenchange', handleFsChange);
-  }, []);
+    
+    const video = videoRef.current;
+    const handleWebKitFsChange = () => {
+      setIsFullscreen((video as any).webkitDisplayingFullscreen || false);
+    };
+    if (video) {
+      video.addEventListener('webkitbeginfullscreen', handleWebKitFsChange);
+      video.addEventListener('webkitendfullscreen', handleWebKitFsChange);
+    }
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFsChange);
+      if (video) {
+        video.removeEventListener('webkitbeginfullscreen', handleWebKitFsChange);
+        video.removeEventListener('webkitendfullscreen', handleWebKitFsChange);
+      }
+    };
+  }, [hasLinkMovie]);
 
   const changePlaybackRate = (rate: number) => {
     if (videoRef.current) videoRef.current.playbackRate = rate;
@@ -808,7 +837,7 @@ export default function MovieDetailPage() {
               </div>
 
               {/* THANH TOP BAR (CÀI ĐẶT GÓC PHẢI TRÊN CÙNG MOBILE, VOLUME TRÊN DESKTOP) */}
-              <div className={`absolute top-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-b from-black/80 to-transparent flex justify-end items-start gap-3 z-20 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={(e) => e.stopPropagation()}>
+              <div className={`absolute top-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-b from-black/80 to-transparent flex justify-end items-start gap-3 z-30 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={(e) => e.stopPropagation()}>
                   
                   {/* CỤM NÚT CÀI ĐẶT/PHỤ ĐỀ TRÊN MOBILE (ẨN KHI FULLSCREEN HOẶC TRÊN DESKTOP) */}
                   <div className={`pointer-events-auto flex items-center gap-3 bg-[#1a1a1c]/80 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-2xl shrink-0 md:hidden ${isFullscreen ? 'hidden' : 'flex'}`}>
@@ -882,7 +911,10 @@ export default function MovieDetailPage() {
               </div>
 
               {/* CỤM NÚT TRUNG TÂM (Play/Pause, Tua 10s) */}
-              <div className={`absolute inset-0 flex items-center justify-center gap-6 md:gap-12 pointer-events-none transition-all duration-300 ${!isPlaying ? 'opacity-100 bg-black/40' : (isControlsVisible ? 'opacity-100 bg-black/10' : 'opacity-0')}`}>
+              <div 
+                className={`absolute inset-0 flex items-center justify-center gap-6 md:gap-12 transition-all duration-300 z-10 ${!isPlaying ? 'opacity-100 bg-black/40 pointer-events-auto' : (isControlsVisible ? 'opacity-100 bg-black/10 pointer-events-auto' : 'opacity-0 pointer-events-none')}`}
+                onClick={(e) => { e.stopPropagation(); handleVideoInteraction(e); }}
+              >
                   
                   <button onClick={(e) => { e.stopPropagation(); skipTime(-10); }} className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center border border-white/10 text-white hover:bg-white/20 hover:scale-110 transition shadow-xl">
                       <RotateCcw className="w-5 h-5 md:w-7 md:h-7" />
@@ -900,7 +932,7 @@ export default function MovieDetailPage() {
 
               {/* THANH ĐIỀU KHIỂN DƯỚI ĐÁY */}
               <div 
-                className={`absolute bottom-0 left-0 right-0 p-4 md:p-8 pt-32 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end z-10 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                className={`absolute bottom-0 left-0 right-0 p-4 md:p-8 pt-32 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end z-20 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                 onClick={(e) => e.stopPropagation()}
               >
                   <div className="pointer-events-auto flex flex-col w-full gap-3 md:gap-5">
