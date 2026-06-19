@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Search, User, ChevronDown, Menu, LogOut, History, Settings, Heart } from 'lucide-react';
 import { searchMovies } from '@/lib/api';
 import { useSession, signOut } from 'next-auth/react';
@@ -34,6 +34,7 @@ const COUNTRIES = [
 export default function Navbar() {
   const { data: session } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const [userAvatar, setUserAvatar] = useState<string>('');
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -265,13 +266,15 @@ export default function Navbar() {
 
           </div>
 
-          {/* NÚT TÌM KIẾM MOBILE - PHAO NỔI TRÒN GÓC PHẢI */}
-          <Link 
-            href="/tim-kiem" 
-            className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 text-white rounded-full hover:text-[#d070ff] transition-all active-scale shadow-lg pointer-events-auto"
-          >
-            <Search className="w-4 h-4" />
-          </Link>
+          {/* NÚT TÌM KIẾM MOBILE - PHAO NỔI TRÒN GÓC PHẢI (Chỉ xuất hiện ở trang chủ) */}
+          {pathname === '/' && (
+            <Link 
+              href="/tim-kiem" 
+              className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 text-white rounded-full hover:text-[#d070ff] transition-all active-scale shadow-lg pointer-events-auto"
+            >
+              <Search className="w-4 h-4" />
+            </Link>
+          )}
 
           {/* LOGIC ĐĂNG NHẬP / ĐĂNG XUẤT */}
           {session ? (
