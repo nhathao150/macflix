@@ -964,15 +964,6 @@ export default function MovieDetailPage() {
                       {/* DÒNG 2: THANH TIMELINE TOÀN MÀN HÌNH */}
                       <div className="flex items-center gap-3 md:gap-4 w-full cursor-default">
                           
-                          {/* Nút Thu Phóng Trên Mobile (Chỉ hiện khi KHÔNG FULLSCREEN & TRÊN MOBILE) */}
-                          <button 
-                              onClick={toggleFullScreen}
-                              className={`hover:scale-110 active-scale transition flex items-center justify-center text-white/70 hover:text-white shrink-0 md:hidden ${isFullscreen ? 'hidden' : 'flex'}`}
-                              title="Toàn màn hình"
-                          >
-                              <Maximize className="w-5 h-5" />
-                          </button>
-
                           <span className="text-xs md:text-sm text-white/90 font-medium shrink-0 w-12 md:w-16 text-left font-mono drop-shadow-md">
                               {formatTime(currentTime)}
                           </span>
@@ -990,6 +981,15 @@ export default function MovieDetailPage() {
                           <span className="text-xs md:text-sm text-white/90 font-medium shrink-0 w-14 md:w-16 text-right font-mono drop-shadow-md">
                               -{formatTime(duration - currentTime)}
                           </span>
+
+                          {/* Nút Thu Phóng Trên Mobile (Chỉ hiện khi KHÔNG FULLSCREEN & TRÊN MOBILE - Bên phải đồng hồ thời gian còn lại) */}
+                          <button 
+                              onClick={toggleFullScreen}
+                              className={`hover:scale-110 active-scale transition flex items-center justify-center text-white/70 hover:text-white shrink-0 md:hidden ${isFullscreen ? 'hidden' : 'flex'}`}
+                              title="Toàn màn hình"
+                          >
+                              <Maximize className="w-5 h-5" />
+                          </button>
                       </div>
 
                   </div>
