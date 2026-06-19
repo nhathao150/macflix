@@ -29,14 +29,35 @@
     height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: #010030;
+    background: #0a0a0c;
   }
   ::-webkit-scrollbar-thumb {
-    background: #1e293b;
+    background: #1e1e24;
     border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #334155;
+    background: #2d2d34;
+  }
+
+  /* Active tap feedback and skeletons */
+  .active-scale {
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .active-scale:active {
+    transform: scale(0.95);
+  }
+
+  /* Skeleton shimmer animation */
+  @keyframes skeleton-pulse {
+    0%, 100% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+  .animate-skeleton {
+    animation: skeleton-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
   /* Heading Scale — tỉ lệ Major Third (×1.25) */

@@ -25,7 +25,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-[#010030] border-t border-white/5 mt-auto">
+    <footer className="relative bg-[#0a0a0c] border-t border-white/5 mt-auto">
       {/* Top glow line */}
       <div
         className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px"

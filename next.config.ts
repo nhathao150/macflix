@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
   compress: true, // Nén Gzip/Brotli
   // Allow access to remote image placeholder and API images.
   images: {
+    unoptimized: true,
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {

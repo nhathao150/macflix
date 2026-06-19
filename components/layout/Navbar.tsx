@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Search, Bell, User, ChevronDown, Menu, LogOut, History, Settings, Heart } from 'lucide-react';
+import { Search, User, ChevronDown, Menu, LogOut, History, Settings, Heart } from 'lucide-react';
 import { searchMovies } from '@/lib/api';
 import { useSession, signOut } from 'next-auth/react';
 
@@ -111,10 +111,10 @@ export default function Navbar() {
 
   return (
     <div ref={navRef} className="fixed top-0 left-0 w-full z-[100] flex justify-center pointer-events-none">
-      <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-6xl mt-6 rounded-full px-6 md:px-8 py-3 transition-colors duration-300 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] bg-white/60 dark:bg-black/40 border border-black/10 dark:border-white/20">
+      <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-6xl mt-4 md:mt-6 rounded-full px-4 md:px-8 py-2 md:py-3 transition-colors duration-300 md:backdrop-blur-2xl md:shadow-[0_8px_32px_rgba(0,0,0,0.5)] md:bg-[#0a0a0c]/60 md:border md:border-white/20 border-none bg-transparent shadow-none backdrop-blur-none">
         
         {/* LOGO */}
-        <div className="flex items-center shrink-0">
+        <div className="hidden md:flex items-center shrink-0">
           <Link href="/" className="flex items-center group">
             <svg
               viewBox="0 0 160 44"
@@ -212,12 +212,10 @@ export default function Navbar() {
               </div>
             )}
           </div>
-          
-          {/* Đã xóa chữ Lịch sử ở đây cho Menu gọn gàng */}
         </div>
 
         {/* --- CÔNG CỤ PHẢI --- */}
-        <div className="flex items-center gap-4 md:gap-6 text-gray-700 dark:text-white/80 shrink-0">
+        <div className="flex items-center gap-4 md:gap-6 text-gray-700 dark:text-white/80 shrink-0 ml-auto">
           
           {/* TÌM KIẾM */}
           <div className="hidden lg:flex relative items-center">
@@ -271,21 +269,17 @@ export default function Navbar() {
 
           </div>
 
-          {/* NÚT TÌM KIẾM MOBILE */}
-          <button className="lg:hidden hover:text-black dark:hover:text-white transition-transform hover:scale-110"><Search className="w-5 h-5" /></button>
-          
-          {/* CHUÔNG THÔNG BÁO - disabled v&agrave; có tooltip */}
-          <button 
-            title="Thông báo (sắp ra mắt)"
-            disabled
-            className="opacity-40 cursor-not-allowed"
+          {/* NÚT TÌM KIẾM MOBILE - PHAO NỔI TRÒN GÓC PHẢI */}
+          <Link 
+            href="/tim-kiem" 
+            className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 text-white rounded-full hover:text-[#d070ff] transition-all active-scale shadow-lg pointer-events-auto"
           >
-            <Bell className="w-5 h-5" />
-          </button>
+            <Search className="w-4 h-4" />
+          </Link>
 
           {/* LOGIC ĐĂNG NHẬP / ĐĂNG XUẤT */}
           {session ? (
-            <div className="relative group cursor-pointer pointer-events-auto">
+            <div className="hidden md:block relative group cursor-pointer pointer-events-auto active-scale">
               {/* Avatar */}
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shadow-lg hover:ring-2 hover:ring-[#F042FF]/50 transition-all overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
                 {userAvatar ? (
@@ -328,14 +322,16 @@ export default function Navbar() {
             </div>
           ) : (
             /* Nút hình người khi CHƯA đăng nhập */
-            <Link href="/dang-nhap" className="w-8 h-8 rounded-full flex items-center justify-center text-white cursor-pointer hover:ring-2 hover:ring-[#F042FF]/50 transition-all shadow-lg pointer-events-auto" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
-              <User className="w-4 h-4" />
+            <Link href="/dang-nhap" className="hidden md:flex w-11 h-11 items-center justify-center text-white cursor-pointer hover:scale-105 active-scale pointer-events-auto">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white shadow-lg hover:ring-2 hover:ring-[#F042FF]/50 transition-all overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
+                <User className="w-4 h-4" />
+              </div>
             </Link>
           )}
 
-          {/* NÚT HAMBURGER MOBILE */}
+          {/* NÚT HAMBURGER MOBILE - ĐÃ ẨN HOÀN TOÀN VÌ CÓ BOTTOM NAV CATEGORIES */}
           <button 
-            className="md:hidden hover:text-black dark:hover:text-white transition-colors"
+            className="hidden w-11 h-11 items-center justify-center text-gray-700 dark:text-white/80 hover:text-black dark:hover:text-white transition-all active-scale"
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <Menu className="w-6 h-6" />
@@ -352,12 +348,15 @@ export default function Navbar() {
             onClick={() => setIsMobileMenuOpen(false)}
           />
           {/* Drawer */}
-          <div className="fixed top-0 right-0 h-full w-[85vw] max-w-sm bg-[#0a0a0a] border-l border-white/10 z-[200] flex flex-col overflow-hidden">
+          <div className="fixed top-0 right-0 h-full w-[85vw] max-w-sm bg-[#0a0a0c] border-l border-white/10 z-[200] flex flex-col overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
               <span className="text-white font-black text-xl">Macflix</span>
-              <button onClick={() => setIsMobileMenuOpen(false)} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                <span className="text-white text-lg leading-none">&times;</span>
+              <button 
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center active-scale"
+              >
+                <span className="text-white text-xl leading-none">&times;</span>
               </button>
             </div>
 
@@ -390,7 +389,7 @@ export default function Navbar() {
                       key={genre.slug}
                       href={`/the-loai/${genre.slug}`}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="px-3 py-2.5 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors font-medium"
+                      className="px-3 py-3 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all font-medium active-scale flex items-center"
                     >
                       {genre.name}
                     </a>
@@ -400,7 +399,7 @@ export default function Navbar() {
                       key={country.slug}
                       href={`/quoc-gia/${country.slug}`}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="px-3 py-2.5 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors font-medium"
+                      className="px-3 py-3 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all font-medium active-scale flex items-center"
                     >
                       {country.name}
                     </a>
@@ -413,18 +412,18 @@ export default function Navbar() {
             <div className="px-4 py-4 border-t border-white/10 flex flex-col gap-2">
               {session ? (
                 <>
-                  <a href="/lich-su" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors">
+                  <a href="/lich-su" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors active-scale">
                     <History className="w-4 h-4" /> Lịch sử xem
                   </a>
-                  <a href="/yeu-thich" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors">
+                  <a href="/yeu-thich" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors active-scale">
                     <Heart className="w-4 h-4" /> Phim yêu thích
                   </a>
-                  <button onClick={() => { signOut(); setIsMobileMenuOpen(false); }} className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors">
+                  <button onClick={() => { signOut(); setIsMobileMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors active-scale text-left">
                     <LogOut className="w-4 h-4" /> Đăng xuất
                   </button>
                 </>
               ) : (
-                <a href="/dang-nhap" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-white bg-gradient-to-r from-[#D9251D] to-orange-500 rounded-xl transition-opacity hover:opacity-80">
+                <a href="/dang-nhap" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-bold text-white bg-gradient-to-r from-[#D9251D] to-orange-500 rounded-xl transition-opacity hover:opacity-80 active-scale">
                   <User className="w-4 h-4" /> Đăng nhập
                 </a>
               )}

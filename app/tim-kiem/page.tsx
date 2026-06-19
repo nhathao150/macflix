@@ -21,6 +21,16 @@ function SearchContent() {
   const [movies, setMovies] = useState<any[]>([]);
   const [pagination, setPagination] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchInput, setSearchInput] = useState(keyword);
+
+  useEffect(() => {
+    setSearchInput(keyword);
+  }, [keyword]);
+
+  const handleSearchClick = () => {
+    if (!searchInput.trim()) return;
+    router.push(`/tim-kiem?q=${encodeURIComponent(searchInput.trim())}`);
+  };
 
   useEffect(() => {
     if (!keyword.trim()) return;
@@ -41,21 +51,40 @@ function SearchContent() {
   };
 
   return (
-    <main className="min-h-screen bg-[#010030] text-white selection:bg-[#F042FF]/30 pb-20">
+    <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-28">
       <Navbar />
 
-      <div className="max-w-[1800px] mx-auto px-4 md:px-8 pt-[120px]">
+      <div className="max-w-[1800px] mx-auto px-4 md:px-8 pt-6 md:pt-[120px]">
 
         {/* Header */}
         <div className="mb-8 border-b border-white/10 pb-5">
-          <div className="flex items-center gap-3">
-            <Search className="w-6 h-6 text-[#d070ff]" />
-            <h1 className="font-black text-2xl md:text-3xl text-white tracking-wide">
-              Kết quả tìm kiếm
-            </h1>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Search className="w-6 h-6 text-[#d070ff]" />
+              <h1 className="font-black text-2xl md:text-3xl text-white tracking-wide">
+                Tìm kiếm phim
+              </h1>
+            </div>
+            {/* Hộp tìm kiếm ngay trên trang */}
+            <div className="w-full md:max-w-md flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 focus-within:ring-2 focus-within:ring-[#d070ff]/50 transition-all">
+              <input
+                type="text"
+                placeholder="Nhập tên phim cần tìm..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
+                className="bg-transparent border-none outline-none text-sm text-white w-full placeholder:text-white/40"
+              />
+              <button 
+                onClick={handleSearchClick}
+                className="text-[#d070ff] hover:text-[#7226FF] transition-colors p-1"
+              >
+                <Search className="w-4 h-4" />
+              </button>
+            </div>
           </div>
           {keyword && (
-            <div className="mt-2 flex items-center gap-2 flex-wrap">
+            <div className="mt-4 flex items-center gap-2 flex-wrap">
               <span className="text-white/50 text-sm">Từ khoá:</span>
               <span className="px-3 py-0.5 rounded-full text-sm font-bold text-white"
                 style={{ background: 'linear-gradient(135deg, #d070ff44, #7226FF44)', border: '1px solid #d070ff55' }}>
@@ -102,7 +131,7 @@ function SearchContent() {
                   <div
                     key={`${movie.id}-${index}`}
                     onClick={() => openModal(movie)}
-                    className="group flex flex-col cursor-pointer"
+                    className="group flex flex-col cursor-pointer active-scale"
                   >
                     <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-white/5">
                       <Image
@@ -132,20 +161,20 @@ function SearchContent() {
               {/* Phân trang */}
               {pagination && pagination.totalPages > 1 && (
                 <div className="mt-16 flex items-center justify-center gap-6">
-                  <button
+                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 border border-white/10 flex items-center justify-center transition-all group"
+                    className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 border border-white/10 flex items-center justify-center transition-all group active-scale"
                   >
                     <ChevronLeft className="w-6 h-6 text-white group-hover:-translate-x-1 transition-transform" />
                   </button>
-                  <span className="text-lg font-bold text-white/80 px-6 py-2 rounded-full border border-white/10">
+                  <span className="text-lg font-bold text-white/80 px-6 py-2 rounded-full border border-white/10 bg-white/5">
                     Trang {currentPage} <span className="text-white/40 font-normal">/ {pagination.totalPages}</span>
                   </span>
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === pagination.totalPages}
-                    className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 border border-white/10 flex items-center justify-center transition-all group"
+                    className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 border border-white/10 flex items-center justify-center transition-all group active-scale"
                   >
                     <ChevronRight className="w-6 h-6 text-white group-hover:translate-x-1 transition-transform" />
                   </button>
@@ -172,7 +201,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#010030]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#0a0a0c]" />}>
       <SearchContent />
     </Suspense>
   );

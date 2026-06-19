@@ -3,6 +3,7 @@ export interface Movie {
   title: string;
   originName?: string;
   imageSrc: string;
+  posterSrc?: string;
   slug: string;
   category?: { id: string; name: string; slug: string }[];
 }

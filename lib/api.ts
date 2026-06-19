@@ -4,6 +4,27 @@ import { Movie, OphimMovie } from "@/types";
 
 export type { Movie };
 
+// Helper to fetch with local server-side caching on client-side, and direct fetch on server-side
+async function fetchWithCache(url: string, revalidate = 86400) {
+  try {
+    // If running in the browser, call through our local Next.js proxy route so it gets server-cached
+    if (typeof window !== 'undefined') {
+      const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+      const res = await fetch(proxyUrl);
+      if (!res.ok) throw new Error(`Proxy failed: ${res.statusText}`);
+      return await res.json();
+    } else {
+      // If running on the server (build time or SSR), fetch directly
+      const res = await fetch(url, { next: { revalidate } });
+      if (!res.ok) throw new Error(`Direct fetch failed: ${res.statusText}`);
+      return await res.json();
+    }
+  } catch (error) {
+    console.error(`Error in fetchWithCache for URL: ${url}`, error);
+    throw error;
+  }
+}
+
 // 1. Hàm lấy phim mới hỗn hợp (Dùng cho Hero Banner) - Đã Cache
 export async function getNewMovies(page = 1, limit = 20): Promise<Movie[]> {
   try {
@@ -19,6 +40,7 @@ export async function getNewMovies(page = 1, limit = 20): Promise<Movie[]> {
     }
     
     const imageDomain = data.pathImage || 'https://phimimg.com/';
+    const imgDomain = imageDomain.endsWith('/') ? imageDomain : `${imageDomain}/`;
     
     // Lấy tất cả items, sau đó mới filter theo limit
     const items = data.items.slice(0, limit);
@@ -26,7 +48,8 @@ export async function getNewMovies(page = 1, limit = 20): Promise<Movie[]> {
     return items.map((movie: OphimMovie) => ({
       id: movie._id,
       title: movie.name,
-      imageSrc: movie.thumb_url?.startsWith('http') ? movie.thumb_url : `${imageDomain}${movie.thumb_url}`,
+      imageSrc: movie.thumb_url?.startsWith('http') ? movie.thumb_url : `${imgDomain}${movie.thumb_url}`,
+      posterSrc: movie.poster_url ? (movie.poster_url.startsWith('http') ? movie.poster_url : `${imgDomain}${movie.poster_url}`) : undefined,
       slug: movie.slug 
     }));
   } catch (error) {
@@ -73,19 +96,17 @@ export async function getMoviesByCategory(category: string, limit = 20): Promise
   }
 }
 
-// 3. Hàm lấy chi tiết phim - ĐÃ THÊM CACHE
+// 3. Hàm lấy chi tiết phim - ĐÃ THÊM CACHE QUA PROXY
 export async function getMovieDetails(slug: string) {
   try {
-    const res = await fetch(`https://phimapi.com/phim/${slug}`, { next: { revalidate: 3600 } });
-    if (!res.ok) throw new Error('Failed to fetch details');
-    return await res.json();
+    return await fetchWithCache(`https://phimapi.com/phim/${slug}`);
   } catch (error) {
     console.error("Lỗi fetch chi tiết phim:", error);
     return null;
   }
 }
 
-// 4. Hàm tìm kiếm nhanh (dropdown) - KHÔNG CACHE
+// 4. Hàm tìm kiếm nhanh (dropdown) - KHÔNG CACHE (Vì search cần phản hồi động)
 export async function searchMovies(keyword: string) {
   try {
     const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&limit=6`);
@@ -135,13 +156,10 @@ export async function searchMoviesPaginated(keyword: string, page: number = 1, l
   }
 }
 
-
-// 5. Hàm lấy phim theo Thể loại (Trang chủ)
+// 5. Hàm lấy phim theo Thể loại (Trang chủ) - CÓ CACHE QUA PROXY
 export async function getMoviesByGenre(slug: string) {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/the-loai/${slug}?limit=24`);
-    if (!res.ok) return [];
-    const data = await res.json();
+    const data = await fetchWithCache(`https://phimapi.com/v1/api/the-loai/${slug}?limit=24`);
     if (!data?.data?.items) return [];
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
     
@@ -161,13 +179,10 @@ export async function getMoviesByGenre(slug: string) {
   }
 }
 
-// 6. Hàm Phân trang Thể loại - ĐÃ THÊM CACHE
+// 6. Hàm Phân trang Thể loại - CÓ CACHE QUA PROXY
 export async function getMoviesByGenrePaginated(slug: string, page: number = 1, limit: number = 64) {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/the-loai/${slug}?limit=${limit}&page=${page}`, { next: { revalidate: 3600 } });
-    if (!res.ok) return { items: [], pagination: null, title: 'Danh mục phim' };
-    
-    const data = await res.json();
+    const data = await fetchWithCache(`https://phimapi.com/v1/api/the-loai/${slug}?limit=${limit}&page=${page}`);
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
 
     const items = data.data?.items?.map((movie: OphimMovie) => {
@@ -191,13 +206,10 @@ export async function getMoviesByGenrePaginated(slug: string, page: number = 1, 
   }
 }
 
-// 7. Hàm Phân trang Quốc gia - ĐÃ THÊM CACHE
+// 7. Hàm Phân trang Quốc gia - CÓ CACHE QUA PROXY
 export async function getMoviesByCountryPaginated(slug: string, page: number = 1, limit: number = 64) {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/quoc-gia/${slug}?limit=${limit}&page=${page}`, { next: { revalidate: 3600 } });
-    if (!res.ok) return { items: [], pagination: null, title: 'Danh mục quốc gia' };
-    
-    const data = await res.json();
+    const data = await fetchWithCache(`https://phimapi.com/v1/api/quoc-gia/${slug}?limit=${limit}&page=${page}`);
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
 
     const items = data.data?.items?.map((movie: OphimMovie) => {
@@ -221,16 +233,10 @@ export async function getMoviesByCountryPaginated(slug: string, page: number = 1
   }
 }
 
-// 8. Hàm Phân trang cho các Danh Mục (phim-bo, phim-le, hoat-hinh, tv-shows) - ĐÃ THÊM CACHE
+// 8. Hàm Phân trang cho các Danh Mục (phim-bo, phim-le, hoat-hinh, tv-shows) - CÓ CACHE QUA PROXY
 export async function getDanhSachPhimPaginated(slug: string, page: number = 1, limit: number = 64) {
   try {
-    const res = await fetch(`https://phimapi.com/v1/api/danh-sach/${slug}?limit=${limit}&page=${page}`, { next: { revalidate: 3600 } });
-    if (!res.ok) {
-        console.warn(`Cảnh báo HTTP ${res.status}: không tìm thấy danh mục phân trang ${slug}`);
-        return { items: [], pagination: null, title: 'Danh sách phim' };
-    }
-    
-    const data = await res.json();
+    const data = await fetchWithCache(`https://phimapi.com/v1/api/danh-sach/${slug}?limit=${limit}&page=${page}`);
     if (!data || data.status === false || !data.data || !data.data.items) {
       return { items: [], pagination: null, title: 'Danh sách phim trống' };
     }
@@ -258,13 +264,10 @@ export async function getDanhSachPhimPaginated(slug: string, page: number = 1, l
   }
 }
 
-// 9. Hàm Phân trang cho Phim Mới (API này cấu trúc riêng) - ĐÃ THÊM CACHE
+// 9. Hàm Phân trang cho Phim Mới (API này cấu trúc riêng) - CÓ CACHE QUA PROXY
 export async function getNewMoviesPaginated(page: number = 1) {
   try {
-    const res = await fetch(`https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=${page}`, { next: { revalidate: 3600 } });
-    if (!res.ok) return { items: [], pagination: null, title: 'Phim Mới Cập Nhật' };
-    
-    const data = await res.json();
+    const data = await fetchWithCache(`https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=${page}`);
     if (!data || !data.items) {
        return { items: [], pagination: null, title: 'Phim Mới Cập Nhật trống' };
     }
@@ -292,7 +295,7 @@ export async function getNewMoviesPaginated(page: number = 1) {
   }
 }
 
-// 10. Hàm lọc phim theo Quốc Gia + Thể Loại
+// 10. Hàm lọc phim theo Quốc Gia + Thể Loại - CÓ CACHE QUA PROXY
 export async function getMoviesByCountryAndGenre(
   countrySlug: string,
   genreSlug: string,
@@ -301,10 +304,7 @@ export async function getMoviesByCountryAndGenre(
 ) {
   try {
     const url = `https://phimapi.com/v1/api/quoc-gia/${countrySlug}?limit=${limit}&page=${page}&category=${genreSlug}`;
-    const res = await fetch(url, { next: { revalidate: 3600 } });
-    if (!res.ok) return { items: [], pagination: null, title: '' };
-
-    const data = await res.json();
+    const data = await fetchWithCache(url);
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
 
     const items = data.data?.items?.map((movie: OphimMovie) => {

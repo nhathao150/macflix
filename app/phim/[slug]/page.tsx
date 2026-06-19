@@ -647,17 +647,53 @@ export default function MovieDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      <div className="min-h-screen bg-[#0a0a0c] text-white pt-6 md:pt-[100px] px-4 md:px-8 pb-20">
+        <div className="max-w-[1400px] mx-auto flex flex-col gap-6">
+          {/* Skeleton Video Player */}
+          <div className="w-full aspect-video bg-white/5 border border-white/10 rounded-2xl md:rounded-3xl animate-skeleton" />
+          
+          {/* Skeleton Title & Metadata */}
+          <div className="flex flex-col gap-3 mt-4">
+            <div className="h-8 w-1/2 bg-white/10 rounded-lg animate-skeleton" />
+            <div className="flex gap-4">
+              <div className="h-4 w-12 bg-white/5 rounded animate-skeleton" />
+              <div className="h-4 w-16 bg-white/5 rounded animate-skeleton" />
+              <div className="h-4 w-10 bg-white/5 rounded animate-skeleton" />
+            </div>
+          </div>
+
+          {/* Skeleton Episodes */}
+          <div className="bg-white/5 border border-white/5 p-4 md:p-6 rounded-2xl md:rounded-3xl flex flex-col gap-4 mt-2">
+            <div className="h-5 w-36 bg-white/10 rounded animate-skeleton" />
+            <div className="flex flex-wrap gap-2">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="h-10 w-16 bg-white/5 rounded-xl animate-skeleton" />
+              ))}
+            </div>
+          </div>
+
+          {/* Skeleton Description */}
+          <div className="h-24 w-full bg-white/5 border border-white/5 rounded-2xl animate-skeleton" />
+
+          {/* Skeleton Cast & Crew */}
+          <div className="flex flex-col gap-4">
+            <div className="h-4 w-24 bg-white/10 rounded animate-skeleton" />
+            <div className="flex gap-3 overflow-hidden">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3 bg-white/5 border border-white/5 px-4 py-3 rounded-2xl w-40 animate-skeleton" />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!movieDetails?.movie) {
     return (
-      <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center text-white">
+      <div className="min-h-screen bg-[#0a0a0c] flex flex-col items-center justify-center text-white">
         <h1 className="text-2xl font-bold mb-4">Không tìm thấy phim!</h1>
-        <Link href="/" className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors">Về trang chủ</Link>
+        <Link href="/" className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors active-scale">Về trang chủ</Link>
       </div>
     );
   }
@@ -676,7 +712,7 @@ export default function MovieDetailPage() {
   const validCast = [...(movie.director || []), ...(movie.actor || [])].filter(name => name && name !== 'Đang cập nhật');
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white selection:bg-cyan-500/30 pb-20 relative overflow-hidden">
+    <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-cyan-500/30 pb-20 relative overflow-hidden">
       <Navbar />
 
       <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none z-0">
@@ -684,7 +720,7 @@ export default function MovieDetailPage() {
          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-900/20 blur-[120px] rounded-full mix-blend-screen" />
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 pt-[80px] md:pt-[100px] relative z-10 flex flex-col gap-8">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 pt-4 md:pt-[100px] relative z-10 flex flex-col gap-8">
         
         {/* ======================================================= */}
         {/* GIAO DIỆN CUSTOM VIDEO PLAYER (APPLE TV STYLE)          */}
@@ -740,7 +776,7 @@ export default function MovieDetailPage() {
                       
                       {/* ĐÃ XÓA GÓC TRÁI PIP/SHARE ĐỂ TRÁNH ĐÈ LÊN GIAO DIỆN NATIVE IPAD */}
 
-                      <div className="pointer-events-auto flex items-center group/vol bg-[#1a1a1c]/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg">
+                      <div className="hidden md:flex pointer-events-auto items-center group/vol bg-[#1a1a1c]/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg">
                           <button 
                               onClick={toggleMute} 
                               className="text-white/70 hover:text-white hover:scale-110 transition flex items-center justify-center shrink-0" 
@@ -797,7 +833,7 @@ export default function MovieDetailPage() {
                                   </h2>
                               </div>
 
-                              <div className="flex items-center gap-4 bg-[#1a1a1c]/80 backdrop-blur-xl px-4 py-2 md:px-5 md:py-2.5 rounded-full border border-white/10 shadow-2xl shrink-0">
+                              <div className="flex items-center gap-2 md:gap-4 bg-[#1a1a1c]/80 backdrop-blur-xl px-2 md:px-5 py-1 md:py-2.5 rounded-full border border-white/10 shadow-2xl shrink-0">
                                   
                                   {/* Nút Phụ Đề */}
                                   <div className="relative">
@@ -820,7 +856,7 @@ export default function MovieDetailPage() {
                                               </div>
                                           </>
                                       )}
-                                      <button onClick={() => { setIsSubMenuOpen(!isSubMenuOpen); setIsSpeedMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Phụ đề"><Subtitles className="w-4 h-4 md:w-5 md:h-5" /></button>
+                                      <button onClick={() => { setIsSubMenuOpen(!isSubMenuOpen); setIsSpeedMenuOpen(false); }} className={`w-11 h-11 md:w-auto md:h-auto hover:scale-110 active-scale transition flex items-center justify-center ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Phụ đề"><Subtitles className="w-5 h-5 md:w-5 md:h-5" /></button>
                                   </div>
 
                                   {/* Nút Tốc Độ */}
@@ -839,12 +875,12 @@ export default function MovieDetailPage() {
                                               </div>
                                           </>
                                       )}
-                                      <button onClick={() => { setIsSpeedMenuOpen(!isSpeedMenuOpen); setIsSubMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Cài đặt tốc độ"><Settings className="w-4 h-4 md:w-5 md:h-5" /></button>
+                                      <button onClick={() => { setIsSpeedMenuOpen(!isSpeedMenuOpen); setIsSubMenuOpen(false); }} className={`w-11 h-11 md:w-auto md:h-auto hover:scale-110 active-scale transition flex items-center justify-center ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`} title="Cài đặt tốc độ"><Settings className="w-5 h-5 md:w-5 md:h-5" /></button>
                                   </div>
 
                                   {/* Nút Fullscreen */}
-                                  <button onClick={toggleFullScreen} className="text-white/70 hover:text-white hover:scale-110 transition" title="Toàn màn hình">
-                                      {isFullscreen ? <Minimize className="w-4 h-4 md:w-5 md:h-5" /> : <Maximize className="w-4 h-4 md:w-5 md:h-5" />}
+                                  <button onClick={toggleFullScreen} className="w-11 h-11 md:w-auto md:h-auto text-white/70 hover:text-white hover:scale-110 transition flex items-center justify-center active-scale" title="Toàn màn hình">
+                                      {isFullscreen ? <Minimize className="w-5 h-5 md:w-5 md:h-5" /> : <Maximize className="w-5 h-5 md:w-5 md:h-5" />}
                                   </button>
                               </div>
                           </div>
@@ -995,16 +1031,16 @@ export default function MovieDetailPage() {
                                 const globalIndex = activeGroupIndex * EPISODES_PER_GROUP + localIndex;
                                 const isPlaying = currentEpisodeIndex === globalIndex;
                                 return (
-                                    <button key={ep.slug} onClick={() => { setCurrentEpisodeIndex(globalIndex); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-[calc(25%-6px)] sm:w-[calc(20%-8px)] md:w-[calc(10%-11px)] py-2 md:py-3 rounded-xl text-xs font-bold transition-all border ${isPlaying ? 'bg-gradient-to-tr from-cyan-500 to-blue-600 text-white border-transparent shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105 z-10' : 'bg-[#1a1a1c] text-white/70 border-white/5 hover:bg-white/20 hover:text-white hover:border-white/20'}`}>{ep.name.replace('Tập ', '')}</button>
+                                    <button key={ep.slug} onClick={() => { setCurrentEpisodeIndex(globalIndex); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className={`w-[calc(25%-6px)] sm:w-[calc(20%-8px)] md:w-[calc(10%-11px)] py-3 rounded-xl text-xs font-bold transition-all border active-scale ${isPlaying ? 'bg-gradient-to-tr from-cyan-500 to-blue-600 text-white border-transparent shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105 z-10' : 'bg-[#1a1a1c] text-white/70 border-white/5 hover:bg-white/20 hover:text-white hover:border-white/20'}`}>{ep.name.replace('Tập ', '')}</button>
                                 );
                             })}
                             {hasMoreInGroup && !isExpanded && (
-                                <button onClick={() => setIsExpanded(true)} className="w-[calc(25%-6px)] sm:w-[calc(20%-8px)] md:w-[calc(10%-11px)] py-2 md:py-3 rounded-xl text-xs font-bold transition-all border bg-white/5 text-white/70 border-white/10 hover:bg-white hover:text-black flex items-center justify-center"><MoreHorizontal className="w-5 h-5" /></button>
+                                <button onClick={() => setIsExpanded(true)} className="w-[calc(25%-6px)] sm:w-[calc(20%-8px)] md:w-[calc(10%-11px)] py-3 rounded-xl text-xs font-bold transition-all border bg-white/5 text-white/70 border-white/10 hover:bg-white hover:text-black flex items-center justify-center active-scale"><MoreHorizontal className="w-5 h-5" /></button>
                             )}
                         </div>
                         {hasMoreInGroup && isExpanded && (
                             <div className="mt-4 flex justify-center">
-                                <button onClick={() => setIsExpanded(false)} className="flex items-center gap-1 text-xs font-bold text-white/50 hover:text-white uppercase tracking-widest transition-colors py-2 px-4 rounded-full hover:bg-white/10"><ChevronUp className="w-4 h-4" /> Thu gọn</button>
+                                <button onClick={() => setIsExpanded(false)} className="flex items-center gap-1 text-xs font-bold text-white/50 hover:text-white uppercase tracking-widest transition-colors py-2 px-4 rounded-full hover:bg-white/10 active-scale"><ChevronUp className="w-4 h-4" /> Thu gọn</button>
                             </div>
                         )}
                     </div>
@@ -1017,8 +1053,8 @@ export default function MovieDetailPage() {
         {/* ẨN LINE NẾU KHÔNG CÓ CAST & CREW */}
         {validCast.length > 0 && (
             <div className="pt-4 border-t border-white/10">
-                <h3 className="text-xs font-bold mb-4 uppercase tracking-wider text-white/70">Cast &amp; Crew</h3>
-                <div className="flex flex-wrap gap-3">
+                <h3 className="text-xs font-bold mb-4 uppercase tracking-wider text-white/70 px-4 md:px-0">Cast &amp; Crew</h3>
+                <div className="flex flex-nowrap md:flex-wrap gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
                     {validCast.map((name, idx) => (
                         <CastCard
                             key={idx}
@@ -1035,16 +1071,16 @@ export default function MovieDetailPage() {
         {/* PHIM LIÊN QUAN */}
         {relatedMovies.length > 0 && (
           <div className="pt-6 border-t border-white/10">
-            <div className="flex items-center gap-2 mb-5">
+            <div className="flex items-center gap-2 mb-5 px-4 md:px-0">
               <Film className="w-5 h-5 text-cyan-400" />
               <h3 className="text-sm font-bold uppercase tracking-wider text-white/80">Phim Liên Quan</h3>
             </div>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-6 gap-3 md:gap-4">
+            <div className="flex flex-nowrap md:grid md:grid-cols-6 gap-3 md:gap-4 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
               {relatedMovies.map((movie) => (
                 <div
                   key={movie.slug}
                   onClick={() => router.push(`/phim/${movie.slug}`)}
-                  className="group flex flex-col cursor-pointer"
+                  className="group flex flex-col cursor-pointer w-[110px] md:w-auto shrink-0 md:shrink-1 active-scale"
                 >
                   <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden mb-2 border border-white/5 bg-white/5">
                     <Image

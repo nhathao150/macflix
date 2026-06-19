@@ -56,22 +56,22 @@ export default function HistoryPage() {
 
   if (isLoading || status === 'loading') {
     return (
-      <main className="min-h-screen bg-[#010030] flex items-center justify-center">
+      <main className="min-h-screen bg-[#0a0a0c] flex items-center justify-center">
         <Loader2 className="w-10 h-10 animate-spin" style={{color:'#F042FF'}} />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#010030] text-white selection:bg-[#F042FF]/30 pb-20">
+    <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-28">
       <Navbar />
 
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 pt-[120px]">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 pt-6 md:pt-[120px]">
         {/* Tiêu đề */}
         <div className="mb-8 flex items-end justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-3">
             <History className="w-8 h-8 md:w-10 md:h-10 text-cyan-400" />
-            <h1 className="font-black tracking-widest text-white uppercase drop-shadow-md">
+            <h1 className="font-black tracking-widest text-white uppercase drop-shadow-md text-xl md:text-3xl">
               Lịch sử xem phim
             </h1>
           </div>
@@ -80,11 +80,11 @@ export default function HistoryPage() {
         {/* LOGIC HIỂN THỊ */}
         {status === 'unauthenticated' ? (
           // 1. NẾU CHƯA ĐĂNG NHẬP
-          <div className="text-center mt-32 flex flex-col items-center gap-4 bg-white/5 p-8 rounded-3xl border border-white/10 max-w-md mx-auto backdrop-blur-sm shadow-xl">
+          <div className="text-center mt-20 md:mt-32 flex flex-col items-center gap-4 bg-white/5 p-8 rounded-3xl border border-white/10 max-w-md mx-auto backdrop-blur-sm shadow-xl">
             <AlertCircle className="w-16 h-16 text-yellow-500 opacity-80" />
             <h2 className="text-lg font-bold">Bạn chưa đăng nhập</h2>
             <p className="text-white/50 text-sm">Vui lòng đăng nhập để đồng bộ và xem lại lịch sử các bộ phim bạn đã cày nhé!</p>
-            <Link href="/dang-nhap" className="mt-4 px-8 py-3 text-white rounded-full font-bold transition-all hover:opacity-90 hover:scale-105 shadow-[0_0_20px_rgba(240,66,255,0.3)]" style={{background:'linear-gradient(135deg,#F042FF,#7226FF)'}}>
+            <Link href="/dang-nhap" className="mt-4 px-8 py-3 text-white rounded-full font-bold transition-all hover:opacity-90 active-scale shadow-[0_0_20px_rgba(240,66,255,0.3)]" style={{background:'linear-gradient(135deg,#F042FF,#7226FF)'}}>
               Đăng nhập ngay
             </Link>
           </div>
@@ -95,7 +95,7 @@ export default function HistoryPage() {
               <Link 
                 href={`/phim/${movie.slug}`} 
                 key={`${movie.slug}-${index}`}
-                className="group flex flex-col cursor-pointer"
+                className="group flex flex-col cursor-pointer active-scale"
               >
                 <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-[#160078/20]">
                   <Image 

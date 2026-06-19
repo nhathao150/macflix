@@ -85,10 +85,10 @@ function CountryContent() {
   const activeGenreName = GENRES.find(g => g.slug === selectedGenre)?.name || 'Tất cả';
 
   return (
-    <main className="min-h-screen bg-[#010030] text-white selection:bg-[#F042FF]/30 pb-20">
+    <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-28">
       <Navbar />
 
-      <div className="max-w-[1800px] mx-auto px-4 md:px-8 pt-[120px]">
+      <div className="max-w-[1800px] mx-auto px-4 md:px-8 pt-6 md:pt-[120px]">
 
         {/* Tiêu đề */}
         <div className="mb-6 border-b border-white/10 pb-4">
@@ -123,7 +123,7 @@ function CountryContent() {
                   onClick={() => handleGenreSelect(genre.slug)}
                   className={`
                     relative px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap
-                    transition-all duration-200 border
+                    transition-all duration-200 border active-scale
                     ${isActive
                       ? 'text-white border-transparent shadow-lg shadow-purple-500/30'
                       : 'text-white/60 border-white/10 hover:text-white hover:border-white/30 bg-white/5'
@@ -165,7 +165,7 @@ function CountryContent() {
                   <div
                     key={`${movie.id}-${index}`}
                     onClick={() => openModal(movie)}
-                    className="group flex flex-col cursor-pointer"
+                    className="group flex flex-col cursor-pointer active-scale"
                   >
                     <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-[#160078]/20">
                       <Image
@@ -195,19 +195,19 @@ function CountryContent() {
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-white/10 border border-white/10 flex items-center justify-center transition-all group"
+                    className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-white/10 border border-white/10 flex items-center justify-center transition-all group active-scale"
                   >
                     <ChevronLeft className="w-6 h-6 text-white group-hover:-translate-x-1 transition-transform" />
                   </button>
 
-                  <span className="text-lg font-bold text-white/80 px-6 py-2 rounded-full border border-white/10 shadow-inner">
+                  <span className="text-lg font-bold text-white/80 px-6 py-2 rounded-full border border-white/10 bg-white/5 shadow-inner">
                     Trang {currentPage} <span className="text-white/40 font-normal">/ {pagination.totalPages}</span>
                   </span>
 
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === pagination.totalPages}
-                    className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-white/10 border border-white/10 flex items-center justify-center transition-all group"
+                    className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-white/10 border border-white/10 flex items-center justify-center transition-all group active-scale"
                   >
                     <ChevronRight className="w-6 h-6 text-white group-hover:translate-x-1 transition-transform" />
                   </button>
@@ -232,7 +232,7 @@ function CountryContent() {
 
 export default function CountryPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#010030]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#0a0a0c]" />}>
       <CountryContent />
     </Suspense>
   );

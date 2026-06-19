@@ -206,7 +206,7 @@ export default function ProfilePage() {
   // ---- LOADING STATE ----
   if (isLoading || status === 'loading') {
     return (
-      <main className="min-h-screen bg-[#010030] flex items-center justify-center">
+      <main className="min-h-screen bg-[#0a0a0c] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-10 h-10 animate-spin" style={{color:'#F042FF'}} />
           <p className="text-white/50 text-sm">Đang tải thông tin...</p>
@@ -219,11 +219,11 @@ export default function ProfilePage() {
   const hasNewAvatar = avatarPreview && avatarPreview !== profile?.avatar;
 
   return (
-    <main className="min-h-screen bg-[#010030] text-white pb-20 selection:bg-[#F042FF]/30">
+    <main className="min-h-screen bg-[#0a0a0c] text-white pb-28 selection:bg-[#F042FF]/30">
       <Navbar />
 
       {/* Hero bar */}
-      <div className="relative overflow-hidden pt-[90px]">
+      <div className="relative overflow-hidden pt-6 md:pt-[90px]">
         <div className="absolute inset-0 bg-gradient-to-b from-[#F042FF]/10 via-[#7226FF]/5 to-transparent pointer-events-none" />
         <div className="max-w-5xl mx-auto px-4 md:px-8 py-8 flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm">
@@ -258,7 +258,7 @@ export default function ProfilePage() {
               </div>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 w-9 h-9 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 border-2 border-[#010030]"
+                className="absolute bottom-0 right-0 w-9 h-9 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 border-2 border-[#0a0a0c] active-scale"
                 style={{background:'#F042FF'}}>
 
                 <Camera className="w-4 h-4 text-white" />
@@ -284,7 +284,7 @@ export default function ProfilePage() {
                 <button
                   onClick={handleSaveAvatar}
                   disabled={isUploadingAvatar}
-                  className="w-full py-2.5 rounded-xl text-white text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-2.5 rounded-xl text-white text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 active-scale"
                   style={{background:'linear-gradient(135deg,#F042FF,#7226FF)',boxShadow:'0 0 20px rgba(240,66,255,0.3)'}}
                 >
                   {isUploadingAvatar ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -295,7 +295,7 @@ export default function ProfilePage() {
                     setAvatarPreview(profile?.avatar || '');
                     setAvatarStatus(null);
                   }}
-                  className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 text-sm transition-colors"
+                  className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 text-sm transition-colors active-scale"
                 >
                   Hủy
                 </button>
@@ -318,12 +318,12 @@ export default function ProfilePage() {
 
             {/* Stats */}
             <div className="w-full grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
-              <Link href="/lich-su" className="flex flex-col items-center gap-1 p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-colors group">
+              <Link href="/lich-su" className="flex flex-col items-center gap-1 p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-colors group active-scale">
                 <Film className="w-5 h-5 group-hover:scale-110 transition-transform" style={{color:'#87F5F5'}} />
                 <span className="text-lg font-black text-white">{profile?.watchCount ?? 0}</span>
                 <span className="text-[10px] text-white/50">Đã xem</span>
               </Link>
-              <Link href="/yeu-thich" className="flex flex-col items-center gap-1 p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-colors group">
+              <Link href="/yeu-thich" className="flex flex-col items-center gap-1 p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-colors group active-scale">
                 <Heart className="w-5 h-5 group-hover:scale-110 transition-transform" style={{color:'#F042FF'}} />
                 <span className="text-lg font-black text-white">{profile?.favoriteCount ?? 0}</span>
                 <span className="text-[10px] text-white/50">Yêu thích</span>
@@ -455,7 +455,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={isSavingPw}
-                className="mt-1 py-3 rounded-xl text-white font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 hover:opacity-90"
+                className="mt-1 py-3 rounded-xl text-white font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 hover:opacity-90 active-scale"
                 style={{background:'linear-gradient(135deg,#7226FF,#F042FF)',boxShadow:'0 0 20px rgba(114,38,255,0.2)'}}>   
                 {isSavingPw ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
                 {isSavingPw ? 'Đang lưu...' : 'Cập nhật mật khẩu'}
