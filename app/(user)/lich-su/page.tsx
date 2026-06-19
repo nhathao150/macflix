@@ -29,7 +29,8 @@ export default function HistoryPage() {
               let imgSrc = item.imageSrc || '/placeholder-image.jpg';
               if (imgSrc === '/placeholder-image.jpg') {
                 try {
-                  const apiRes = await fetch(`https://phimapi.com/phim/${item.slug}`);
+                  const MOVIE_API_URL = process.env.NEXT_PUBLIC_MOVIE_API_URL || 'https://phimapi.com';
+                  const apiRes = await fetch(`${MOVIE_API_URL}/phim/${item.slug}`);
                   const detail = await apiRes.json();
                   if (detail && detail.status && detail.movie) {
                     const imgUrl = detail.movie.thumb_url || detail.movie.poster_url;

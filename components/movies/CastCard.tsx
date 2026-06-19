@@ -93,7 +93,8 @@ export function usePeoplesData(slug: string | null | undefined): PeoplesData {
     if (!slug) return;
     let cancelled = false;
 
-    fetch(`/api/proxy?url=${encodeURIComponent(`https://ophim1.com/v1/api/phim/${slug}/peoples`)}`)
+    const OPHIM_API_URL = process.env.NEXT_PUBLIC_OPHIM_API_URL || 'https://ophim1.com';
+    fetch(`/api/proxy?url=${encodeURIComponent(`${OPHIM_API_URL}/v1/api/phim/${slug}/peoples`)}`)
       .then((r) => r.json())
       .then((res: {
         success: boolean;

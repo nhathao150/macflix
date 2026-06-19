@@ -44,10 +44,6 @@ export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState<'genre' | 'country' | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    document.documentElement.classList.add('dark');
-  }, []);
-
   // Fetch avatar khi user đăng nhập
   useEffect(() => {
     let cancelled = false;
@@ -146,16 +142,16 @@ export default function Navbar() {
         </div>
 
         {/* MENU CHÍNH */}
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-white/80">
-          <Link href="/" className="hover:text-black dark:hover:text-white transition-colors">Trang chủ</Link>
+        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-white/80">
+          <Link href="/" className="hover:text-white transition-colors">Trang chủ</Link>
           
           <div className="relative py-2">
             <button
               onClick={() => setOpenDropdown(openDropdown === 'genre' ? null : 'genre')}
               className={`flex items-center gap-1 transition-colors ${
                 openDropdown === 'genre'
-                  ? 'text-black dark:text-white'
-                  : 'text-gray-700 dark:text-white/80 hover:text-black dark:hover:text-white'
+                  ? 'text-white'
+                  : 'text-white/80 hover:text-white'
               }`}
             >
               Thể loại
@@ -165,12 +161,12 @@ export default function Navbar() {
             </button>
             {openDropdown === 'genre' && (
               <div className="absolute top-full left-0 pt-4 w-[450px] z-50">
-                <div className="bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col p-4">
+                <div className="bg-[#141414]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col p-4">
                   <div className="grid grid-cols-3 gap-x-2 gap-y-1">
                     {GENRES.map((genre) => (
                       <Link
                         key={genre.slug} href={`/the-loai/${genre.slug}`} onClick={closeDropdown}
-                        className="px-3 py-2 text-xs font-medium text-gray-600 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-black dark:hover:text-white rounded-lg transition-colors"
+                        className="px-3 py-2 text-xs font-medium text-white/70 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
                       >
                         {genre.name}
                       </Link>
@@ -186,8 +182,8 @@ export default function Navbar() {
               onClick={() => setOpenDropdown(openDropdown === 'country' ? null : 'country')}
               className={`flex items-center gap-1 transition-colors ${
                 openDropdown === 'country'
-                  ? 'text-black dark:text-white'
-                  : 'text-gray-700 dark:text-white/80 hover:text-black dark:hover:text-white'
+                  ? 'text-white'
+                  : 'text-white/80 hover:text-white'
               }`}
             >
               Quốc Gia
@@ -197,12 +193,12 @@ export default function Navbar() {
             </button>
             {openDropdown === 'country' && (
               <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 w-[750px] z-50">
-                <div className="bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col p-5">
+                <div className="bg-[#141414]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col p-5">
                   <div className="grid grid-cols-5 gap-x-2 gap-y-2">
                     {COUNTRIES.map((country) => (
                       <Link
                         key={country.slug} href={`/quoc-gia/${country.slug}`} onClick={closeDropdown}
-                        className="px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-black dark:hover:text-white rounded-lg transition-colors"
+                        className="px-3 py-2 text-sm text-white/70 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
                       >
                         {country.name}
                       </Link>
@@ -219,9 +215,9 @@ export default function Navbar() {
           
           {/* TÌM KIẾM */}
           <div className="hidden lg:flex relative items-center">
-            <div className="flex items-center gap-2 bg-black/5 dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-full px-4 py-1.5 backdrop-blur-sm transition-all focus-within:bg-white dark:focus-within:bg-[#1a1a1a] focus-within:ring-2 focus-within:ring-[#d070ff]/50">
+            <div className="flex items-center gap-2 bg-black/30 border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-sm transition-all focus-within:bg-[#1a1a1a] focus-within:ring-2 focus-within:ring-[#d070ff]/50">
               <Search
-                className="w-4 h-4 text-gray-500 dark:text-white/50 cursor-pointer hover:text-[#d070ff] transition-colors"
+                className="w-4 h-4 text-white/50 cursor-pointer hover:text-[#d070ff] transition-colors"
                 onClick={handleSearchSubmit}
               />
               <input
@@ -230,12 +226,12 @@ export default function Navbar() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
-                className="bg-transparent border-none outline-none text-sm text-black dark:text-white w-36 focus:w-56 transition-all duration-300 placeholder:text-gray-500 dark:placeholder:text-white/50"
+                className="bg-transparent border-none outline-none text-sm text-white w-36 focus:w-56 transition-all duration-300 placeholder:text-white/50"
               />
             </div>
 
             {searchTerm && (
-              <div className="absolute top-full right-0 mt-4 w-80 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col p-2 z-50 overflow-hidden">
+              <div className="absolute top-full right-0 mt-4 w-80 bg-[#141414]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col p-2 z-50 overflow-hidden">
                 {isSearching ? (
                    <div className="p-4 flex justify-center items-center">
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#d070ff]"></div>
@@ -243,11 +239,11 @@ export default function Navbar() {
                 ) : searchResults.length > 0 ? (
                   <>
                     {searchResults.map((movie) => (
-                      <Link href={`/phim/${movie.slug}`} key={movie.id} onClick={() => setSearchTerm('')} className="flex items-center gap-3 p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-colors group">
+                      <Link href={`/phim/${movie.slug}`} key={movie.id} onClick={() => setSearchTerm('')} className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-xl transition-colors group">
                         <Image src={movie.imageSrc || '/placeholder-image.jpg'} alt={movie.title} width={40} height={56} className="w-10 h-14 object-cover rounded-md shadow-sm group-hover:scale-105 transition-transform" />
                         <div className="flex flex-col">
-                          <span className="text-sm font-bold text-gray-800 dark:text-white line-clamp-1">{movie.title}</span>
-                          <span className="text-[10px] text-gray-500 dark:text-white/50 uppercase">Xem chi tiết</span>
+                          <span className="text-sm font-bold text-white line-clamp-1">{movie.title}</span>
+                          <span className="text-[10px] text-white/50 uppercase">Xem chi tiết</span>
                         </div>
                       </Link>
                     ))}
@@ -262,7 +258,7 @@ export default function Navbar() {
                     </button>
                   </>
                 ) : (
-                  <div className="p-4 text-center text-xs text-gray-500 dark:text-white/50 font-medium">Không tìm thấy kết quả nào</div>
+                  <div className="p-4 text-center text-xs text-white/50 font-medium">Không tìm thấy kết quả nào</div>
                 )}
               </div>
             )}
@@ -290,23 +286,23 @@ export default function Navbar() {
               </div>
               
               {/* Menu Đăng xuất (Có chứa Lịch sử và Tài khoản) */}
-              <div className="absolute top-full right-0 mt-2 w-56 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 overflow-hidden transform origin-top-right scale-95 group-hover:scale-100 z-50 pointer-events-auto flex flex-col">
+              <div className="absolute top-full right-0 mt-2 w-56 bg-[#141414]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 overflow-hidden transform origin-top-right scale-95 group-hover:scale-100 z-50 pointer-events-auto flex flex-col">
                 
                 {/* Thông tin user */}
-                <div className="px-4 py-3 border-b border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/5">
-                  <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{session.user?.name}</p>
-                  <p className="text-[10px] text-gray-500 dark:text-white/50 truncate mt-0.5">{session.user?.email}</p>
+                <div className="px-4 py-3 border-b border-white/10 bg-white/5">
+                  <p className="text-sm font-bold text-white truncate">{session.user?.name}</p>
+                  <p className="text-[10px] text-white/50 truncate mt-0.5">{session.user?.email}</p>
                 </div>
                 
                 {/* Lịch sử và Cài đặt */}
-                <div className="py-2 border-b border-black/5 dark:border-white/10 flex flex-col gap-1">
-                  <Link href="/ca-nhan" className="px-4 py-2 text-sm text-gray-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-colors flex items-center gap-2 font-medium">
+                <div className="py-2 border-b border-white/10 flex flex-col gap-1">
+                  <Link href="/ca-nhan" className="px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors flex items-center gap-2 font-medium">
                     <Settings className="w-4 h-4" /> Tùy chỉnh thông tin
                   </Link>
-                  <Link href="/lich-su" className="px-4 py-2 text-sm text-gray-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-colors flex items-center gap-2 font-medium">
+                  <Link href="/lich-su" className="px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors flex items-center gap-2 font-medium">
                     <History className="w-4 h-4" /> Lịch sử xem phim
                   </Link>
-                  <Link href="/yeu-thich" className="px-4 py-2 text-sm text-gray-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-2 font-medium">
+                  <Link href="/yeu-thich" className="px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-red-400 transition-colors flex items-center gap-2 font-medium">
                     <Heart className="w-4 h-4" /> Phim yêu thích
                   </Link>
                 </div>
@@ -314,7 +310,7 @@ export default function Navbar() {
                 {/* Đăng xuất */}
                 <button 
                   onClick={() => signOut()}
-                  className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-300 transition-colors flex items-center gap-2 font-medium"
+                  className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-500/10 hover:text-red-300 transition-colors flex items-center gap-2 font-medium"
                 >
                   <LogOut className="w-4 h-4" /> Đăng xuất
                 </button>

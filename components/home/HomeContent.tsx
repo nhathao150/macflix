@@ -54,9 +54,10 @@ export default function HomeContent({
                imgSrc = item.imageSrc;
             } else {
                // Lấy từ API nếu cũ quá không có ảnh
-               try {
-                 const res = await fetch(`https://phimapi.com/phim/${item.slug}`);
-                 const detail = await res.json();
+                try {
+                  const MOVIE_API_URL = process.env.NEXT_PUBLIC_MOVIE_API_URL || 'https://phimapi.com';
+                  const res = await fetch(`${MOVIE_API_URL}/phim/${item.slug}`);
+                  const detail = await res.json();
                  if (detail && detail.status && detail.movie) {
                    const imgUrl = detail.movie.thumb_url || detail.movie.poster_url;
                    imgSrc = imgUrl.startsWith('http') ? imgUrl : `https://phimimg.com/${imgUrl}`;
