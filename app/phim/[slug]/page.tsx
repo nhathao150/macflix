@@ -137,25 +137,6 @@ export default function MovieDetailPage() {
     fetchUserHistory();
   }, [session, movieDetails, hasLoadedHistory, slug]);
 
-  // 2b. ĐỌC TẬP TỪ URL PARAMETER (NẾU CÓ)
-  useEffect(() => {
-    if (!movieDetails) return;
-    if (typeof window !== 'undefined') {
-      const searchParams = new URLSearchParams(window.location.search);
-      const epParam = searchParams.get('ep');
-      if (epParam !== null) {
-        const epIndex = parseInt(epParam, 10);
-        if (!isNaN(epIndex) && epIndex >= 0 && epIndex < episodesList.length) {
-          setCurrentEpisodeIndex(epIndex);
-          const correctGroupIndex = Math.floor(epIndex / EPISODES_PER_GROUP);
-          if (!isNaN(correctGroupIndex)) {
-            setActiveGroupIndex(correctGroupIndex);
-          }
-        }
-      }
-    }
-  }, [movieDetails, episodesList.length]);
-
   // 3. KIỂM TRA PHIM YÊU THÍCH
   useEffect(() => {
     const userEmail = session?.user?.email;
