@@ -107,7 +107,7 @@ export default function Navbar() {
 
   return (
     <div ref={navRef} className="fixed top-0 left-0 w-full z-[100] flex justify-center pointer-events-none">
-      <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-6xl mt-4 md:mt-6 rounded-full px-4 md:px-8 py-2 md:py-3 transition-colors duration-300 md:backdrop-blur-2xl md:shadow-[0_8px_32px_rgba(0,0,0,0.5)] md:bg-[#0a0a0c]/60 md:border md:border-white/20 border-none bg-transparent shadow-none backdrop-blur-none">
+      <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-6xl mt-4 md:mt-6 rounded-full px-4 md:px-8 py-2 md:py-3 transition-colors duration-300 md:backdrop-blur-2xl md:shadow-[0_8px_32px_rgba(0,0,0,0.5)] md:bg-[#0a0a0c]/60 md:border md:border-white/20 border-none bg-transparent shadow-none backdrop-blur-none relative">
         
         {/* LOGO */}
         <div className="hidden md:flex items-center shrink-0">
@@ -142,7 +142,7 @@ export default function Navbar() {
         </div>
 
         {/* MENU CHÍNH */}
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-white/80 ml-10">
+        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-white/80 md:absolute md:left-1/2 md:-translate-x-1/2">
           <Link href="/" className="hover:text-white transition-colors">Trang chủ</Link>
           
           <div className="relative py-2">
