@@ -47,11 +47,26 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: `Upstream error: ${res.statusText}` }, { status: res.status });
     }
 
-    const data = await res.json();
+    const contentType = res.headers.get('Content-Type') || '';
+    let response: NextResponse;
+
+    if (contentType.includes('application/json')) {
+      try {
+        const data = await res.json();
+        response = NextResponse.json(data);
+      } catch (jsonErr) {
+        console.error('Failed parsing upstream JSON:', jsonErr);
+        const text = await res.text();
+        response = new NextResponse(text);
+        response.headers.set('Content-Type', contentType);
+      }
+    } else {
+      const text = await res.text();
+      response = new NextResponse(text);
+      response.headers.set('Content-Type', contentType || 'text/plain');
+    }
     
     // Tối ưu hóa của Senior Dev: Đặt Cache-Control để trình duyệt lưu bộ nhớ đệm (Browser Cache)
-    // Giảm thiểu tối đa việc tạo thêm request mạng không cần thiết khi người dùng lướt qua lại giữa các trang
-    const response = NextResponse.json(data);
     response.headers.set(
       'Cache-Control',
       'public, max-age=1800, s-maxage=86400, stale-while-revalidate=600'

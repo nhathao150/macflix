@@ -245,8 +245,12 @@ export default function MovieDetailPage() {
 
   // Reset trình phát về chế độ chính khi chuyển tập phim hoặc server âm thanh
   useEffect(() => {
-    setUseEmbedPlayer(false);
-  }, [currentEpisodeIndex, activeServerIndex]);
+    if (currentEpisode && !currentEpisode.link_m3u8 && currentEpisode.link_embed) {
+      setUseEmbedPlayer(true);
+    } else {
+      setUseEmbedPlayer(false);
+    }
+  }, [currentEpisodeIndex, activeServerIndex, currentEpisode]);
 
   // FETCH PHIM LIÊN QUAN - THÔNG MINH HƠN
   useEffect(() => {
@@ -311,7 +315,7 @@ export default function MovieDetailPage() {
         const categorySlug = movieDetails.movie.category[0]?.slug;
         if (categorySlug) {
           try {
-            const genreMovies = await getMoviesByGenre(categorySlug);
+          const genreMovies = await getMoviesByGenre(categorySlug);
             const existingSlugs = new Set(combined.map((m) => m.slug));
             existingSlugs.add(slug);
             const extra = (genreMovies as Movie[])
@@ -334,8 +338,20 @@ export default function MovieDetailPage() {
   // 7. VIDEO PLAYER CHỐNG LAG & BẮT PHỤ ĐỀ
   useEffect(() => {
     if (useEmbedPlayer || !hasLinkMovie || !currentEpisode?.link_m3u8 || !videoRef.current) return;
-    const videoSrc = currentEpisode.link_m3u8;
+    
+    // Chuyển đổi http sang https để tránh bị Safari / iOS chặn Mixed Content
+    let videoSrc = currentEpisode.link_m3u8;
+    if (videoSrc && videoSrc.startsWith('http://')) {
+      videoSrc = videoSrc.replace('http://', 'https://');
+    }
+    
     const video = videoRef.current;
+    let fallbackTimeout: NodeJS.Timeout;
+
+    const handleNativeError = (e: Event) => {
+      console.log("Native HLS playback error, auto fallback to embed player...", e);
+      setUseEmbedPlayer(true);
+    };
     
     // 1. Nhận diện trình duyệt:
     // iPadOS 13+ có thể báo là Mac, nên thêm check ontouchend để chắc chắn là thiết bị cảm ứng (iOS/iPadOS)
@@ -348,7 +364,17 @@ export default function MovieDetailPage() {
       video.src = videoSrc;
       video.load(); // Khởi động stream
       
-      video.addEventListener('loadedmetadata', () => { 
+      // Lắng nghe lỗi tải/phát
+      video.addEventListener('error', handleNativeError);
+      
+      // Chờ 7 giây, nếu không tải được metadata thì chuyển sang embed
+      fallbackTimeout = setTimeout(() => {
+        console.warn("Native HLS load timeout (7s), falling back to embed player...");
+        setUseEmbedPlayer(true);
+      }, 7000);
+
+      const handleLoadedMetadata = () => {
+        if (fallbackTimeout) clearTimeout(fallbackTimeout);
         video.play().catch((e) => {
            console.log("Autoplay blocked by Safari:", e);
         }); 
@@ -360,7 +386,9 @@ export default function MovieDetailPage() {
           }
         }
         setSubtitleTracks(tracks);
-      }, { once: true });
+      };
+      
+      video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
     } else if (Hls.isSupported()) {
       // iPad, Mac, Windows, Android -> Let hls.js handle it for maximum stability
       // Since iPad supports MSE (MediaSource Extensions) on iPadOS 13+, hls.js works beautifully.
@@ -406,7 +434,16 @@ export default function MovieDetailPage() {
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = videoSrc;
       video.load();
-      video.addEventListener('loadedmetadata', () => { 
+      
+      video.addEventListener('error', handleNativeError);
+      
+      fallbackTimeout = setTimeout(() => {
+        console.warn("Native HLS load timeout, falling back to embed...");
+        setUseEmbedPlayer(true);
+      }, 7000);
+
+      const handleLoadedMetadata = () => {
+        if (fallbackTimeout) clearTimeout(fallbackTimeout);
         video.play().catch(() => {}); 
         const tracks = [];
         for (let i = 0; i < video.textTracks.length; i++) {
@@ -415,7 +452,9 @@ export default function MovieDetailPage() {
           }
         }
         setSubtitleTracks(tracks);
-      }, { once: true });
+      };
+      
+      video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
     }
 
     return () => { 
@@ -841,7 +880,7 @@ export default function MovieDetailPage() {
               className={`relative w-full aspect-video bg-black overflow-hidden ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-2xl md:rounded-3xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]'}`}
             >
               <iframe
-                src={currentEpisode?.link_embed}
+                src={currentEpisode?.link_embed?.startsWith('http://') ? currentEpisode.link_embed.replace('http://', 'https://') : currentEpisode?.link_embed}
                 className="w-full h-full border-none"
                 allowFullScreen
                 allow="autoplay; encrypted-media; picture-in-picture"
