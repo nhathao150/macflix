@@ -225,14 +225,14 @@ function CountryContent() {
         <div className="flex flex-col lg:flex-row gap-8 items-start relative z-10">
           
           {/* Sidebar cho Desktop */}
-          <aside className="hidden lg:block w-[280px] shrink-0 bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-md sticky top-[100px]">
+          <aside className="hidden lg:block w-[280px] shrink-0 bg-white/[0.02] backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-6 shadow-[0_24px_50px_-12px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.05)] sticky top-[100px] transition-all duration-300">
             <FilterBoxContent />
           </aside>
 
           {/* Lưới Phim bên phải */}
           <div className="flex-1 w-full">
             {/* Nút lọc cho Mobile */}
-            <div className="lg:hidden mb-6 flex justify-between items-center bg-white/5 border border-white/10 rounded-2xl p-4">
+            <div className="lg:hidden mb-6 flex justify-between items-center bg-white/[0.02] backdrop-blur-2xl border border-white/[0.08] rounded-2xl p-4 shadow-lg">
               <span className="text-white/60 text-sm font-medium">Tìm kiếm chi tiết:</span>
               <button 
                 onClick={() => setIsFilterDrawerOpen(true)}

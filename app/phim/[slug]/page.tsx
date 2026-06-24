@@ -898,7 +898,7 @@ export default function MovieDetailPage() {
               </div>
 
               {/* THANH TOP BAR (CÀI ĐẶT GÓC PHẢI TRÊN CÙNG MOBILE, VOLUME TRÊN DESKTOP) */}
-              <div className={`absolute top-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-b from-black/80 to-transparent flex justify-end items-start gap-3 z-30 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={(e) => e.stopPropagation()}>
+              <div className={`absolute top-4 left-4 right-4 px-4 py-2 bg-black/50 backdrop-blur-xl border border-white/10 rounded-2xl flex justify-end items-center gap-3 z-30 transition-all duration-300 shadow-[0_12px_32px_rgba(0,0,0,0.5)] ${!isPlaying || isControlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`} onClick={(e) => e.stopPropagation()}>
                   
                   {/* CỤM NÚT CÀI ĐẶT/PHỤ ĐỀ TRÊN MOBILE (ẨN KHI FULLSCREEN HOẶC TRÊN DESKTOP) */}
                   <div className={`pointer-events-auto flex items-center gap-3 bg-[#1a1a1c]/80 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-2xl shrink-0 md:hidden ${isFullscreen ? 'hidden' : 'flex'}`}>
@@ -982,15 +982,15 @@ export default function MovieDetailPage() {
                 onClick={(e) => e.stopPropagation()}
               >
                   
-                  <button onClick={(e) => { e.stopPropagation(); skipTime(-10); }} className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center border border-white/10 text-white hover:bg-white/20 hover:scale-110 transition shadow-xl">
+                  <button onClick={(e) => { e.stopPropagation(); skipTime(-10); }} className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 text-white hover:bg-white/20 hover:scale-110 active:scale-95 transition-all duration-300 shadow-xl">
                       <RotateCcw className="w-5 h-5 md:w-7 md:h-7" />
                   </button>
 
-                  <button onClick={(e) => { e.stopPropagation(); togglePlay(); }} className="pointer-events-auto w-20 h-20 md:w-24 md:h-24 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 text-white shadow-2xl hover:bg-white/20 hover:scale-110 transition">
+                  <button onClick={(e) => { e.stopPropagation(); togglePlay(); }} className="pointer-events-auto w-20 h-20 md:w-24 md:h-24 bg-white/15 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/25 text-white shadow-2xl hover:bg-white/25 hover:scale-110 active:scale-95 transition-all duration-300">
                       {isPlaying ? <Pause className="w-10 h-10 md:w-12 md:h-12 fill-white" /> : <Play className="w-10 h-10 md:w-12 md:h-12 fill-white ml-2" />}
                   </button>
 
-                  <button onClick={(e) => { e.stopPropagation(); skipTime(10); }} className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center border border-white/10 text-white hover:bg-white/20 hover:scale-110 transition shadow-xl">
+                  <button onClick={(e) => { e.stopPropagation(); skipTime(10); }} className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 text-white hover:bg-white/20 hover:scale-110 active:scale-95 transition-all duration-300 shadow-xl">
                       <RotateCw className="w-5 h-5 md:w-7 md:h-7" />
                   </button>
 
@@ -998,7 +998,7 @@ export default function MovieDetailPage() {
 
               {/* THANH ĐIỀU KHIỂN DƯỚI ĐÁY */}
               <div 
-                className={`absolute bottom-0 left-0 right-0 p-4 md:p-8 pt-32 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end z-20 transition-opacity duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                className={`absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6 p-4 md:p-6 bg-black/60 backdrop-blur-2xl border border-white/10 rounded-2xl md:rounded-3xl flex flex-col justify-end z-20 transition-all duration-300 shadow-[0_24px_50px_rgba(0,0,0,0.7)] ${!isPlaying || isControlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
                 onClick={(e) => e.stopPropagation()}
               >
                   <div className="pointer-events-auto flex flex-col w-full gap-3 md:gap-5">

@@ -108,17 +108,16 @@ export default function Navbar() {
 
   return (
     <div ref={navRef} className="fixed top-0 left-0 w-full z-[100] flex justify-center pointer-events-none">
-      <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-6xl mt-4 md:mt-6 rounded-full px-4 md:px-8 py-2 md:py-3 transition-colors duration-300 md:backdrop-blur-2xl md:shadow-[0_8px_32px_rgba(0,0,0,0.5)] md:bg-[#0a0a0c]/60 md:border md:border-white/20 border-none bg-transparent shadow-none backdrop-blur-none relative">
+      <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-6xl mt-3 md:mt-6 rounded-full px-4 md:px-8 py-2 md:py-3 transition-all duration-300 md:backdrop-blur-3xl md:shadow-[0_24px_50px_-12px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.08)] md:bg-[#0a0a0c]/60 md:border md:border-white/[0.08] border-none bg-transparent shadow-none backdrop-blur-none relative">
         
         {/* LOGO */}
         <div className="hidden md:flex items-center shrink-0">
           <Link href="/" className="flex items-center group">
             <svg
               viewBox="0 0 160 44"
-              height="36"
+              className="h-7 md:h-9 transition-opacity duration-200 group-hover:opacity-80"
               aria-label="Macflix"
               xmlns="http://www.w3.org/2000/svg"
-              className="transition-opacity duration-200 group-hover:opacity-80"
             >
               <defs>
                 <linearGradient id="macflix-grad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -266,17 +265,32 @@ export default function Navbar() {
 
           </div>
 
-          {/* NÚT TÌM KIẾM MOBILE - PHAO NỔI TRÒN GÓC PHẢI (Chỉ xuất hiện ở trang chủ) */}
-          {pathname === '/' && (
+          {/* MOBILE USER PROFILE AVATAR - PHAO NỔI TRÒN GÓC PHẢI (Hiển thị trên tất cả các trang) */}
+          {session ? (
             <Link 
-              href="/tim-kiem" 
-              className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 text-white rounded-full hover:text-[#d070ff] transition-all active-scale shadow-lg pointer-events-auto"
+              href="/ca-nhan" 
+              className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 rounded-full transition-all active-scale shadow-lg pointer-events-auto overflow-hidden"
             >
-              <Search className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
+                {userAvatar ? (
+                  <Image src={userAvatar} alt="avatar" width={32} height={32} className="w-full h-full object-cover" />
+                ) : (
+                  session.user?.name?.charAt(0).toUpperCase() || 'U'
+                )}
+              </div>
+            </Link>
+          ) : (
+            <Link 
+              href="/dang-nhap" 
+              className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 rounded-full transition-all active-scale shadow-lg pointer-events-auto"
+            >
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
+                <User className="w-4 h-4" />
+              </div>
             </Link>
           )}
 
-          {/* LOGIC ĐĂNG NHẬP / ĐĂNG XUẤT */}
+          {/* LOGIC ĐĂNG NHẬP / ĐĂNG XUẤT CHO DESKTOP */}
           {session ? (
             <div className="hidden md:block relative group cursor-pointer pointer-events-auto active-scale">
               {/* Avatar */}

@@ -16,7 +16,7 @@ export default function MovieCard({ movie, isTrending }: MovieCardProps) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
-    <div className={`relative group cursor-pointer aspect-video rounded-xl overflow-hidden bg-[#16151a]/60 backdrop-blur-md border border-white/10 shadow-lg hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] active-scale transition-all duration-300 ${
+    <div className={`relative group cursor-pointer aspect-video rounded-2xl overflow-hidden bg-[#16151a]/40 backdrop-blur-md border border-white/[0.08] shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] hover:shadow-[0_24px_50px_rgba(0,0,0,0.7),0_0_20px_rgba(168,85,247,0.15)] hover:scale-[1.03] transition-all duration-300 ease-out ${
       isTrending ? 'w-[280px] md:w-[400px]' : 'w-[240px] md:w-[320px]'
     }`}>
       {/* Shimmer skeleton khi ảnh chưa load */}
@@ -43,7 +43,7 @@ export default function MovieCard({ movie, isTrending }: MovieCardProps) {
         </h3>
         
         {/* Nút Play nhỏ ở góc */}
-        <button className="shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center transition-all border border-white/30 shadow-lg hover:border-transparent hover:scale-110" style={{}} onMouseEnter={e => (e.currentTarget.style.background='#7226FF')} onMouseLeave={e => (e.currentTarget.style.background='')}>
+        <button className="shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center transition-all duration-300 border border-white/20 shadow-lg hover:bg-white/20 hover:scale-110 active:scale-95">
           <Play className="w-4 h-4 md:w-5 md:h-5 text-white fill-white" />
         </button>
       </div>

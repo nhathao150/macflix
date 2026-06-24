@@ -38,10 +38,10 @@ export default function FilterDropdown({ label, options, value, onChange }: Filt
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-white/5 border backdrop-blur-md transition-all duration-300 select-none text-left text-sm font-semibold hover:bg-white/10 ${
+        className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-white/[0.04] border backdrop-blur-md transition-all duration-300 ease-out select-none text-left text-sm font-semibold hover:bg-white/[0.08] ${
           isOpen || hasSelection 
-            ? 'border-purple-500/50 shadow-[0_0_15px_rgba(114,38,255,0.15)] text-white' 
-            : 'border-white/10 text-white/70'
+            ? 'border-purple-500/50 shadow-[0_12px_30px_rgba(168,85,247,0.15)] text-white' 
+            : 'border-white/[0.08] text-white/70'
         }`}
       >
         <span className="truncate">
@@ -68,7 +68,7 @@ export default function FilterDropdown({ label, options, value, onChange }: Filt
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute z-50 left-0 right-0 mt-2 bg-[#0a082c]/95 border border-white/10 rounded-2xl max-h-60 overflow-y-auto backdrop-blur-xl shadow-[0_15px_30px_rgba(0,0,0,0.5)] p-2 scrollbar-thin flex flex-col gap-1"
+            className="absolute z-50 left-0 right-0 mt-2 bg-[#0a0a0c]/85 border border-white/[0.08] rounded-2xl max-h-60 overflow-y-auto backdrop-blur-2xl shadow-[0_24px_50px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.05)] p-2 scrollbar-thin flex flex-col gap-1"
           >
             {options.map((option) => {
               const isSelected = value === option.slug;

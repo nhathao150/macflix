@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Grid, Heart, History, User } from 'lucide-react';
+import { Grid, Heart, History, Search } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const GENRES = [
@@ -80,9 +80,9 @@ const NAV_ITEMS = [
     icon: History,
   },
   {
-    name: 'Cá nhân',
-    href: '/ca-nhan',
-    icon: User,
+    name: 'Tìm kiếm',
+    href: '/tim-kiem',
+    icon: Search,
   },
 ];
 
@@ -115,8 +115,16 @@ export default function BottomNav() {
 
   return (
     <>
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[120] bg-[#0a0a0c]/85 backdrop-blur-2xl border-t border-white/10 shadow-[0_-8px_32px_rgba(0,0,0,0.6)] px-4 pb-[env(safe-area-inset-bottom,12px)] pt-3">
-        <div className="flex items-center justify-around max-w-md mx-auto h-16">
+      <div 
+        className="md:hidden fixed left-4 right-4 z-[120] bg-[#0a0a0c]/80 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.8)] rounded-full px-2"
+        style={{ 
+          bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))', 
+          maxWidth: '480px', 
+          marginLeft: 'auto', 
+          marginRight: 'auto' 
+        }}
+      >
+        <div className="flex items-center justify-around h-16">
           {NAV_ITEMS.map((item) => {
             const isActive = item.href
               ? item.href === '/'
@@ -216,7 +224,7 @@ export default function BottomNav() {
           {/* Floating Card panel */}
           <div
             className="fixed left-4 right-4 max-w-md mx-auto max-h-[65vh] bg-[#0a0a0c]/95 backdrop-blur-2xl border border-white/10 rounded-3xl z-[110] flex flex-col overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.8)] pb-6"
-            style={{ bottom: 'calc(96px + env(safe-area-inset-bottom, 12px))', paddingBottom: '10px' }}
+            style={{ bottom: 'calc(88px + env(safe-area-inset-bottom, 0px))', paddingBottom: '10px' }}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
