@@ -877,7 +877,7 @@ export default function MovieDetailPage() {
           useEmbedPlayer ? (
             <div 
               ref={playerContainerRef} 
-              className={`relative w-full aspect-video bg-black overflow-hidden ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-2xl md:rounded-3xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]'}`}
+              className={`relative w-full aspect-video bg-black overflow-hidden ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-2xl md:rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)]'}`}
             >
               <iframe
                 src={currentEpisode?.link_embed?.startsWith('http://') ? currentEpisode.link_embed.replace('http://', 'https://') : currentEpisode?.link_embed}
@@ -897,7 +897,7 @@ export default function MovieDetailPage() {
                 if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
                 controlsTimeoutRef.current = setTimeout(() => setIsControlsVisible(false), 3000);
               }}
-              className={`relative w-full aspect-video bg-black overflow-hidden group select-none flex flex-col justify-center touch-manipulation ${!isPlaying || isControlsVisible ? 'cursor-auto' : 'cursor-none'} ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-2xl md:rounded-3xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]'}`}
+              className={`relative w-full aspect-video bg-black overflow-hidden group select-none flex flex-col justify-center touch-manipulation ${!isPlaying || isControlsVisible ? 'cursor-auto' : 'cursor-none'} ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-2xl md:rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)]'}`}
             >
               <video 
                 ref={videoRef} 
