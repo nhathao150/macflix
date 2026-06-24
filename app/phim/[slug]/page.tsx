@@ -53,6 +53,7 @@ export default function MovieDetailPage() {
 
   // === THÊM STATE CHO TOUCH GESTURES ===
   const lastTapRef = useRef<number>(0);
+  const lastTouchTimeRef = useRef<number>(0);
   const [seekFeedback, setSeekFeedback] = useState<'forward' | 'backward' | null>(null);
 
   const [volume, setVolume] = useState(1);
@@ -468,6 +469,9 @@ export default function MovieDetailPage() {
   // === CÁC HÀM XỬ LÝ GIAO DIỆN PLAYER ===
   
   const handleMouseMove = () => {
+    // Nếu vừa có thao tác chạm (trong vòng 1.5 giây), bỏ qua mousemove giả lập từ touch để tránh giật giao diện
+    if (Date.now() - lastTouchTimeRef.current < 1500) return;
+
     setIsControlsVisible(true);
     if (controlsTimeoutRef.current) {
       clearTimeout(controlsTimeoutRef.current);
@@ -506,11 +510,13 @@ export default function MovieDetailPage() {
       lastTapRef.current = 0; // Reset
     } else {
       // Nhấn đơn (Single tap)
-      // Nếu controls đang ẩn (thường gặp dể di chuột ra/hoặc trên điện thoại), bấm 1 lần là hiện
-      // Nếu đang hiện, bấm 1 lần là play/pause
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+        controlsTimeoutRef.current = null;
+      }
+
       if (!isControlsVisible) {
         setIsControlsVisible(true);
-        if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
         controlsTimeoutRef.current = setTimeout(() => setIsControlsVisible(false), 3000);
       } else {
         setIsControlsVisible(false);
@@ -520,6 +526,7 @@ export default function MovieDetailPage() {
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    lastTouchTimeRef.current = Date.now();
     if (e.touches.length === 2) {
       isPinchingRef.current = true;
       const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -910,8 +917,11 @@ export default function MovieDetailPage() {
               onMouseLeave={handleMouseLeave}
               onClick={() => {
                 // Chạm vào container cũng hiện controls trên mobile
+                if (controlsTimeoutRef.current) {
+                  clearTimeout(controlsTimeoutRef.current);
+                  controlsTimeoutRef.current = null;
+                }
                 setIsControlsVisible(true);
-                if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
                 controlsTimeoutRef.current = setTimeout(() => setIsControlsVisible(false), 3000);
               }}
               className={`relative w-full aspect-video bg-black overflow-hidden group select-none flex flex-col justify-center touch-manipulation outline-none focus:outline-none focus:ring-0 ${!isPlaying || isControlsVisible ? 'cursor-auto' : 'cursor-none'} ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-2xl md:rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)]'}`}
