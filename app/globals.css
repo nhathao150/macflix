@@ -139,10 +139,37 @@
 }
 
 /* Triệt tiêu hoàn toàn viền trắng hoặc outline mặc định của trình duyệt (Safari/WebKit) khi phóng to (fullscreen) hoặc focus */
-*:fullscreen,
-*:-webkit-full-screen,
-*:fullscreen:focus,
+*:fullscreen {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+*:-webkit-full-screen {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+*:fullscreen:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 *:-webkit-full-screen:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+video:-webkit-full-screen {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+iframe:-webkit-full-screen {
   outline: none !important;
   border: none !important;
   box-shadow: none !important;
