@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Grid, Heart, History, User } from 'lucide-react';
@@ -91,6 +91,23 @@ export default function BottomNav() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'genre' | 'country'>('genre');
 
+  // Tự động đóng drawer khi chuyển trang
+  useEffect(() => {
+    setIsDrawerOpen(false);
+  }, [pathname]);
+
+  // Khóa cuộn trang bên ngoài khi drawer đang mở
+  useEffect(() => {
+    if (isDrawerOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isDrawerOpen]);
+
   // Ẩn BottomNav khi ở các trang chi tiết phim/phát phim (/phim/[slug]) để không bị đè lên trình phát
   const isWatchPage = pathname?.startsWith('/phim/');
 
@@ -98,8 +115,8 @@ export default function BottomNav() {
 
   return (
     <>
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a0a0c]/85 backdrop-blur-2xl border-t border-white/10 shadow-[0_-8px_32px_rgba(0,0,0,0.6)] px-4 pb-[env(safe-area-inset-bottom,12px)] pt-2">
-        <div className="flex items-center justify-around max-w-md mx-auto h-12">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[120] bg-[#0a0a0c]/85 backdrop-blur-2xl border-t border-white/10 shadow-[0_-8px_32px_rgba(0,0,0,0.6)] px-4 pb-[env(safe-area-inset-bottom,12px)] pt-3">
+        <div className="flex items-center justify-around max-w-md mx-auto h-16">
           {NAV_ITEMS.map((item) => {
             const isActive = item.href
               ? item.href === '/'
@@ -111,7 +128,7 @@ export default function BottomNav() {
               return (
                 <button
                   key="categories-btn"
-                  onClick={() => setIsDrawerOpen(true)}
+                  onClick={() => setIsDrawerOpen((prev) => !prev)}
                   className="flex flex-col items-center justify-center flex-1 h-full min-w-[48px] active-scale group select-none cursor-pointer bg-transparent border-none outline-none"
                 >
                   <div className="relative flex items-center justify-center">
@@ -142,6 +159,7 @@ export default function BottomNav() {
               <Link
                 key={item.href}
                 href={item.href || '/'}
+                onClick={() => setIsDrawerOpen(false)}
                 className="flex flex-col items-center justify-center flex-1 h-full min-w-[48px] active-scale group select-none"
               >
                 <div className="relative flex items-center justify-center">
@@ -195,8 +213,11 @@ export default function BottomNav() {
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
             onClick={() => setIsDrawerOpen(false)}
           />
-          {/* Slide-up panel */}
-          <div className="fixed bottom-0 left-0 right-0 max-h-[80vh] bg-[#0a0a0c]/95 backdrop-blur-2xl border-t border-white/10 rounded-t-3xl z-[110] flex flex-col overflow-hidden shadow-[0_-8px_32px_rgba(0,0,0,0.8)] pb-10">
+          {/* Floating Card panel */}
+          <div
+            className="fixed left-4 right-4 max-w-md mx-auto max-h-[65vh] bg-[#0a0a0c]/95 backdrop-blur-2xl border border-white/10 rounded-3xl z-[110] flex flex-col overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.8)] pb-6"
+            style={{ bottom: 'calc(96px + env(safe-area-inset-bottom, 12px))', paddingBottom: '10px' }}
+          >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
               <span className="text-white font-black text-lg">Danh mục phim</span>
@@ -209,7 +230,7 @@ export default function BottomNav() {
             </div>
 
             {/* Tabs chọn Thể loại / Quốc gia */}
-            <div className="flex mx-6 mt-4 rounded-xl bg-white/5 p-1">
+            <div className="flex mx-6 mt-4 rounded-xl bg-white/5 p-1" style={{ marginBottom: "16px" }}>
               <button
                 onClick={() => setActiveTab('genre')}
                 className={clsx(
@@ -239,25 +260,25 @@ export default function BottomNav() {
               <div className="grid grid-cols-2 gap-3 pb-8">
                 {activeTab === 'genre'
                   ? GENRES.map((genre) => (
-                      <Link
-                        key={genre.slug}
-                        href={`/the-loai/${genre.slug}`}
-                        onClick={() => setIsDrawerOpen(false)}
-                        className="px-4 py-3 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all font-semibold active-scale text-center border border-white/5"
-                      >
-                        {genre.name}
-                      </Link>
-                    ))
+                    <Link
+                      key={genre.slug}
+                      href={`/the-loai/${genre.slug}`}
+                      onClick={() => setIsDrawerOpen(false)}
+                      className="px-4 py-3 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all font-semibold active-scale text-center border border-white/5"
+                    >
+                      {genre.name}
+                    </Link>
+                  ))
                   : COUNTRIES.map((country) => (
-                      <Link
-                        key={country.slug}
-                        href={`/quoc-gia/${country.slug}`}
-                        onClick={() => setIsDrawerOpen(false)}
-                        className="px-4 py-3 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all font-semibold active-scale text-center border border-white/5"
-                      >
-                        {country.name}
-                      </Link>
-                    ))}
+                    <Link
+                      key={country.slug}
+                      href={`/quoc-gia/${country.slug}`}
+                      onClick={() => setIsDrawerOpen(false)}
+                      className="px-4 py-3 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all font-semibold active-scale text-center border border-white/5"
+                    >
+                      {country.name}
+                    </Link>
+                  ))}
               </div>
             </div>
           </div>
