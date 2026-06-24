@@ -898,10 +898,10 @@ export default function MovieDetailPage() {
               </div>
 
               {/* THANH TOP BAR (CÀI ĐẶT GÓC PHẢI TRÊN CÙNG MOBILE, VOLUME TRÊN DESKTOP) */}
-              <div className={`absolute top-4 left-4 right-4 px-4 py-2 bg-black/50 backdrop-blur-xl border border-white/10 rounded-2xl flex justify-end items-center gap-3 z-30 transition-all duration-300 shadow-[0_12px_32px_rgba(0,0,0,0.5)] ${!isPlaying || isControlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`} onClick={(e) => e.stopPropagation()}>
+              <div className={`absolute top-4 left-4 right-4 flex justify-end items-center gap-3 z-30 transition-all duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`} onClick={(e) => e.stopPropagation()}>
                   
                   {/* CỤM NÚT CÀI ĐẶT/PHỤ ĐỀ TRÊN MOBILE (ẨN KHI FULLSCREEN HOẶC TRÊN DESKTOP) */}
-                  <div className={`pointer-events-auto flex items-center gap-3 bg-[#1a1a1c]/80 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-2xl shrink-0 md:hidden ${isFullscreen ? 'hidden' : 'flex'}`}>
+                  <div className={`pointer-events-auto flex items-center gap-3 bg-black/50 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.5)] shrink-0 md:hidden ${isFullscreen ? 'hidden' : 'flex'}`}>
                       {/* Nút Phụ Đề */}
                       <div className="relative">
                           {isSubMenuOpen && (
@@ -947,7 +947,7 @@ export default function MovieDetailPage() {
                   </div>
 
                   {/* THANH TĂNG GIẢM ÂM LƯỢNG (HIỆN KHI FULLSCREEN HOẶC TRÊN DESKTOP) */}
-                  <div className={`pointer-events-auto items-center group/vol bg-[#1a1a1c]/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg ${isFullscreen ? 'flex' : 'hidden md:flex'}`}>
+                  <div className={`pointer-events-auto items-center group/vol bg-black/50 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.5)] ${isFullscreen ? 'flex' : 'hidden md:flex'}`}>
                       <button 
                           onClick={toggleMute} 
                           className="text-white/70 hover:text-white hover:scale-110 transition flex items-center justify-center shrink-0" 

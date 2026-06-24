@@ -107,7 +107,7 @@ export default function Navbar() {
   };
 
   return (
-    <div ref={navRef} className="fixed top-0 left-0 w-full z-[100] flex justify-center pointer-events-none">
+    <div ref={navRef} className="absolute md:fixed top-0 left-0 w-full z-[100] flex justify-center pointer-events-none">
       <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-6xl mt-3 md:mt-6 rounded-full px-4 md:px-8 py-2 md:py-3 transition-all duration-300 md:backdrop-blur-3xl md:shadow-[0_24px_50px_-12px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.08)] md:bg-[#0a0a0c]/60 md:border md:border-white/[0.08] border-none bg-transparent shadow-none backdrop-blur-none relative">
         
         {/* LOGO */}
@@ -265,29 +265,31 @@ export default function Navbar() {
 
           </div>
 
-          {/* MOBILE USER PROFILE AVATAR - PHAO NỔI TRÒN GÓC PHẢI (Hiển thị trên tất cả các trang) */}
-          {session ? (
-            <Link 
-              href="/ca-nhan" 
-              className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 rounded-full transition-all active-scale shadow-lg pointer-events-auto overflow-hidden"
-            >
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
-                {userAvatar ? (
-                  <Image src={userAvatar} alt="avatar" width={32} height={32} className="w-full h-full object-cover" />
-                ) : (
-                  session.user?.name?.charAt(0).toUpperCase() || 'U'
-                )}
-              </div>
-            </Link>
-          ) : (
-            <Link 
-              href="/dang-nhap" 
-              className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 rounded-full transition-all active-scale shadow-lg pointer-events-auto"
-            >
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
-                <User className="w-4 h-4" />
-              </div>
-            </Link>
+          {/* MOBILE USER PROFILE AVATAR - PHAO NỔI TRÒN GÓC PHẢI (Chỉ xuất hiện ở trang chủ) */}
+          {pathname === '/' && (
+            session ? (
+              <Link 
+                href="/ca-nhan" 
+                className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 rounded-full transition-all active-scale shadow-lg pointer-events-auto overflow-hidden"
+              >
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
+                  {userAvatar ? (
+                    <Image src={userAvatar} alt="avatar" width={32} height={32} className="w-full h-full object-cover" />
+                  ) : (
+                    session.user?.name?.charAt(0).toUpperCase() || 'U'
+                  )}
+                </div>
+              </Link>
+            ) : (
+              <Link 
+                href="/dang-nhap" 
+                className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 rounded-full transition-all active-scale shadow-lg pointer-events-auto"
+              >
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
+                  <User className="w-4 h-4" />
+                </div>
+              </Link>
+            )
           )}
 
           {/* LOGIC ĐĂNG NHẬP / ĐĂNG XUẤT CHO DESKTOP */}
