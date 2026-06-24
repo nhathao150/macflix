@@ -861,6 +861,23 @@ export default function MovieDetailPage() {
 
   return (
     <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-cyan-500/30 pb-20 relative overflow-hidden">
+      <style dangerouslySetInnerHTML={{ __html: `
+        /* Khóa cứng triệt tiêu hoàn toàn viền trắng/xanh của Safari trên iPadOS khi phóng to */
+        *:fullscreen,
+        *:-webkit-full-screen,
+        *:fullscreen:focus,
+        *:-webkit-full-screen:focus,
+        video:-webkit-full-screen,
+        iframe:-webkit-full-screen,
+        div:-webkit-full-screen,
+        video, iframe, video:focus, iframe:focus {
+          outline: none !important;
+          outline-width: 0 !important;
+          border: none !important;
+          border-width: 0 !important;
+          box-shadow: none !important;
+        }
+      `}} />
       <Navbar />
 
       <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none z-0">
