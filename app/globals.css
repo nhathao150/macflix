@@ -137,3 +137,26 @@
     transform: scale(1.3);
   }
 }
+
+/* Triệt tiêu hoàn toàn viền trắng hoặc outline mặc định của trình duyệt (Safari/WebKit) khi phóng to (fullscreen) hoặc focus */
+*:fullscreen,
+*:-webkit-full-screen,
+*:fullscreen:focus,
+*:-webkit-full-screen:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+video, 
+iframe,
+video:focus,
+video:active,
+iframe:focus,
+iframe:active,
+div:focus,
+div:focus-visible {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
