@@ -116,7 +116,7 @@ export default function BottomNav() {
   return (
     <>
       <div 
-        className="md:hidden fixed left-4 right-4 z-[120] bg-[#0a0a0c]/80 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.8)] rounded-full px-2"
+        className="xl:hidden fixed left-4 right-4 z-[120] bg-[#0a0a0c]/80 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.8)] rounded-full px-2"
         style={{ 
           bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))', 
           maxWidth: '480px', 

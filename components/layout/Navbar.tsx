@@ -64,7 +64,7 @@ export default function Navbar() {
   // Đóng mobile menu khi resize lên desktop
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768) setIsMobileMenuOpen(false);
+      if (window.innerWidth >= 1280) setIsMobileMenuOpen(false);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -107,15 +107,15 @@ export default function Navbar() {
   };
 
   return (
-    <div ref={navRef} className="absolute md:fixed top-0 left-0 w-full z-[100] flex justify-center pointer-events-none">
-      <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-6xl mt-3 md:mt-6 rounded-full px-4 md:px-8 py-2 md:py-3 transition-all duration-300 md:backdrop-blur-3xl md:shadow-[0_24px_50px_-12px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.08)] md:bg-[#0a0a0c]/60 md:border md:border-white/[0.08] border-none bg-transparent shadow-none backdrop-blur-none relative">
+    <div ref={navRef} className="absolute xl:fixed top-0 left-0 w-full z-[100] flex justify-center pointer-events-none">
+      <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-6xl mt-3 xl:mt-6 rounded-full px-4 xl:px-8 py-2 xl:py-3 transition-all duration-300 xl:backdrop-blur-3xl xl:shadow-[0_24px_50px_-12px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.08)] xl:bg-[#0a0a0c]/60 xl:border xl:border-white/[0.08] border-none bg-transparent shadow-none backdrop-blur-none relative">
         
         {/* LOGO */}
-        <div className="hidden md:flex items-center shrink-0">
+        <div className="hidden xl:flex items-center shrink-0">
           <Link href="/" className="flex items-center group">
             <svg
               viewBox="0 0 160 44"
-              className="h-7 md:h-9 transition-opacity duration-200 group-hover:opacity-80"
+              className="h-7 xl:h-9 transition-opacity duration-200 group-hover:opacity-80"
               aria-label="Macflix"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -142,7 +142,7 @@ export default function Navbar() {
         </div>
 
         {/* MENU CHÍNH */}
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-white/80 md:absolute md:left-1/2 md:-translate-x-1/2">
+        <div className="hidden xl:flex items-center gap-6 text-sm font-medium text-white/80 xl:absolute xl:left-1/2 xl:-translate-x-1/2">
           <Link href="/" className="hover:text-white transition-colors">Trang chủ</Link>
           
           <div className="relative py-2">
@@ -211,7 +211,7 @@ export default function Navbar() {
         </div>
 
         {/* --- CÔNG CỤ PHẢI --- */}
-        <div className="flex items-center gap-4 md:gap-6 text-gray-700 dark:text-white/80 shrink-0 ml-auto">
+        <div className="flex items-center gap-4 xl:gap-6 text-gray-700 dark:text-white/80 shrink-0 ml-auto">
           
           {/* TÌM KIẾM */}
           <div className="hidden lg:flex relative items-center">
@@ -270,7 +270,7 @@ export default function Navbar() {
             session ? (
               <Link 
                 href="/ca-nhan" 
-                className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 rounded-full transition-all active-scale shadow-lg pointer-events-auto overflow-hidden"
+                className="xl:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 rounded-full transition-all active-scale shadow-lg pointer-events-auto overflow-hidden"
               >
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
                   {userAvatar ? (
@@ -283,7 +283,7 @@ export default function Navbar() {
             ) : (
               <Link 
                 href="/dang-nhap" 
-                className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 rounded-full transition-all active-scale shadow-lg pointer-events-auto"
+                className="xl:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 rounded-full transition-all active-scale shadow-lg pointer-events-auto"
               >
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-white overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
                   <User className="w-4 h-4" />
@@ -294,7 +294,7 @@ export default function Navbar() {
 
           {/* LOGIC ĐĂNG NHẬP / ĐĂNG XUẤT CHO DESKTOP */}
           {session ? (
-            <div className="hidden md:block relative group cursor-pointer pointer-events-auto active-scale">
+            <div className="hidden xl:block relative group cursor-pointer pointer-events-auto active-scale">
               {/* Avatar */}
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shadow-lg hover:ring-2 hover:ring-[#F042FF]/50 transition-all overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
                 {userAvatar ? (
@@ -337,7 +337,7 @@ export default function Navbar() {
             </div>
           ) : (
             /* Nút hình người khi CHƯA đăng nhập */
-            <Link href="/dang-nhap" className="hidden md:flex w-11 h-11 items-center justify-center text-white cursor-pointer hover:scale-105 active-scale pointer-events-auto">
+            <Link href="/dang-nhap" className="hidden xl:flex w-11 h-11 items-center justify-center text-white cursor-pointer hover:scale-105 active-scale pointer-events-auto">
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-white shadow-lg hover:ring-2 hover:ring-[#F042FF]/50 transition-all overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
                 <User className="w-4 h-4" />
               </div>

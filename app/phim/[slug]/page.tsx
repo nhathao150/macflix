@@ -549,7 +549,13 @@ export default function MovieDetailPage() {
       const video = videoRef.current;
       if (!document.fullscreenElement && !(video as any).webkitDisplayingFullscreen) {
         if (playerContainerRef.current?.requestFullscreen) {
-          playerContainerRef.current.requestFullscreen().catch(err => console.error(err));
+          playerContainerRef.current.requestFullscreen()
+            .then(() => {
+              if (screen.orientation && (screen.orientation as any).lock) {
+                (screen.orientation as any).lock('landscape').catch((e: any) => console.log('Orientation lock error:', e));
+              }
+            })
+            .catch(err => console.error(err));
         } else if ((video as any).webkitEnterFullscreen) {
           (video as any).webkitEnterFullscreen();
         } else if ((video as any).webkitRequestFullscreen) {
@@ -566,7 +572,15 @@ export default function MovieDetailPage() {
   };
 
   useEffect(() => {
-    const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    const handleFsChange = () => {
+      const isFs = !!document.fullscreenElement;
+      setIsFullscreen(isFs);
+      if (!isFs && screen.orientation && screen.orientation.unlock) {
+        try {
+          screen.orientation.unlock();
+        } catch (e) {}
+      }
+    };
     document.addEventListener('fullscreenchange', handleFsChange);
     
     const video = videoRef.current;
