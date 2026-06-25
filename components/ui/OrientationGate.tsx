@@ -10,8 +10,8 @@ export default function OrientationGate() {
 
   useEffect(() => {
     const checkOrientation = () => {
-      // Kích hoạt trên các thiết bị có chiều rộng màn hình nhỏ hơn 768px (Mobile)
-      const isMobileSize = window.innerWidth < 768;
+      // Kích hoạt trên điện thoại di động (chiều rộng hoặc chiều cao nhỏ hơn 768px)
+      const isMobileSize = window.innerWidth < 768 || window.innerHeight < 768;
       // Kiểm tra xem màn hình có đang xoay ngang không (width > height)
       const isLandscape = window.innerWidth > window.innerHeight;
       
