@@ -1078,7 +1078,7 @@ export default function MovieDetailPage() {
 
               {/* THANH ĐIỀU KHIỂN DƯỚI ĐÁY */}
               <div 
-                className={`absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6 p-4 md:p-6 bg-black/60 backdrop-blur-2xl border border-white/10 rounded-2xl md:rounded-3xl flex flex-col justify-end z-20 transition-all duration-300 shadow-[0_24px_50px_rgba(0,0,0,0.7)] ${!isPlaying || isControlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+                className={`absolute bottom-0 left-0 right-0 px-6 md:px-8 pb-6 pt-24 bg-gradient-to-t from-black/95 via-black/45 to-transparent flex flex-col justify-end z-20 transition-all duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
                 onClick={(e) => e.stopPropagation()}
               >
                   <div className="pointer-events-auto flex flex-col w-full gap-3 md:gap-5">
