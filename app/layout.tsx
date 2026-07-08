@@ -6,7 +6,6 @@ import { ModalProvider } from '@/context/ModalContext';
 import Footer from '@/components/layout/Footer';
 import WelcomeWrapper from '@/components/ui/WelcomeWrapper';
 import BottomNav from '@/components/layout/BottomNav';
-import OrientationGate from '@/components/ui/OrientationGate';
 
 // Inter với đủ font-weight cần thiết cho hierarchy rõ ràng
 const inter = Inter({
@@ -50,7 +49,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <ModalProvider>
             <WelcomeWrapper>
-              <OrientationGate />
               <div className="flex-1">{children}</div>
               <Footer />
               <BottomNav />
