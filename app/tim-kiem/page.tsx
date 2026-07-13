@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Image from 'next/image';
 import { useModal } from '@/context/ModalContext';
-import { searchMoviesPaginated } from '@/lib/api';
+import { searchMoviesPaginated, searchMovies } from '@/lib/api';
 import { ChevronLeft, ChevronRight, Play, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -22,13 +22,34 @@ function SearchContent() {
   const [pagination, setPagination] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchInput, setSearchInput] = useState(keyword);
+  
+  // States cho gợi ý tìm kiếm (Autocomplete)
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [isSuggesting, setIsSuggesting] = useState(false);
 
   useEffect(() => {
     setSearchInput(keyword);
   }, [keyword]);
 
+  // Lấy gợi ý khi gõ chữ (debounce 400ms)
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchInput.trim()) {
+        setIsSuggesting(true);
+        const results = await searchMovies(searchInput);
+        setSuggestions(results);
+        setIsSuggesting(false);
+      } else {
+        setSuggestions([]);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchInput]);
+
   const handleSearchClick = () => {
     if (!searchInput.trim()) return;
+    setSuggestions([]);
     router.push(`/tim-kiem?q=${encodeURIComponent(searchInput.trim())}`);
   };
 
@@ -65,22 +86,70 @@ function SearchContent() {
                 Tìm kiếm phim
               </h1>
             </div>
+            
             {/* Hộp tìm kiếm ngay trên trang */}
-            <div className="w-full md:max-w-md flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 focus-within:ring-2 focus-within:ring-[#d070ff]/50 transition-all">
-              <input
-                type="text"
-                placeholder="Nhập tên phim cần tìm..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
-                className="bg-transparent border-none outline-none text-sm text-white w-full placeholder:text-white/40"
-              />
-              <button 
-                onClick={handleSearchClick}
-                className="text-[#d070ff] hover:text-[#7226FF] transition-colors p-1"
-              >
-                <Search className="w-4 h-4" />
-              </button>
+            <div className="relative w-full md:max-w-md z-[80]">
+              <div className="w-full flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 focus-within:ring-2 focus-within:ring-[#d070ff]/50 transition-all">
+                <input
+                  type="text"
+                  placeholder="Nhập tên phim cần tìm..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
+                  className="bg-transparent border-none outline-none text-sm text-white w-full placeholder:text-white/40"
+                />
+                <button 
+                  onClick={handleSearchClick}
+                  className="text-[#d070ff] hover:text-[#7226FF] transition-colors p-1"
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Hộp gợi ý Autocomplete */}
+              {searchInput && suggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[#141414]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col p-2 z-[90] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                  {isSuggesting ? (
+                    <div className="p-4 flex justify-center items-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#d070ff]" />
+                    </div>
+                  ) : (
+                    <>
+                      {suggestions.map((movie) => (
+                        <div
+                          key={movie.id}
+                          onClick={() => {
+                            setSuggestions([]);
+                            router.push(`/phim/${movie.slug}`);
+                          }}
+                          className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-xl transition-colors group cursor-pointer"
+                        >
+                          <Image
+                            src={movie.imageSrc || '/placeholder-image.jpg'}
+                            alt={movie.title}
+                            width={40}
+                            height={56}
+                            className="w-10 h-14 object-cover rounded-md shadow-sm group-hover:scale-105 transition-transform"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div className="flex flex-col">
+                            <span className="text-sm font-bold text-white line-clamp-1">{movie.title}</span>
+                            <span className="text-[10px] text-white/50 uppercase font-bold tracking-wider">Xem chi tiết</span>
+                          </div>
+                        </div>
+                      ))}
+                      <button
+                        onClick={handleSearchClick}
+                        className="mt-1 mx-1 mb-1 py-2 rounded-xl text-xs font-bold text-white text-center transition-opacity hover:opacity-85 flex items-center justify-center gap-2"
+                        style={{ background: 'linear-gradient(135deg, #d070ff, #7226FF)' }}
+                      >
+                        <Search className="w-3.5 h-3.5" />
+                        Xem tất cả kết quả cho &ldquo;{searchInput}&rdquo;
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           {keyword && (

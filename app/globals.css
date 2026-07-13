@@ -1,6 +1,20 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@theme {
+  --breakpoint-sm: initial;
+  --breakpoint-md: initial;
+  --breakpoint-lg: initial;
+  --breakpoint-xl: initial;
+  --breakpoint-2xl: initial;
+}
+
+@custom-variant sm (@media (orientation: landscape));
+@custom-variant md (@media (orientation: landscape));
+@custom-variant lg (@media (orientation: landscape));
+@custom-variant xl (@media (orientation: landscape));
+@custom-variant 2xl (@media (orientation: landscape));
+
 
 /* ================================================
    TYPOGRAPHY BASE — Chuẩn SEO

@@ -1,10 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import Image from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
 import { Grid, Heart, History, Search } from 'lucide-react';
 import { clsx } from 'clsx';
+import { searchMovies } from '@/lib/api';
 
 const GENRES = [
   { name: 'Hành Động', slug: 'hanh-dong' }, { name: 'Tình Cảm', slug: 'tinh-cam' }, { name: 'Hài Hước', slug: 'hai-huoc' },
@@ -88,17 +91,29 @@ const NAV_ITEMS = [
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'genre' | 'country'>('genre');
 
-  // Tự động đóng drawer khi chuyển trang
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Tự động đóng drawer và search khi chuyển trang
   useEffect(() => {
     setIsDrawerOpen(false);
+    setIsSearchOpen(false);
   }, [pathname]);
 
-  // Khóa cuộn trang bên ngoài khi drawer đang mở
+  // Khóa cuộn trang bên ngoài khi drawer hoặc search modal mở
   useEffect(() => {
-    if (isDrawerOpen) {
+    if (isDrawerOpen || isSearchOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -106,7 +121,48 @@ export default function BottomNav() {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [isDrawerOpen]);
+  }, [isDrawerOpen, isSearchOpen]);
+
+  // Lắng nghe phím ESC để đóng khung tìm kiếm
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsSearchOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Debounce API search
+  useEffect(() => {
+    if (searchTerm.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const results = await searchMovies(searchTerm);
+        setSearchResults(results);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
+  const handleSearchSubmit = () => {
+    if (!searchTerm.trim()) return;
+    setSearchResults([]);
+    setIsSearchOpen(false);
+    router.push(`/tim-kiem?q=${encodeURIComponent(searchTerm.trim())}`);
+    setSearchTerm('');
+  };
 
   // Ẩn BottomNav khi ở các trang chi tiết phim/phát phim (/phim/[slug]) để không bị đè lên trình phát
   const isWatchPage = pathname?.startsWith('/phim/');
@@ -154,6 +210,45 @@ export default function BottomNav() {
                       'text-[10px] font-bold mt-1.5 tracking-tight transition-colors duration-300',
                       isDrawerOpen
                         ? 'text-purple-400 font-extrabold'
+                        : 'text-white/40 group-hover:text-white/80'
+                    )}
+                  >
+                    {item.name}
+                  </span>
+                </button>
+              );
+            }
+
+            if (item.name === 'Tìm kiếm') {
+              return (
+                <button
+                  key="search-btn"
+                  onClick={() => {
+                    setIsSearchOpen(true);
+                    setIsDrawerOpen(false);
+                    setSearchTerm('');
+                    setSearchResults([]);
+                  }}
+                  className="flex flex-col items-center justify-center flex-1 h-full min-w-[48px] active-scale group select-none cursor-pointer bg-transparent border-none outline-none"
+                >
+                  <div className="relative flex items-center justify-center">
+                    <Search
+                      className={clsx(
+                        'w-5 h-5 transition-all duration-300',
+                        isSearchOpen
+                          ? 'text-[#d070ff] scale-110 drop-shadow-[0_0_8px_rgba(208,112,255,0.5)]'
+                          : 'text-white/40 group-hover:text-white/80'
+                      )}
+                    />
+                    {isSearchOpen && (
+                      <span className="absolute -bottom-1.5 w-1 h-1 rounded-full bg-[#d070ff] shadow-[0_0_6px_#d070ff]" />
+                    )}
+                  </div>
+                  <span
+                    className={clsx(
+                      'text-[10px] font-bold mt-1.5 tracking-tight transition-colors duration-300',
+                      isSearchOpen
+                        ? 'text-[#d070ff] font-extrabold'
                         : 'text-white/40 group-hover:text-white/80'
                     )}
                   >
@@ -291,6 +386,90 @@ export default function BottomNav() {
             </div>
           </div>
         </>
+      )}
+
+      {/* MOBILE SEARCH PORTAL */}
+      {isSearchOpen && mounted && createPortal(
+        <>
+          {/* Backdrop overlay */}
+          <div 
+            onClick={() => setIsSearchOpen(false)}
+            className="fixed inset-0 bg-black/75 backdrop-blur-md transition-all z-[150] pointer-events-auto"
+          />
+
+          {/* Dialog container */}
+          <div className="fixed top-[8vh] left-4 right-4 max-w-md mx-auto bg-[#141414]/95 border border-white/10 rounded-3xl p-5 shadow-[0_24px_50px_rgba(0,0,0,0.8)] z-[160] pointer-events-auto flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-200">
+            {/* Ô nhập từ khóa */}
+            <div className="flex items-center gap-3 bg-black/40 border border-white/15 focus-within:border-[#F042FF]/50 rounded-2xl px-4 py-3 transition-all">
+              <Search className="w-4.5 h-4.5 text-white/40" />
+              <input
+                type="text"
+                placeholder="Tìm kiếm phim..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
+                className="bg-transparent border-none outline-none text-sm text-white w-full placeholder:text-white/30"
+                autoFocus
+              />
+            </div>
+
+            {/* Trạng thái kết quả tìm kiếm */}
+            <div className="flex-1 max-h-[50vh] overflow-y-auto pr-1 scrollbar-hide">
+              {!searchTerm.trim() || searchTerm.trim().length < 2 ? (
+                <div className="py-10 flex flex-col items-center justify-center text-center gap-2">
+                  <Search className="w-10 h-10 text-white/10" />
+                  <p className="text-white/40 text-xs font-semibold">Nhập từ khóa để tìm kiếm phim</p>
+                  <p className="text-white/20 text-[10px] font-medium">Tối thiểu 2 ký tự</p>
+                </div>
+              ) : isSearching ? (
+                <div className="py-10 flex justify-center items-center">
+                  <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-[#d070ff]"></div>
+                </div>
+              ) : searchResults.length > 0 ? (
+                <div className="flex flex-col gap-2">
+                  {searchResults.map((movie) => (
+                    <Link 
+                      href={`/phim/${movie.slug}`} 
+                      key={movie.id} 
+                      onClick={() => {
+                        setIsSearchOpen(false);
+                        setSearchTerm('');
+                      }} 
+                      className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-2xl transition-all group"
+                    >
+                      <Image 
+                        src={movie.imageSrc || '/placeholder-image.jpg'} 
+                        alt={movie.title} 
+                        width={40} 
+                        height={56} 
+                        className="w-10 h-14 object-cover rounded-xl shadow-md group-hover:scale-105 transition-transform" 
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-white group-hover:text-[#d070ff] transition-colors line-clamp-1">{movie.title}</span>
+                        <span className="text-[9px] text-white/40 uppercase tracking-wider mt-0.5 font-bold">Xem chi tiết</span>
+                      </div>
+                    </Link>
+                  ))}
+                  {/* Nút xem tất cả */}
+                  <button
+                    onClick={handleSearchSubmit}
+                    className="mt-2 py-2.5 rounded-2xl text-xs font-bold text-white text-center transition-opacity hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer"
+                    style={{ background: 'linear-gradient(135deg, #d070ff, #7226FF)', boxShadow: '0 4px 15px rgba(114,38,255,0.2)' }}
+                  >
+                    <Search className="w-3.5 h-3.5" />
+                    Xem tất cả kết quả cho &ldquo;{searchTerm}&rdquo;
+                  </button>
+                </div>
+              ) : (
+                <div className="py-10 text-center text-xs text-white/40 font-semibold">
+                  Không tìm thấy kết quả nào
+                </div>
+              )}
+            </div>
+          </div>
+        </>,
+        document.body
       )}
     </>
   );

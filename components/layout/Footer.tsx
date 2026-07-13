@@ -2,17 +2,17 @@ import Link from 'next/link';
 import { Facebook, Instagram, Twitter } from 'lucide-react';
 
 const LEGAL_LINKS = [
-  { name: 'Privacy Policy - Chính sách bảo mật', href: '#' },
-  { name: 'Terms of Service - Điều khoản sử dụng', href: '#' },
-  { name: 'Copyright/DMCA - Thông báo bản quyền', href: '#' },
-  { name: 'Contact Us - Liên hệ', href: '#' },
+  { name: 'Privacy Policy - Chính sách bảo mật', href: '/chinh-sach-bao-mat' },
+  { name: 'Terms of Service - Điều khoản sử dụng', href: '/dieu-khoan-su-dung' },
+  { name: 'Copyright/DMCA - Thông báo bản quyền', href: '/ban-quyen-dmca' },
+  { name: 'Contact Us - Liên hệ', href: '/lien-he' },
 ];
 
 const SUPPORT_LINKS = [
-  { name: 'Help/FAQ - Trợ giúp', href: '#' },
-  { name: 'Settings - Cài đặt', href: '#' },
-  { name: 'About - Giới thiệu ứng dụng', href: '#' },
-  { name: 'Version - Phiên bản ứng dụng', href: '#' },
+  { name: 'Help/FAQ - Trợ giúp', href: '/tro-giup' },
+  { name: 'Settings - Cài đặt', href: '/cai-dat' },
+  { name: 'About - Giới thiệu ứng dụng', href: '/gioi-thieu' },
+  { name: 'Version - Phiên bản ứng dụng', href: '/phien-ban' },
 ];
 
 export default function Footer() {

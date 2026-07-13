@@ -86,13 +86,19 @@ export async function getMoviesByCategory(category: string, limit = 20): Promise
     }
     
     const imageDomain = data.data.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
+    const imgDomain = imageDomain.endsWith('/') ? imageDomain : `${imageDomain}/`;
     
-    return data.data.items.map((movie: OphimMovie) => ({
-      id: movie._id,
-      title: movie.name,
-      imageSrc: movie.thumb_url?.startsWith('http') ? movie.thumb_url : `${imageDomain}/${movie.thumb_url}`,
-      slug: movie.slug 
-    }));
+    return data.data.items.map((movie: OphimMovie) => {
+      const thumbUrl = movie.thumb_url || movie.poster_url || '';
+      const posterUrl = movie.poster_url || movie.thumb_url || '';
+      return {
+        id: movie._id,
+        title: movie.name,
+        imageSrc: thumbUrl.startsWith('http') ? thumbUrl : `${imgDomain}${thumbUrl}`,
+        posterSrc: posterUrl.startsWith('http') ? posterUrl : `${imgDomain}${posterUrl}`,
+        slug: movie.slug 
+      };
+    });
   } catch (error) {
     console.error(`Lỗi fetch API danh mục ${category}:`, error);
     return [];
@@ -116,14 +122,20 @@ export async function searchMovies(keyword: string) {
     if (!res.ok) return [];
     const data = await res.json();
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
+    const imgDomain = imageDomain.endsWith('/') ? imageDomain : `${imageDomain}/`;
     
-    return data.data?.items?.map((movie: OphimMovie) => ({
-      id: movie._id,
-      title: movie.name,
-      originName: movie.origin_name,
-      imageSrc: movie.thumb_url?.startsWith('http') ? movie.thumb_url : `${imageDomain}/${movie.thumb_url}`,
-      slug: movie.slug
-    })) || [];
+    return data.data?.items?.map((movie: OphimMovie) => {
+      const thumbUrl = movie.thumb_url || movie.poster_url || '';
+      const posterUrl = movie.poster_url || movie.thumb_url || '';
+      return {
+        id: movie._id,
+        title: movie.name,
+        originName: movie.origin_name,
+        imageSrc: thumbUrl.startsWith('http') ? thumbUrl : `${imgDomain}${thumbUrl}`,
+        posterSrc: posterUrl.startsWith('http') ? posterUrl : `${imgDomain}${posterUrl}`,
+        slug: movie.slug
+      };
+    }) || [];
   } catch (error) {
     console.error("Lỗi tìm kiếm:", error);
     return [];
@@ -165,14 +177,17 @@ export async function getMoviesByGenre(slug: string) {
     const data = await fetchWithCache(`${MOVIE_API_URL}/v1/api/the-loai/${slug}?limit=24`, 3600);
     if (!data?.data?.items) return [];
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';
+    const imgDomain = imageDomain.endsWith('/') ? imageDomain : `${imageDomain}/`;
     
     return data.data.items.map((movie: OphimMovie) => {
-      const imgUrl = movie.poster_url || movie.thumb_url || '';
+      const thumbUrl = movie.thumb_url || movie.poster_url || '';
+      const posterUrl = movie.poster_url || movie.thumb_url || '';
       return {
         id: movie._id,
         title: movie.name,
         originName: movie.origin_name,
-        imageSrc: imgUrl.startsWith('http') ? imgUrl : `${imageDomain}/${imgUrl}`,
+        imageSrc: thumbUrl.startsWith('http') ? thumbUrl : `${imgDomain}${thumbUrl}`,
+        posterSrc: posterUrl.startsWith('http') ? posterUrl : `${imgDomain}${posterUrl}`,
         slug: movie.slug
       };
     });
