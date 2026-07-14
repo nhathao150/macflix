@@ -37,6 +37,11 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Loại bỏ độ trễ 300ms khi chạm trên thiết bị di động */
+  a, button, [role="button"], select, input, textarea, .cursor-pointer {
+    touch-action: manipulation;
+  }
+
   /* Custom Scrollbar for entire website */
   ::-webkit-scrollbar {
     width: 8px;

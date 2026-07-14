@@ -20,7 +20,7 @@ export default function MovieCard({ movie, isTrending }: MovieCardProps) {
   return (
     <>
       {/* 1. GIAO DIỆN MOBILE (DỌC - aspect-[2/3]) */}
-      <div className={`relative group cursor-pointer aspect-[2/3] rounded-xl overflow-hidden bg-[#16151a]/40 backdrop-blur-md border border-white/[0.08] shadow-[0_8px_24px_rgba(0,0,0,0.5)] md:hidden active-scale transition-all duration-300 ${
+      <div className={`relative group cursor-pointer aspect-[2/3] rounded-xl overflow-hidden bg-[#16151a]/40 border border-white/[0.08] shadow-[0_8px_24px_rgba(0,0,0,0.5)] md:hidden active-scale ${
         isTrending ? 'w-[135px]' : 'w-[125px]'
       }`}>
         <Image
@@ -28,7 +28,7 @@ export default function MovieCard({ movie, isTrending }: MovieCardProps) {
           alt={movie.title}
           fill
           sizes="150px"
-          className="object-cover transition-all duration-500 group-hover:scale-110"
+          className="object-cover transition-all duration-500"
           referrerPolicy="no-referrer"
           loading="lazy"
         />
@@ -41,7 +41,7 @@ export default function MovieCard({ movie, isTrending }: MovieCardProps) {
       </div>
 
       {/* 2. GIAO DIỆN DESKTOP (NGANG - aspect-video) */}
-      <div className={`relative group cursor-pointer aspect-video rounded-2xl overflow-hidden bg-[#16151a]/40 backdrop-blur-md border border-white/[0.08] shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] hover:shadow-[0_24px_50px_rgba(0,0,0,0.7),0_0_20px_rgba(168,85,247,0.15)] hover:scale-[1.03] transition-all duration-300 ease-out hidden md:flex ${
+      <div className={`relative group cursor-pointer aspect-video rounded-2xl overflow-hidden bg-[#16151a]/40 border border-white/[0.08] shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] hover:shadow-[0_24px_50px_rgba(0,0,0,0.7),0_0_20px_rgba(168,85,247,0.15)] hover:scale-[1.03] transition-[transform,box-shadow] duration-300 ease-out hidden md:flex ${
         isTrending ? 'w-[400px]' : 'w-[320px]'
       }`}>
         {/* Shimmer skeleton khi ảnh chưa load */}
