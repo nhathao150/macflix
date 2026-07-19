@@ -65,15 +65,14 @@ export default function MovieRow({ title, movies, isTrending, onMovieClick, view
           <ChevronLeft className="w-8 h-8 text-white" />
         </button>
 
-        {/* Khung chứa danh sách phim */}
         <div
           ref={rowRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide pb-6 pt-2 -mx-4 md:-mx-12 px-4 md:px-12 touch-pan-x md:snap-x md:snap-mandatory"
+          className="flex gap-4 overflow-x-auto scrollbar-hide pb-6 pt-2 -mx-4 md:-mx-12 px-4 md:px-12 md:snap-x md:snap-mandatory"
         >
           {movies.map((movie) => (
             <div 
               key={movie.id} 
-              className="shrink-0 transition-transform duration-300 hover:z-50 md:snap-start md:snap-always"
+              className="shrink-0 transition-transform duration-300 hover:z-50 focus-within:z-50 md:snap-start md:snap-always"
               onClick={() => onMovieClick(movie)}
             >
               <MovieCard movie={movie} isTrending={isTrending} />

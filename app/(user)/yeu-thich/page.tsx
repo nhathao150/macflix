@@ -67,11 +67,11 @@ export default function FavoritesPage() {
         ) : favorites.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
             {favorites.map((movie, index) => (
-              <Link href={`/phim/${movie.slug}`} key={index} className="group flex flex-col cursor-pointer active-scale">
-                <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-[#160078/20]">
-                  <Image src={movie.imageSrc || '/placeholder-image.jpg'} alt={movie.name} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover opacity-80 transition-transform duration-500 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-2xl">
+              <Link href={`/phim/${movie.slug}`} key={index} className="group flex flex-col cursor-pointer active-scale focus:outline-none focus:scale-[1.05] transition-transform duration-300">
+                <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-[#160078/20] group-focus:ring-4 group-focus:ring-purple-500 group-focus:border-purple-500 transition-all duration-300">
+                  <Image src={movie.imageSrc || '/placeholder-image.jpg'} alt={movie.name} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover opacity-80 transition-transform duration-500 group-hover:scale-110 group-focus:scale-110" />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center transform scale-75 group-hover:scale-100 group-focus:scale-100 transition-transform duration-300 shadow-2xl">
                       <Play className="w-5 h-5 text-white fill-white ml-1" />
                     </div>
                   </div>
@@ -79,7 +79,7 @@ export default function FavoritesPage() {
                      <Heart className="w-5 h-5 drop-shadow-lg" style={{color:'#F042FF', fill:'#F042FF'}} />
                   </div>
                 </div>
-                <h3 className="text-xs font-semibold text-white/90 group-hover:text-white transition-colors line-clamp-2 leading-snug">
+                <h3 className="text-xs font-semibold text-white/90 group-hover:text-white group-focus:text-white transition-colors line-clamp-2 leading-snug">
                   {movie.name}
                 </h3>
               </Link>

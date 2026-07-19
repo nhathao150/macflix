@@ -38,11 +38,28 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
   
   const similarMoviesRef = useRef<HTMLDivElement>(null);
 
+  const lastActiveElementRef = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      lastActiveElementRef.current = document.activeElement as HTMLElement;
+      // Focus vào phần tử đầu tiên bên trong modal sau khi nó được vẽ xong
+      setTimeout(() => {
+        const modalContainer = document.querySelector('[data-modal-container]') as HTMLElement;
+        if (modalContainer) {
+          const firstFocusable = modalContainer.querySelector('button, [tabindex="0"]') as HTMLElement;
+          if (firstFocusable) {
+            firstFocusable.focus();
+          }
+        }
+      }, 150);
     } else {
       document.body.style.overflow = 'unset';
+      if (lastActiveElementRef.current) {
+        lastActiveElementRef.current.focus();
+        lastActiveElementRef.current = null;
+      }
     }
     return () => {
       document.body.style.overflow = 'unset';
@@ -140,6 +157,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
           <div className="absolute inset-0 bg-[#050505]/80 backdrop-blur-md" onClick={onClose} />
           
           <motion.div 
+            data-modal-container
             initial={{ scale: 0.95, y: 20 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.95, y: 20 }}
@@ -147,7 +165,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
           >
             <button 
               onClick={onClose}
-              className="absolute top-4 right-4 z-50 w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-md border border-white/20 flex items-center justify-center transition-all"
+              className="absolute top-4 right-4 z-50 w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/40 hover:bg-black/70 focus:bg-black/70 focus:scale-105 focus:ring-2 focus:ring-purple-500 focus:outline-none backdrop-blur-md border border-white/20 flex items-center justify-center transition-all"
             >
               <X className="w-5 h-5 text-white" />
             </button>
@@ -183,18 +201,18 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
 
                       {trailerId && (
                          <div className="absolute inset-0 flex items-center justify-center">
-                          <button onClick={() => setMediaMode('trailer')} className="bg-white/20 hover:bg-white/30 text-white rounded-full p-3 md:px-5 md:py-2.5 flex items-center gap-2 backdrop-blur-sm border border-white/30 transition-all group shadow-xl">
-                            <Film className="w-5 h-5 fill-current" />
-                            <span className="text-sm font-bold hidden md:block">Xem Trailer</span>
-                          </button>
-                        </div>
+                           <button onClick={() => setMediaMode('trailer')} className="bg-white/20 hover:bg-white/30 focus:bg-white/30 text-white rounded-full p-3 md:px-5 md:py-2.5 flex items-center gap-2 backdrop-blur-sm border border-white/30 transition-all group shadow-xl focus:outline-none focus:scale-105 focus:ring-2 focus:ring-purple-500">
+                             <Film className="w-5 h-5 fill-current" />
+                             <span className="text-sm font-bold hidden md:block">Xem Trailer</span>
+                           </button>
+                         </div>
                       )}
                     </div>
                   )}
 
                   {mediaMode === 'trailer' && trailerId && (
                     <div className="w-full h-full relative bg-black">
-                      <button onClick={() => setMediaMode('banner')} className="absolute -top-12 md:-top-14 left-4 z-10 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full flex items-center gap-2 text-sm backdrop-blur-md border border-white/10 transition-colors">
+                      <button onClick={() => setMediaMode('banner')} className="absolute -top-12 md:-top-14 left-4 z-10 bg-white/10 hover:bg-white/20 focus:bg-white/20 text-white px-4 py-2 rounded-full flex items-center gap-2 text-sm backdrop-blur-md border border-white/10 transition-all focus:outline-none focus:scale-105 focus:ring-2 focus:ring-purple-500">
                         <ArrowLeft className="w-4 h-4" /> Đóng Trailer
                       </button>
                       <iframe src={`https://www.youtube.com/embed/${trailerId}?autoplay=1&rel=0`} title="Trailer" allowFullScreen className="w-full h-full"></iframe>
@@ -224,11 +242,16 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                               
                               <div ref={similarMoviesRef} className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x">
                                   {similarMovies.map((sim) => (
-                                      <div key={sim.slug} onClick={() => handleWatchSimilar(sim.slug)} className="shrink-0 w-32 md:w-40 cursor-pointer group snap-start">
-                                          <div className="relative aspect-[2/3] rounded-xl overflow-hidden mb-2 border border-white/10">
-                                              <Image src={sim.imageSrc} alt={sim.title} fill className="object-cover transition-transform duration-300 group-hover:scale-110" />
+                                      <div 
+                                          tabIndex={0}
+                                          key={sim.slug} 
+                                          onClick={() => handleWatchSimilar(sim.slug)} 
+                                          className="shrink-0 w-32 md:w-40 cursor-pointer group snap-start focus:outline-none focus:scale-105 transition-transform duration-300"
+                                      >
+                                          <div className="relative aspect-[2/3] rounded-xl overflow-hidden mb-2 border border-white/10 group-focus:ring-2 group-focus:ring-purple-500 group-focus:border-purple-500 transition-all duration-300">
+                                              <Image src={sim.imageSrc} alt={sim.title} fill className="object-cover transition-transform duration-300 group-hover:scale-110 group-focus:scale-110" />
                                           </div>
-                                          <p className="text-xs md:text-sm font-semibold text-white/80 group-hover:text-white line-clamp-1">{sim.title}</p>
+                                          <p className="text-xs md:text-sm font-semibold text-white/80 group-hover:text-white group-focus:text-white line-clamp-1">{sim.title}</p>
                                       </div>
                                   ))}
                               </div>
@@ -244,8 +267,9 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                             Cách xem
                         </div>
                         <div 
+                            tabIndex={hasLinkMovie ? 0 : -1}
                             onClick={hasLinkMovie ? handleWatchMovie : undefined}
-                            className={`flex items-center gap-4 bg-[#1c1c1e] hover:bg-[#2c2c2e] border border-white/10 p-4 rounded-2xl w-fit transition-colors ${hasLinkMovie ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
+                            className={`flex items-center gap-4 bg-[#1c1c1e] hover:bg-[#2c2c2e] border border-white/10 p-4 rounded-2xl w-fit transition-all focus:outline-none focus:ring-2 focus:ring-purple-500 ${hasLinkMovie ? 'cursor-pointer focus:scale-105' : 'opacity-50 cursor-not-allowed'}`}
                         >
                             <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center">
                                 <MonitorPlay className="w-6 h-6 text-white" />

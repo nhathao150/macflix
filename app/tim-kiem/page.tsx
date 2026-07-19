@@ -200,28 +200,29 @@ function SearchContent() {
                   <div
                     key={`${movie.id}-${index}`}
                     onClick={() => openModal(movie)}
-                    className="group flex flex-col cursor-pointer active-scale"
+                    tabIndex={0}
+                    className="group flex flex-col cursor-pointer active-scale focus:outline-none focus:scale-[1.05] transition-transform duration-300"
                   >
-                    <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-white/5">
+                    <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-white/5 group-focus:ring-4 group-focus:ring-purple-500 group-focus:border-purple-500 transition-all duration-300">
                       <Image
                         src={movie.imageSrc}
                         alt={movie.title}
                         fill
                         sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 12vw"
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110 group-focus:scale-110"
                         referrerPolicy="no-referrer"
                       />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-2xl">
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center transform scale-75 group-hover:scale-100 group-focus:scale-100 transition-transform duration-300 shadow-2xl">
                           <Play className="w-5 h-5 text-white fill-white ml-1" />
                         </div>
                       </div>
                     </div>
-                    <h3 className="text-xs font-semibold text-white/90 group-hover:text-white transition-colors line-clamp-2 leading-snug">
+                    <h3 className="text-xs font-semibold text-white/90 group-hover:text-white group-focus:text-white transition-colors line-clamp-2 leading-snug">
                       {movie.title}
                     </h3>
                     {movie.originName && movie.originName !== movie.title && (
-                      <p className="text-[10px] text-white/40 line-clamp-1 mt-0.5 leading-snug italic">{movie.originName}</p>
+                      <p className="text-[10px] text-white/40 group-hover:text-white/60 group-focus:text-white/60 line-clamp-1 mt-0.5 leading-snug italic transition-colors">{movie.originName}</p>
                     )}
                   </div>
                 ))}
