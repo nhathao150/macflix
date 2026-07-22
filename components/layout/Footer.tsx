@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { Facebook, Instagram, Twitter } from 'lucide-react';
+import { useTv } from '@/context/TvContext';
 
 const LEGAL_LINKS = [
   { name: 'Privacy Policy - Chính sách bảo mật', href: '/chinh-sach-bao-mat' },
@@ -16,7 +19,10 @@ const SUPPORT_LINKS = [
 ];
 
 export default function Footer() {
+  const { isTvMode } = useTv();
   const currentYear = new Date().getFullYear();
+
+  if (isTvMode) return null;
 
   return (
     <footer className="relative bg-[#0a0a0c] border-t border-white/5 mt-auto">

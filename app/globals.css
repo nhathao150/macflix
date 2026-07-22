@@ -206,3 +206,15 @@ div:focus-visible {
   border: none !important;
   box-shadow: none !important;
 }
+
+/* Custom TV Mode Styling */
+body.tv-mode-active {
+  font-size: 1.1rem;
+}
+
+body.tv-mode-active [tabindex="0"]:focus,
+body.tv-mode-active a:focus,
+body.tv-mode-active button:focus {
+  box-shadow: 0 0 0 3px #F042FF, 0 0 25px rgba(240, 66, 255, 0.6) !important;
+}
+
