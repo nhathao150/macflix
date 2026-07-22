@@ -74,15 +74,13 @@ export default function HistoryPage() {
          <div className="absolute bottom-[-10%] right-[-10%] w-[55%] h-[55%] bg-[#7226FF]/15 blur-[140px] rounded-full mix-blend-screen" />
       </div>
 
-      <div className={`w-full px-6 md:px-16 lg:px-24 relative z-10 flex flex-col gap-8 ${isTvMode ? 'pt-8 md:pt-12' : 'pt-4 md:pt-[100px]'}`}>
+      <div className={`max-w-[1600px] mx-auto px-4 md:px-12 relative z-10 flex flex-col gap-8 ${isTvMode ? 'pt-8 md:pt-12' : 'pt-4 md:pt-[100px]'}`}>
         
-        {/* TIÊU ĐỀ LỊCH SỬ XEM PHIM CĂN GIỮA MÀN HÌNH */}
-        <div className="flex items-center justify-center text-center border-b border-white/10 pb-6 mb-4 w-full">
-          <div className="flex items-center justify-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 border-2 border-cyan-400/40 flex items-center justify-center shadow-xl">
-              <History className="w-8 h-8 text-cyan-400 drop-shadow-[0_0_14px_rgba(34,211,238,0.9)]" />
-            </div>
-            <h1 className="font-black tracking-wider text-white uppercase drop-shadow-2xl text-3xl md:text-5xl text-center">
+        {/* Tiêu đề */}
+        <div className="flex items-center justify-between border-b border-white/10 pb-5 mb-4">
+          <div className="flex items-center gap-3">
+            <History className="w-8 h-8 text-cyan-400" />
+            <h1 className="font-black text-2xl md:text-4xl text-white tracking-wide uppercase drop-shadow-md">
               Lịch Sử Xem Phim
             </h1>
           </div>

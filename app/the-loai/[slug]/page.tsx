@@ -206,22 +206,24 @@ function GenreContent() {
 
 
   return (
-    <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-24 relative overflow-hidden">
+    <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-28">
       {!isTvMode && <Navbar />}
 
-      <div className={`w-full px-6 md:px-16 lg:px-24 relative z-10 flex flex-col gap-8 ${isTvMode ? 'pt-8 md:pt-12' : 'pt-4 md:pt-[100px]'}`}>
-        {/* Tiêu đề danh mục thể loại căn giữa trên cùng */}
-        <div className="flex flex-col items-center justify-center text-center border-b border-white/10 pb-6 mb-4 w-full">
-          <h1 className="font-black tracking-wider text-white uppercase drop-shadow-2xl text-3xl md:text-5xl text-center">
-            {pageTitle.split('|')[0].trim()}
-          </h1>
-          {pagination ? (
-            <p className="text-white/60 text-base md:text-xl mt-3 font-medium text-center">
-              Tìm thấy {pagination.totalItems} bộ phim • Trang {currentPage} / {pagination.totalPages}
-            </p>
-          ) : (
-             <p className="text-white/60 text-base md:text-xl mt-3 font-medium text-center">Đang tải dữ liệu...</p>
-          )}
+      <div className="max-w-[1800px] mx-auto px-4 md:px-8 pt-6 md:pt-[120px]">
+        {/* Tiêu đề danh mục */}
+        <div className="mb-8 flex items-end justify-between border-b border-white/10 pb-4">
+          <div>
+            <h1 className="font-black tracking-widest text-white uppercase drop-shadow-md text-2xl md:text-3xl">
+              {pageTitle.split('|')[0].trim()}
+            </h1>
+            {pagination ? (
+              <p className="text-white/50 text-sm mt-2 font-medium">
+                Tìm thấy {pagination.totalItems} bộ phim • Trang {currentPage} / {pagination.totalPages}
+              </p>
+            ) : (
+               <p className="text-white/50 text-sm mt-2 font-medium">Đang tải dữ liệu...</p>
+            )}
+          </div>
         </div>
 
         {/* Lưới Phim + Sidebar */}

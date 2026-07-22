@@ -17,11 +17,15 @@
 
 
 /* ================================================
-   TYPOGRAPHY BASE — TĂNG TOÀN BỘ CHỮ +10PX CHO SMART TV 4K
+   TYPOGRAPHY BASE — Chuẩn SEO & Giao diện ban đầu (16px)
+   h1: tiêu đề chính trang (duy nhất 1 cái/page)
+   h2: section headings
+   h3: card/item titles
+   body: 1rem / line-height 1.625
 ================================================ */
 @layer base {
   html {
-    font-size: 26px; /* Gốc 16px + 10px = 26px -> Tăng toàn bộ cỡ chữ toàn website thêm +10px */
+    font-size: 16px;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
@@ -40,15 +44,15 @@
 
   /* Custom Scrollbar for entire website */
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
   ::-webkit-scrollbar-track {
     background: #0a0a0c;
   }
   ::-webkit-scrollbar-thumb {
     background: #1e1e24;
-    border-radius: 6px;
+    border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
     background: #2d2d34;
@@ -75,35 +79,35 @@
     animation: skeleton-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
-  /* Heading Scale — Tăng thêm +10px cho tất cả tiêu đề */
+  /* Heading Scale — tỉ lệ Major Third (×1.25) */
   h1 {
-    font-size: calc(clamp(1.75rem, 4vw, 2.5rem) + 10px);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 800;
     line-height: 1.2;
     letter-spacing: -0.025em;
   }
 
   h2 {
-    font-size: calc(clamp(1.25rem, 3vw, 1.75rem) + 10px);
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
     font-weight: 700;
     line-height: 1.3;
     letter-spacing: -0.015em;
   }
 
   h3 {
-    font-size: calc(clamp(1rem, 2.5vw, 1.375rem) + 10px);
+    font-size: clamp(1rem, 2.5vw, 1.375rem);
     font-weight: 600;
     line-height: 1.4;
   }
 
   h4 {
-    font-size: calc(1.125rem + 10px);
+    font-size: 1.125rem;
     font-weight: 600;
     line-height: 1.4;
   }
 
   h5, h6 {
-    font-size: calc(1rem + 10px);
+    font-size: 1rem;
     font-weight: 600;
     line-height: 1.5;
   }
@@ -126,8 +130,8 @@
   .custom-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: white;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
@@ -139,8 +143,8 @@
   }
 
   .custom-slider::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: white;
     cursor: pointer;
