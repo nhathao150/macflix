@@ -207,9 +207,27 @@ div:focus-visible {
   box-shadow: none !important;
 }
 
+/* Tối ưu phông chữ và tăng tốc phần cứng GPU cho TV HD/4K */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
 /* Custom TV Mode & 4K Ultra HD Optimizations */
 body.tv-mode-active {
   font-size: 1.15rem;
+}
+
+body.tv-mode-active h1 {
+  font-size: 2.75rem;
+  letter-spacing: -0.02em;
+}
+
+body.tv-mode-active h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
 }
 
 body.tv-mode-active [tabindex="0"]:focus,
@@ -218,6 +236,8 @@ body.tv-mode-active button:focus {
   outline: none !important;
   box-shadow: 0 0 0 4px #F042FF, 0 0 35px rgba(240, 66, 255, 0.8) !important;
   z-index: 50 !important;
+  transform: translateZ(0) scale(1.05);
+  will-change: transform;
 }
 
 @media (min-width: 2560px) {

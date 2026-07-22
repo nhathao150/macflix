@@ -35,9 +35,8 @@ export default function TvSidebar() {
           setIsExpanded(false);
         }
       }}
-      className={`fixed top-0 left-0 bottom-0 z-[120] bg-[#0d0d12]/95 backdrop-blur-2xl border-r border-white/10 flex flex-col justify-between py-6 transition-all duration-300 ease-out shadow-[10px_0_30px_rgba(0,0,0,0.8)] ${
-        isExpanded ? 'w-[260px] px-4' : 'w-[88px] px-3'
-      }`}
+      className={`fixed top-0 left-0 bottom-0 z-[120] bg-[#0d0d12]/95 backdrop-blur-2xl border-r border-white/10 flex flex-col justify-between py-6 transition-all duration-300 ease-out shadow-[10px_0_30px_rgba(0,0,0,0.8)] ${isExpanded ? 'w-[400px] px-4' : 'w-[120px] px-3'
+        }`}
     >
       {/* Top: Brand Logo */}
       <div className={`w-full flex items-center ${isExpanded ? 'justify-start px-2' : 'justify-center'} py-2`}>
@@ -64,13 +63,11 @@ export default function TvSidebar() {
               href={item.href}
               tabIndex={0}
               title={item.name}
-              className={`w-full flex items-center ${
-                isExpanded ? 'justify-start px-4' : 'justify-center'
-              } h-12 rounded-2xl transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F042FF] focus:scale-105 ${
-                isActive
+              className={`w-full flex items-center ${isExpanded ? 'justify-start px-4' : 'justify-center'
+                } h-12 rounded-2xl transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F042FF] focus:scale-105 ${isActive
                   ? 'bg-gradient-to-r from-[#7226FF] to-[#F042FF] text-white shadow-[0_0_20px_rgba(114,38,255,0.5)] font-bold'
                   : 'text-white/60 hover:text-white hover:bg-white/10 focus:bg-white/20'
-              }`}
+                }`}
             >
               <Icon className="w-6 h-6 shrink-0" />
               {isExpanded && (
@@ -107,9 +104,8 @@ export default function TvSidebar() {
               tabIndex={0}
               onClick={() => signOut()}
               title="Đăng xuất"
-              className={`w-full flex items-center ${
-                isExpanded ? 'justify-start px-4' : 'justify-center'
-              } h-11 rounded-2xl text-red-400 hover:bg-red-500/10 focus:bg-red-500/20 focus:ring-2 focus:ring-red-500 focus:outline-none transition-all cursor-pointer`}
+              className={`w-full flex items-center ${isExpanded ? 'justify-start px-4' : 'justify-center'
+                } h-11 rounded-2xl text-red-400 hover:bg-red-500/10 focus:bg-red-500/20 focus:ring-2 focus:ring-red-500 focus:outline-none transition-all cursor-pointer`}
             >
               <LogOut className="w-5 h-5 shrink-0" />
               {isExpanded && <span className="ml-3.5 text-sm font-bold whitespace-nowrap">Đăng xuất</span>}
@@ -119,9 +115,8 @@ export default function TvSidebar() {
           <Link
             href="/dang-nhap"
             tabIndex={0}
-            className={`w-full flex items-center ${
-              isExpanded ? 'justify-start px-4' : 'justify-center'
-            } h-11 rounded-2xl bg-white/10 hover:bg-white/20 focus:ring-2 focus:ring-purple-500 text-white font-bold transition-all`}
+            className={`w-full flex items-center ${isExpanded ? 'justify-start px-4' : 'justify-center'
+              } h-11 rounded-2xl bg-white/10 hover:bg-white/20 focus:ring-2 focus:ring-purple-500 text-white font-bold transition-all`}
           >
             <User className="w-5 h-5 shrink-0" />
             {isExpanded && <span className="ml-3.5 text-sm font-bold whitespace-nowrap">Đăng nhập</span>}
