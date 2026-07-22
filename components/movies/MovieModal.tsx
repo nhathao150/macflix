@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 import CastCard, { usePeoplesData } from '@/components/movies/CastCard';
 import { Movie, MovieDetails } from '@/types';
+import { useTv } from '@/context/TvContext';
+import TvMovieModal from '@/components/tv/TvMovieModal';
 
 interface MovieModalProps {
   isOpen: boolean;

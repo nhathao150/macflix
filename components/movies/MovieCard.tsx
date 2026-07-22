@@ -1,6 +1,9 @@
 import Image from 'next/image';
 import { Play } from 'lucide-react';
 import { useState } from 'react';
+import { useTv } from '@/context/TvContext';
+import TvMovieCard from '@/components/tv/TvMovieCard';
+import { Movie } from '@/types';
 
 interface MovieCardProps {
   movie: {
@@ -14,7 +17,12 @@ interface MovieCardProps {
 }
 
 export default function MovieCard({ movie, isTrending }: MovieCardProps) {
+  const { isTvMode } = useTv();
   const [isLoaded, setIsLoaded] = useState(false);
+
+  if (isTvMode) {
+    return <TvMovieCard movie={movie as Movie} isTrending={isTrending} />;
+  }
   const poster = movie.posterSrc || movie.imageSrc;
 
   return (
