@@ -1,17 +1,14 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { X, Film, ArrowLeft, ChevronRight, ChevronLeft, MonitorPlay } from 'lucide-react';
+import { X, Play } from 'lucide-react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
-import { getMovieDetails, getMoviesByGenre } from '@/lib/api';
+import { getMovieDetails } from '@/lib/api';
 import { useRouter } from 'next/navigation';
-// 1. IMPORT NÚT TRÁI TIM YÊU THÍCH VÀO ĐÂY
 import FavoriteButton from '@/components/ui/FavoriteButton';
 import CastCard, { usePeoplesData } from '@/components/movies/CastCard';
 import { Movie, MovieDetails } from '@/types';
-import { useTv } from '@/context/TvContext';
-import TvMovieModal from '@/components/tv/TvMovieModal';
 
 interface MovieModalProps {
   isOpen: boolean;
@@ -19,26 +16,15 @@ interface MovieModalProps {
   movie: Movie | null;
 }
 
-const getYoutubeEmbedId = (url: string) => {
-  if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
-};
-
 export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) {
   const router = useRouter();
-  
+
   const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [mediaMode, setMediaMode] = useState<'banner' | 'trailer'>('banner');
-  const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
 
   // Lấy danh sách diễn viên + ảnh từ ophim peoples API
   const movieSlug = movieDetails?.movie?.slug || movie?.slug;
   const { peoples, photoBaseUrl } = usePeoplesData(movieSlug);
-  
-  const similarMoviesRef = useRef<HTMLDivElement>(null);
 
   const lastActiveElementRef = useRef<HTMLElement | null>(null);
 
@@ -46,7 +32,6 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       lastActiveElementRef.current = document.activeElement as HTMLElement;
-      // Focus vào phần tử đầu tiên bên trong modal sau khi nó được vẽ xong
       setTimeout(() => {
         const modalContainer = document.querySelector('[data-modal-container]') as HTMLElement;
         if (modalContainer) {
@@ -72,35 +57,9 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
     const fetchMovieData = async () => {
       if (isOpen && movie?.slug) {
         setIsLoading(true);
-        setMediaMode('banner');
-        setSimilarMovies([]);
-
         try {
-          // Fetch song song: chi tiết phim + phim tương tự cùng lúc
-          // Dùng movie prop để lấy slug sơm hơn thay vì chờ movieDetails
-          const [data, similarData] = await Promise.all([
-            getMovieDetails(movie.slug),
-            // Tạm fetch theo từ khóa từ slug phim gốc (sẽ lọc lại sau)
-            getMoviesByGenre('hanh-dong').catch(() => []) // fallback rỗng nếu lỗi
-          ]);
+          const data = await getMovieDetails(movie.slug);
           setMovieDetails(data);
-
-          // Sau khi có data, fetch lại phim tương tự theo đúng thể loại
-          const firstCategorySlug = data?.movie?.category?.[0]?.slug;
-          if (firstCategorySlug) {
-            const correctSimilarData = await getMoviesByGenre(firstCategorySlug);
-            const filteredSimilar = correctSimilarData
-              .filter((m: Movie) => m.slug !== movie.slug)
-              .slice(0, 8);
-            setSimilarMovies(filteredSimilar);
-          } else if (similarData.length > 0) {
-            setSimilarMovies(
-              (similarData as Movie[])
-                .filter((m: Movie) => m.slug !== movie.slug)
-                .slice(0, 8)
-            );
-          }
-          
         } catch (error) {
           console.error("Lỗi lấy chi tiết phim:", error);
         } finally {
@@ -108,8 +67,6 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
         }
       } else {
         setMovieDetails(null);
-        setMediaMode('banner');
-        setSimilarMovies([]);
       }
     };
 
@@ -124,275 +81,214 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
     }
   };
 
-  const handleWatchSimilar = (similarSlug: string) => {
-    onClose();
-    router.push(`/phim/${similarSlug}`);
-  };
-
-  const scrollSimilar = (direction: 'left' | 'right') => {
-    if (similarMoviesRef.current) {
-      const scrollAmount = direction === 'left' ? -500 : 500;
-      similarMoviesRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
-
   if (!isOpen) return null;
 
   const movieData = movieDetails?.movie;
-  const backdropUrl = movieData?.poster_url 
+  const backdropUrl = movieData?.poster_url
     ? (movieData.poster_url.startsWith('http') ? movieData.poster_url : `https://phimimg.com/${movieData.poster_url}`)
     : movie?.imageSrc;
 
-  const trailerId = getYoutubeEmbedId(movieData?.trailer_url || "");
   const episodesList = movieDetails?.episodes?.[0]?.server_data || [];
   const hasLinkMovie = episodesList.length > 0;
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 md:p-6"
         >
-          <div className="absolute inset-0 bg-[#050505]/80 backdrop-blur-md" onClick={onClose} />
-          
-          <motion.div 
+          <div className="absolute inset-0 bg-[#050505]/85 backdrop-blur-lg" onClick={onClose} />
+
+          {/* KHUNG MODAL TỰ ĐỘNG THÍCH ỨNG: MOBILE (full/w-[96vw]), DESKTOP & TV (w-[96vw] max-w-[1800px] h-[94vh]) */}
+          <motion.div
             data-modal-container
             initial={{ scale: 0.95, y: 20 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.95, y: 20 }}
-            className="relative w-full max-w-5xl h-[90vh] bg-[#141414] border border-white/10 rounded-2xl md:rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+            className="relative w-[96vw] max-w-[1800px] h-[94vh] bg-[#141414] border border-white/15 rounded-2xl md:rounded-3xl shadow-[0_30px_90px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden"
           >
-            <button 
+            {/* NÚT ĐÓNG MODAL (Responsive cho Mobile & TV) */}
+            <button
               onClick={onClose}
-              className="absolute top-4 right-4 z-50 w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/40 hover:bg-black/70 focus:bg-black/70 focus:scale-105 focus:ring-2 focus:ring-purple-500 focus:outline-none backdrop-blur-md border border-white/20 flex items-center justify-center transition-all"
+              className="absolute top-4 right-4 md:top-6 md:right-6 z-50 w-10 h-10 md:w-14 md:h-14 rounded-full bg-black/60 hover:bg-black/90 focus:bg-black/90 focus:scale-105 focus:ring-4 focus:ring-[#F042FF] focus:outline-none backdrop-blur-md border border-white/20 flex items-center justify-center transition-all cursor-pointer shadow-2xl"
             >
-              <X className="w-5 h-5 text-white" />
+              <X className="w-5 h-5 md:w-8 md:h-8 text-white" />
             </button>
 
             {isLoading ? (
               <div className="flex-1 flex items-center justify-center text-white">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white"></div>
+                <div className="animate-spin rounded-full h-12 w-12 md:h-16 md:w-16 border-b-2 border-[#F042FF]"></div>
               </div>
             ) : (
-              <div className="flex-1 overflow-y-auto scrollbar-hide pb-20">
-                
-                {/* --- 1. MEDIA PLAYER (Banner/Trailer) --- */}
-                <div className={`relative w-full aspect-video bg-black transition-all duration-300 ${mediaMode === 'trailer' ? 'mt-14 md:mt-16' : ''}`}>
-                  {mediaMode === 'banner' && (
-                    <div className="relative w-full h-full">
-                      {backdropUrl && (
-                        <Image src={backdropUrl} alt={movieData?.name || ''} fill className="object-cover opacity-70 mask-image-gradient" referrerPolicy="no-referrer" />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-transparent" />
-                      
-                      {/* 2. CHÈN NÚT TRÁI TIM YÊU THÍCH NGAY TRÊN POSTER */}
-                      {movieData && (
-                         <div className="absolute bottom-16 right-6 md:bottom-20 md:right-12 z-20">
-                            <FavoriteButton 
-                                movieData={{
-                                    slug: movieData.slug,
-                                    name: movieData.name,
-                                    imageSrc: backdropUrl || ""
-                                }} 
-                            />
-                         </div>
-                      )}
+              <div className="flex-1 overflow-y-auto scrollbar-hide pb-16 md:pb-20">
 
-                      {trailerId && (
-                         <div className="absolute inset-0 flex items-center justify-center">
-                           <button onClick={() => setMediaMode('trailer')} className="bg-white/20 hover:bg-white/30 focus:bg-white/30 text-white rounded-full p-3 md:px-5 md:py-2.5 flex items-center gap-2 backdrop-blur-sm border border-white/30 transition-all group shadow-xl focus:outline-none focus:scale-105 focus:ring-2 focus:ring-purple-500">
-                             <Film className="w-5 h-5 fill-current" />
-                             <span className="text-sm font-bold hidden md:block">Xem Trailer</span>
-                           </button>
-                         </div>
+                {/* --- 1. BANNER: MOBILE (h-[45vh] min-h-[280px]), DESKTOP/TV (h-[75vh] min-h-[660px] max-h-[850px]) --- */}
+                <div className="relative w-full h-[45vh] md:h-[75vh] min-h-[280px] md:min-h-[660px] max-h-[850px] bg-black overflow-hidden">
+                  {backdropUrl && (
+                    <Image
+                      src={backdropUrl}
+                      alt={movieData?.name || ''}
+                      fill
+                      className="object-cover opacity-70 mask-image-gradient"
+                      referrerPolicy="no-referrer"
+                      priority
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/35 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#141414] via-[#141414]/75 to-transparent w-full md:w-[70%]" />
+
+                  {/* THÔNG TIN TIÊU ĐỀ + NÚT PHÁT NGAY & ICON YÊU THÍCH */}
+                  <div className="absolute bottom-6 left-5 md:left-16 right-5 md:right-16 z-20 flex flex-col items-start gap-4 md:gap-6 max-w-5xl">
+                    <div>
+                      <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-black tracking-tight text-white mb-1.5 md:mb-3 drop-shadow-2xl uppercase line-clamp-2 leading-tight">
+                        {movieData?.name || movie?.title}
+                      </h1>
+                      {movieData?.origin_name && (
+                        <p className="text-white/80 text-sm md:text-2xl font-bold drop-shadow-md line-clamp-1">
+                          Tên gốc: {movieData.origin_name}
+                        </p>
                       )}
                     </div>
-                  )}
 
-                  {mediaMode === 'trailer' && trailerId && (
-                    <div className="w-full h-full relative bg-black">
-                      <button onClick={() => setMediaMode('banner')} className="absolute -top-12 md:-top-14 left-4 z-10 bg-white/10 hover:bg-white/20 focus:bg-white/20 text-white px-4 py-2 rounded-full flex items-center gap-2 text-sm backdrop-blur-md border border-white/10 transition-all focus:outline-none focus:scale-105 focus:ring-2 focus:ring-purple-500">
-                        <ArrowLeft className="w-4 h-4" /> Đóng Trailer
+                    {/* HÀNG NÚT BẤM BANNER */}
+                    <div className="flex items-center gap-3 md:gap-6 mt-1 md:mt-2">
+                      <button
+                        tabIndex={0}
+                        onClick={hasLinkMovie ? handleWatchMovie : undefined}
+                        className={`flex items-center gap-2.5 md:gap-4 bg-[#7226FF] hover:bg-[#853aff] text-white px-6 md:px-12 py-2.5 md:py-4.5 rounded-xl md:rounded-2xl font-black text-base md:text-2xl border-2 border-transparent transition-all shadow-2xl focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 ${
+                          hasLinkMovie ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
+                        }`}
+                      >
+                        <Play className="w-5 h-5 md:w-8 md:h-8 fill-current" />
+                        <span>{hasLinkMovie ? 'Phát Ngay' : 'Chưa Có Link'}</span>
                       </button>
-                      <iframe src={`https://www.youtube.com/embed/${trailerId}?autoplay=1&rel=0`} title="Trailer" allowFullScreen className="w-full h-full"></iframe>
+
+                      {/* ICON YÊU THÍCH */}
+                      {movieData && (
+                        <FavoriteButton
+                          movieData={{
+                            slug: movieData.slug,
+                            name: movieData.name,
+                            imageSrc: backdropUrl || ""
+                          }}
+                        />
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
 
-                <div className={`px-6 md:px-12 relative z-10 space-y-12 ${mediaMode === 'banner' ? '-mt-10 md:-mt-16' : 'mt-4 md:mt-6'}`}>
-                    
-                    {/* Tiêu đề Phim */}
-                    <div>
-                        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white mb-2 drop-shadow-xl uppercase w-4/5">
-                            {movieData?.name || movie?.title}
-                        </h1>
-                        <p className="text-white/70 text-sm font-medium">Tên gốc: {movieData?.origin_name}</p>
+                <div className="px-5 md:px-16 relative z-10 space-y-10 md:space-y-16 mt-6 md:mt-12">
+
+                  {/* --- 2. DIỄN VIÊN & ĐOÀN LÀM PHIM --- */}
+                  <div className="space-y-4 md:space-y-6">
+                    <div className="text-white font-black text-xl md:text-4xl">
+                      Diễn Viên &amp; Đoàn Làm Phim
                     </div>
-
-                    {/* --- 2. CÓ LIÊN QUAN (Similar Movies - Nút trượt chuẩn Hero) --- */}
-                    {similarMovies.length > 0 && (
-                      <div className="space-y-4">
-                          <div className="flex items-center gap-1 text-white/90 font-bold text-lg md:text-xl">
-                              Có Liên Quan
-                          </div>
-
-                          <div className="relative group/list">
-                              <button onClick={() => scrollSimilar('left')} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/10 items-center justify-center transition-all opacity-0 group-hover/list:opacity-100 hidden md:flex"><ChevronLeft className="w-6 h-6 text-white" /></button>
-                              
-                              <div ref={similarMoviesRef} className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x">
-                                  {similarMovies.map((sim) => (
-                                      <div 
-                                          tabIndex={0}
-                                          key={sim.slug} 
-                                          onClick={() => handleWatchSimilar(sim.slug)} 
-                                          className="shrink-0 w-32 md:w-40 cursor-pointer group snap-start focus:outline-none focus:scale-105 transition-transform duration-300"
-                                      >
-                                          <div className="relative aspect-[2/3] rounded-xl overflow-hidden mb-2 border border-white/10 group-focus:ring-2 group-focus:ring-purple-500 group-focus:border-purple-500 transition-all duration-300">
-                                              <Image src={sim.imageSrc} alt={sim.title} fill className="object-cover transition-transform duration-300 group-hover:scale-110 group-focus:scale-110" />
-                                          </div>
-                                          <p className="text-xs md:text-sm font-semibold text-white/80 group-hover:text-white group-focus:text-white line-clamp-1">{sim.title}</p>
-                                      </div>
-                                  ))}
-                              </div>
-
-                              <button onClick={() => scrollSimilar('right')} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md border border-white/10 items-center justify-center transition-all opacity-0 group-hover/list:opacity-100 hidden md:flex"><ChevronRight className="w-6 h-6 text-white" /></button>
-                          </div>
-                      </div>
-                    )}
-
-                    {/* --- 3. CÁCH XEM --- */}
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-1 text-white/90 font-bold text-lg md:text-xl">
-                            Cách xem
-                        </div>
-                        <div 
-                            tabIndex={hasLinkMovie ? 0 : -1}
-                            onClick={hasLinkMovie ? handleWatchMovie : undefined}
-                            className={`flex items-center gap-4 bg-[#1c1c1e] hover:bg-[#2c2c2e] border border-white/10 p-4 rounded-2xl w-fit transition-all focus:outline-none focus:ring-2 focus:ring-purple-500 ${hasLinkMovie ? 'cursor-pointer focus:scale-105' : 'opacity-50 cursor-not-allowed'}`}
-                        >
-                            <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center">
-                                <MonitorPlay className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <p className="font-bold text-white mb-0.5">{hasLinkMovie ? 'Phát Ngay' : 'Chưa có link'}</p>
-                                <p className="text-xs text-white/50">Miễn phí trên Macflix</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* --- 4. DIỄN VIÊN & ĐOÀN LÀM PHIM --- */}
-                    <div className="space-y-4">
-                        <div className="text-white/90 font-bold text-lg md:text-xl">
-                            Diễn Viên &amp; Đoàn Làm Phim
-                        </div>
-                        <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
-                            {peoples.length > 0 ? (
-                                // Hiển thị trực tiếp từ peoples API — đủ ảnh, đúng người
-                                peoples.map((person, idx) => (
-                                    <CastCard
-                                        key={idx}
-                                        name={person.name}
-                                        role={person.known_for_department === 'Directing' ? 'Đạo diễn' : 'Diễn viên'}
-                                        colorIndex={idx}
-                                        variant="circle"
-                                        photoUrl={person.profile_path ? `${photoBaseUrl}${person.profile_path}` : undefined}
-                                    />
-                                ))
-                            ) : (
-                                // Fallback: dùng tên từ movie API nếu peoples API chưa load / không có
-                                [...(movieData?.director || []), ...(movieData?.actor || [])]
-                                    .filter(name => name && name !== 'Đang cập nhật')
-                                    .map((name, idx) => (
-                                        <CastCard
-                                            key={idx}
-                                            name={name}
-                                            role={movieData?.director?.includes(name) ? 'Đạo diễn' : 'Diễn viên'}
-                                            colorIndex={idx}
-                                            variant="circle"
-                                        />
-                                    ))
-                            )}
-                            {peoples.length === 0 && (!movieData?.actor || movieData?.actor[0] === 'Đang cập nhật') && (
-                                <p className="text-sm text-white/50">Đang cập nhật dữ liệu diễn viên...</p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* --- 5. GIỚI THIỆU --- */}
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-1 text-white/90 font-bold text-lg md:text-xl">
-                            Giới thiệu
-                        </div>
-                        <div className="bg-[#1c1c1e] border border-white/5 p-6 rounded-2xl">
-                            <h4 className="text-base font-bold text-white mb-1 uppercase">{movieData?.name}</h4>
-                            <p className="text-xs text-white/50 uppercase tracking-widest font-semibold mb-4">
-                                {movieData?.category?.map((c: { name: string }) => c.name).join(', ')}
-                            </p>
-                            <div 
-                                className="text-white/80 text-sm leading-relaxed prose prose-invert max-w-none"
-                                dangerouslySetInnerHTML={{ 
-                                  __html: (movieData?.content || 'Đang cập nhật nội dung...')
-                                    // Sanitize cơ bản: xóa script tags và event handlers
-                                    .replace(/<script[\s\S]*?<\/script>/gi, '')
-                                    .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
-                                    .replace(/on\w+\s*=\s*'[^']*'/gi, '')
-                                    .replace(/javascript:/gi, '')
-                                }} 
+                    <div className="flex gap-4 md:gap-8 overflow-x-auto scrollbar-hide pb-2 md:pb-4">
+                      {peoples.length > 0 ? (
+                        peoples.map((person, idx) => (
+                          <CastCard
+                            key={idx}
+                            name={person.name}
+                            role={person.known_for_department === 'Directing' ? 'Đạo diễn' : 'Diễn viên'}
+                            colorIndex={idx}
+                            variant="circle"
+                            photoUrl={person.profile_path ? `${photoBaseUrl}${person.profile_path}` : undefined}
+                          />
+                        ))
+                      ) : (
+                        [...(movieData?.director || []), ...(movieData?.actor || [])]
+                          .filter(name => name && name !== 'Đang cập nhật')
+                          .map((name, idx) => (
+                            <CastCard
+                              key={idx}
+                              name={name}
+                              role={movieData?.director?.includes(name) ? 'Đạo diễn' : 'Diễn viên'}
+                              colorIndex={idx}
+                              variant="circle"
                             />
-                        </div>
+                          ))
+                      )}
+                      {peoples.length === 0 && (!movieData?.actor || movieData?.actor[0] === 'Đang cập nhật') && (
+                        <p className="text-sm md:text-xl text-white/50">Đang cập nhật dữ liệu diễn viên...</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* --- 3. GIỚI THIỆU NỘI DUNG PHIM --- */}
+                  <div className="space-y-4 md:space-y-6">
+                    <div className="flex items-center gap-1 text-white font-black text-xl md:text-4xl">
+                      Giới thiệu
+                    </div>
+                    <div className="bg-[#1c1c1e] border border-white/10 p-5 md:p-12 rounded-2xl md:rounded-3xl shadow-xl">
+                      <h4 className="text-lg md:text-3xl font-black text-white mb-2 uppercase">{movieData?.name}</h4>
+                      <p className="text-xs md:text-lg text-[#F042FF] uppercase tracking-widest font-black mb-4 md:mb-6">
+                        {movieData?.category?.map((c: { name: string }) => c.name).join(', ')}
+                      </p>
+                      <div
+                        className="text-white/90 text-sm md:text-2xl leading-relaxed prose prose-invert max-w-none font-medium"
+                        dangerouslySetInnerHTML={{
+                          __html: (movieData?.content || 'Đang cập nhật nội dung...')
+                            .replace(/<script[\s\S]*?<\/script>/gi, '')
+                            .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
+                            .replace(/on\w+\s*=\s*'[^']*'/gi, '')
+                            .replace(/javascript:/gi, '')
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* --- 4. THÔNG TIN CHI TIẾT (LƯỚI 3 CỘT RESPONSIVE) --- */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 border-t border-white/10 pt-8 md:pt-12">
+                    <div>
+                      <h3 className="text-lg md:text-3xl font-black mb-4 md:mb-6 text-white">Thông tin</h3>
+                      <ul className="space-y-4 md:space-y-6 text-sm md:text-xl">
+                        <li>
+                          <span className="text-white/50 block text-xs font-bold uppercase mb-1">Năm phát hành</span>
+                          <span className="text-white/90 font-bold">{movieData?.year || '2024'}</span>
+                        </li>
+                        <li>
+                          <span className="text-white/50 block text-xs font-bold uppercase mb-1">Thời lượng</span>
+                          <span className="text-white/90 font-bold">{movieData?.time || 'Đang cập nhật'}</span>
+                        </li>
+                        <li>
+                          <span className="text-white/50 block text-xs font-bold uppercase mb-1">Được xếp hạng</span>
+                          <span className="border border-white/20 px-3 py-1 rounded-lg text-xs md:text-sm text-white font-black bg-[#7226FF]">{movieData?.quality || 'FHD'}</span>
+                        </li>
+                        <li>
+                          <span className="text-white/50 block text-xs font-bold uppercase mb-1">Nơi sản xuất</span>
+                          <span className="text-white/90 font-bold">{movieData?.country?.[0]?.name || 'Đang cập nhật'}</span>
+                        </li>
+                      </ul>
                     </div>
 
-                    {/* --- 6. THÔNG TIN (LƯỚI 3 CỘT) --- */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-white/10 pt-8">
-                        <div>
-                            <h3 className="text-lg font-bold mb-4 text-white">Thông tin</h3>
-                            <ul className="space-y-4 text-sm">
-                                <li>
-                                    <span className="text-white/50 block text-xs font-semibold uppercase mb-1">Năm phát hành</span>
-                                    <span className="text-white/90 font-medium">{movieData?.year || '2024'}</span>
-                                </li>
-                                <li>
-                                    <span className="text-white/50 block text-xs font-semibold uppercase mb-1">Thời lượng</span>
-                                    <span className="text-white/90 font-medium">{movieData?.time || 'Đang cập nhật'}</span>
-                                </li>
-                                <li>
-                                    <span className="text-white/50 block text-xs font-semibold uppercase mb-1">Được xếp hạng</span>
-                                    <span className="border border-white/20 px-1.5 py-0.5 rounded text-xs text-white/90 font-bold">{movieData?.quality || 'FHD'}</span>
-                                </li>
-                                <li>
-                                    <span className="text-white/50 block text-xs font-semibold uppercase mb-1">Nơi sản xuất</span>
-                                    <span className="text-white/90 font-medium">{movieData?.country?.[0]?.name || 'Đang cập nhật'}</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h3 className="text-lg font-bold mb-4 text-white">Ngôn ngữ</h3>
-                            <ul className="space-y-4 text-sm">
-                                <li>
-                                    <span className="text-white/50 block text-xs font-semibold uppercase mb-1">Âm thanh gốc</span>
-                                    <span className="text-white/90 font-medium">Tiếng {movieData?.country?.[0]?.name || 'Bản địa'} (Stereo, Dolby Atmos)</span>
-                                </li>
-                                <li>
-                                    <span className="text-white/50 block text-xs font-semibold uppercase mb-1">Phụ đề & Lồng tiếng</span>
-                                    <span className="text-white/90 font-medium line-clamp-2">Tiếng Việt (Vietsub), {movieData?.lang || 'Đang cập nhật'}</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h3 className="text-lg font-bold mb-4 text-white">Trợ năng</h3>
-                            <div className="flex gap-3 items-start">
-                                <span className="border border-white/20 rounded px-1.5 py-0.5 text-xs font-bold text-white shrink-0 mt-0.5">CC</span>
-                                <p className="text-xs text-white/50 leading-relaxed">
-                                    Phụ đề cho người khiếm thính (SDH) là phụ đề bằng ngôn ngữ gốc, được bổ sung các thông tin liên quan không phải lời thoại.
-                                </p>
-                            </div>
-                        </div>
+                    <div>
+                      <h3 className="text-lg md:text-3xl font-black mb-4 md:mb-6 text-white">Ngôn ngữ</h3>
+                      <ul className="space-y-4 md:space-y-6 text-sm md:text-xl">
+                        <li>
+                          <span className="text-white/50 block text-xs font-bold uppercase mb-1">Âm thanh gốc</span>
+                          <span className="text-white/90 font-bold">Tiếng {movieData?.country?.[0]?.name || 'Bản địa'} (Stereo, Dolby Atmos)</span>
+                        </li>
+                        <li>
+                          <span className="text-white/50 block text-xs font-bold uppercase mb-1">Phụ đề &amp; Lồng tiếng</span>
+                          <span className="text-white/90 font-bold line-clamp-2">Tiếng Việt (Vietsub), {movieData?.lang || 'Đang cập nhật'}</span>
+                        </li>
+                      </ul>
                     </div>
+
+                    <div>
+                      <h3 className="text-lg md:text-3xl font-black mb-4 md:mb-6 text-white">Trợ năng</h3>
+                      <div className="flex gap-3 md:gap-4 items-start">
+                        <span className="border border-white/20 rounded px-2.5 py-1 text-xs md:text-sm font-black text-white shrink-0 mt-0.5 bg-white/10">CC</span>
+                        <p className="text-xs md:text-base text-white/60 leading-relaxed font-medium">
+                          Phụ đề cho người khiếm thính (SDH) là phụ đề bằng ngôn ngữ gốc, được bổ sung các thông tin liên quan không phải lời thoại.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
                 </div>
               </div>

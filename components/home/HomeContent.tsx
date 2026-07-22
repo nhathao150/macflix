@@ -9,23 +9,39 @@ const MovieModal = dynamic(() => import('../movies/MovieModal'), { ssr: false })
 import { Movie } from '@/types';
 import { useSession } from 'next-auth/react';
 import { getMovieDetails } from '@/lib/api';
+import { useTv } from '@/context/TvContext';
+import { useRouter } from 'next/navigation';
 
 interface HomeContentProps {
   heroMovies: Movie[];
   phimMoi: Movie[];
-  chieuRap: Movie[];
   phimBo: Movie[];
   phimLe: Movie[];
+  shows: Movie[];
   hoatHinh: Movie[];
+  vietsub: Movie[];
+  thuyetMinh: Movie[];
+  longTieng: Movie[];
+  dangChieu: Movie[];
+  daHoanThanh: Movie[];
+  subteam: Movie[];
+  chieuRap: Movie[];
 }
 
 export default function HomeContent({ 
   heroMovies, 
   phimMoi,
-  chieuRap,
   phimBo, 
   phimLe,
-  hoatHinh
+  shows,
+  hoatHinh,
+  vietsub,
+  thuyetMinh,
+  longTieng,
+  dangChieu,
+  daHoanThanh,
+  subteam,
+  chieuRap
 }: HomeContentProps) {
   const { data: session } = useSession();
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
@@ -39,22 +55,18 @@ export default function HomeContent({
         const res = await fetch(`/api/history?email=${session.user.email}`);
         const data = await res.json();
         if (res.ok && data.history && data.history.length > 0) {
-          // Lấy tối đa 10 phim xem gần nhất
           const sortedHistory = data.history.sort((a: any, b: any) => 
             new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
           ).slice(0, 10);
           
-          // Cố gắng tìm ảnh hd từ database, hoặc từ API
           const historyMovies: Movie[] = await Promise.all(sortedHistory.map(async (item: any) => {
             let imgSrc = '/placeholder-image.jpg';
-            // Logic tìm ảnh từ mảng phimMoi trước (để lấy cache)
             const matchedMovie = [...phimMoi, ...chieuRap, ...phimBo, ...phimLe, ...hoatHinh].find(m => m.slug === item.slug);
             if (matchedMovie) {
                imgSrc = matchedMovie.imageSrc;
             } else if (item.imageSrc) {
                imgSrc = item.imageSrc;
             } else {
-               // Lấy từ API nếu cũ quá không có ảnh
                  try {
                    const detail = await getMovieDetails(item.slug);
                    if (detail && detail.movie) {
@@ -81,9 +93,16 @@ export default function HomeContent({
     fetchHistory();
   }, [session, phimMoi, chieuRap, phimBo, phimLe, hoatHinh]);
 
+  const { isTvMode } = useTv();
+  const router = useRouter();
+
   const handleMovieClick = (movie: Movie) => {
-    setSelectedMovie(movie);
-    setIsModalOpen(true);
+    if (isTvMode) {
+      router.push(`/phim/${movie.slug}`);
+    } else {
+      setSelectedMovie(movie);
+      setIsModalOpen(true);
+    }
   };
 
   return (
@@ -91,7 +110,7 @@ export default function HomeContent({
       {/* Banner tự chuyển slide */}
       <Hero movies={heroMovies} onPlayClick={handleMovieClick} />
       
-      {/* Các hàng phim đã được phân loại chuẩn chỉ */}
+      {/* Các hàng phim hiển thị đầy đủ 12 danh mục theo đúng yêu cầu */}
       <div className="flex flex-col gap-2 mt-4 relative z-40">
         
         {/* Hàng "Tiếp tục xem" (nếu có) */}
@@ -113,31 +132,80 @@ export default function HomeContent({
         />
 
         <MovieRow 
-          title="Phim Chiếu Rạp" 
-          movies={chieuRap} 
-          onMovieClick={handleMovieClick}
-          viewMoreLink="/phim?danh-muc=tv-shows"
-        />
-        
-        <MovieRow 
-          title="Phim Bộ Đặc Sắc" 
+          title="Phim Bộ" 
           movies={phimBo} 
           onMovieClick={handleMovieClick}
           viewMoreLink="/phim?danh-muc=phim-bo"
         />
 
         <MovieRow 
-          title="Phim Lẻ (Điện Ảnh)" 
+          title="Phim Lẻ" 
           movies={phimLe} 
           onMovieClick={handleMovieClick}
           viewMoreLink="/phim?danh-muc=phim-le"
         />
-        
+
         <MovieRow 
-          title="Thế Giới Anime & Hoạt Hình" 
+          title="Shows & TV Shows" 
+          movies={shows} 
+          onMovieClick={handleMovieClick}
+          viewMoreLink="/phim?danh-muc=tv-shows"
+        />
+
+        <MovieRow 
+          title="Hoạt Hình" 
           movies={hoatHinh} 
           onMovieClick={handleMovieClick}
           viewMoreLink="/phim?danh-muc=hoat-hinh"
+        />
+
+        <MovieRow 
+          title="Phim Vietsub" 
+          movies={vietsub} 
+          onMovieClick={handleMovieClick}
+          viewMoreLink="/phim?danh-muc=phim-vietsub"
+        />
+
+        <MovieRow 
+          title="Phim Thuyết Minh" 
+          movies={thuyetMinh} 
+          onMovieClick={handleMovieClick}
+          viewMoreLink="/phim?danh-muc=phim-thuyet-minh"
+        />
+
+        <MovieRow 
+          title="Phim Lồng Tiếng" 
+          movies={longTieng} 
+          onMovieClick={handleMovieClick}
+          viewMoreLink="/phim?danh-muc=phim-long-tieng"
+        />
+
+        <MovieRow 
+          title="Phim Bộ Đang Chiếu" 
+          movies={dangChieu} 
+          onMovieClick={handleMovieClick}
+          viewMoreLink="/phim?danh-muc=phim-bo-dang-chieu"
+        />
+
+        <MovieRow 
+          title="Phim Bộ Đã Hoàn Thành" 
+          movies={daHoanThanh} 
+          onMovieClick={handleMovieClick}
+          viewMoreLink="/phim?danh-muc=phim-bo-da-hoan-thanh"
+        />
+
+        <MovieRow 
+          title="Subteam" 
+          movies={subteam} 
+          onMovieClick={handleMovieClick}
+          viewMoreLink="/phim?danh-muc=subteam"
+        />
+
+        <MovieRow 
+          title="Phim Chiếu Rạp" 
+          movies={chieuRap} 
+          onMovieClick={handleMovieClick}
+          viewMoreLink="/phim?danh-muc=chieu-rap"
         />
       </div>
 

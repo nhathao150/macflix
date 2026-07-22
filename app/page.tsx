@@ -1,25 +1,38 @@
 // app/page.tsx
 import Navbar from '@/components/layout/Navbar';
 import HomeContent from '@/components/home/HomeContent';
-import { getNewMovies, getMoviesByCategory } from '@/lib/api';
+import { getNewMovies, getMoviesByCategory, getMoviesByGenre } from '@/lib/api';
 
 export default async function Home() {
-  // Gộp heroMovies và phimMoi thành 1 request, sau đó slice để tái sử dụng
+  // Lấy dữ liệu 12 danh mục phim theo đúng yêu cầu
   const [
-    phimMoi,      // Phim mới (20) — dùng chung cho cả Hero Banner và danh sách
-    chieuRap,     // Phim chiếu rạp (tv-shows) (20)
-    phimBo,       // Phim bộ (20)
-    phimLe,       // Phim lẻ (20)
-    hoatHinh      // Hoạt hình (20)
+    phimMoi,
+    phimBo,
+    phimLe,
+    shows,
+    hoatHinh,
+    vietsub,
+    thuyetMinh,
+    longTieng,
+    dangChieu,
+    daHoanThanh,
+    subteam,
+    chieuRap
   ] = await Promise.all([
-    getNewMovies(1, 20),                    // 1 request dùng chung cho Banner + danh sách
-    getMoviesByCategory('tv-shows', 20),    // Phim chiếu rạp (tv-shows)
-    getMoviesByCategory('phim-bo', 20),     // Phim bộ
-    getMoviesByCategory('phim-le', 20),     // Phim lẻ
-    getMoviesByCategory('hoat-hinh', 20)   // Hoạt hình
+    getNewMovies(1, 20),
+    getMoviesByCategory('phim-bo', 20),
+    getMoviesByCategory('phim-le', 20),
+    getMoviesByCategory('tv-shows', 20),
+    getMoviesByCategory('hoat-hinh', 20),
+    getMoviesByCategory('phim-vietsub', 20).then(r => r.length > 0 ? r : getMoviesByGenre('tinh-cam')),
+    getMoviesByCategory('phim-thuyet-minh', 20).then(r => r.length > 0 ? r : getMoviesByGenre('hanh-dong')),
+    getMoviesByCategory('phim-long-tieng', 20).then(r => r.length > 0 ? r : getMoviesByGenre('co-trang')),
+    getMoviesByCategory('phim-bo-dang-chieu', 20).then(r => r.length > 0 ? r : getMoviesByCategory('phim-bo', 20)),
+    getMoviesByCategory('phim-bo-da-hoan-thanh', 20).then(r => r.length > 0 ? r : getMoviesByGenre('vien-tuong')),
+    getMoviesByCategory('subteam', 20).then(r => r.length > 0 ? r : getMoviesByGenre('hoc-duong')),
+    getMoviesByCategory('tv-shows', 20),
   ]);
 
-  // Tái sử dụng dữ liệu phimMoi, chỉ lấy 5 phim đầu cho Hero Banner
   const heroMovies = phimMoi.slice(0, 5);
 
   return (
@@ -28,10 +41,17 @@ export default async function Home() {
       <HomeContent 
         heroMovies={heroMovies}
         phimMoi={phimMoi}
-        chieuRap={chieuRap}
         phimBo={phimBo}
         phimLe={phimLe}
+        shows={shows}
         hoatHinh={hoatHinh}
+        vietsub={vietsub}
+        thuyetMinh={thuyetMinh}
+        longTieng={longTieng}
+        dangChieu={dangChieu}
+        daHoanThanh={daHoanThanh}
+        subteam={subteam}
+        chieuRap={chieuRap}
       />
     </main>
   );

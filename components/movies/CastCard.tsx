@@ -43,49 +43,48 @@ export default function CastCard({ name, role, colorIndex, variant = 'pill', pho
 
   if (variant === 'circle') {
     return (
-      <div className="shrink-0 flex flex-col items-center gap-2 w-20 text-center group cursor-pointer">
-        <div className="w-16 h-16 rounded-full overflow-hidden shadow-lg border-2 border-transparent group-hover:border-white/30 group-hover:scale-110 transition-all">
+      <div className="shrink-0 flex flex-col items-center gap-3 w-28 md:w-32 text-center group cursor-pointer">
+        <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-xl border-2 border-transparent group-hover:border-[#F042FF] group-hover:scale-105 transition-all">
           {showPhoto ? (
-            <Image src={photoUrl!} alt={name} width={64} height={64}
+            <Image src={photoUrl!} alt={name} width={96} height={96}
               className="w-full h-full object-cover object-top"
               onError={() => setImgError(true)} unoptimized />
           ) : (
-            <div className={`w-full h-full bg-gradient-to-tr ${gradient} flex items-center justify-center text-white font-bold text-xl`}>
+            <div className={`w-full h-full bg-gradient-to-tr ${gradient} flex items-center justify-center text-white font-black text-2xl md:text-3xl`}>
               {initials}
             </div>
           )}
         </div>
         <div>
-          <p className="text-[11px] font-bold text-white/90 line-clamp-2 leading-tight">{name}</p>
-          <p className="text-[10px] text-white/50">{role}</p>
+          <p className="text-sm md:text-base font-bold text-white/95 line-clamp-2 leading-tight group-hover:text-[#F042FF] transition-colors">{name}</p>
+          <p className="text-xs md:text-sm text-white/60 font-medium mt-0.5">{role}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-3 bg-[#141414] border border-white/5 pr-4 rounded-full hover:bg-white/10 transition-colors cursor-pointer group">
-      <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+    <div className="flex items-center gap-4 bg-[#141414] border border-white/10 pr-5 rounded-full hover:bg-white/10 transition-colors cursor-pointer group">
+      <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-md group-hover:scale-105 transition-transform">
         {showPhoto ? (
-          <Image src={photoUrl!} alt={name} width={40} height={40}
+          <Image src={photoUrl!} alt={name} width={48} height={48}
             className="w-full h-full object-cover object-top"
             onError={() => setImgError(true)} unoptimized />
         ) : (
-          <div className={`w-full h-full bg-gradient-to-tr ${gradient} flex items-center justify-center text-white font-bold text-sm`}>
+          <div className={`w-full h-full bg-gradient-to-tr ${gradient} flex items-center justify-center text-white font-black text-base`}>
             {initials}
           </div>
         )}
       </div>
       <div>
-        <p className="text-xs font-bold text-white line-clamp-1">{name}</p>
-        <p className="text-[10px] text-white/50">{role}</p>
+        <p className="text-sm md:text-base font-bold text-white line-clamp-1">{name}</p>
+        <p className="text-xs text-white/60 font-medium">{role}</p>
       </div>
     </div>
   );
 }
 
 // ── Hook: fetch toàn bộ danh sách diễn viên từ ophim peoples API ────────────
-// Trả về full danh sách (có ảnh TMDB) + map tên → ảnh để fallback match
 export function usePeoplesData(slug: string | null | undefined): PeoplesData {
   const [data, setData] = useState<PeoplesData>({ peoples: [], photoBaseUrl: 'https://image.tmdb.org/t/p/w185' });
 
@@ -117,7 +116,6 @@ export function usePeoplesData(slug: string | null | undefined): PeoplesData {
   return data;
 }
 
-// Compat alias (cho code cũ vẫn dùng useTmdbActorPhotos)
 export function useTmdbActorPhotos(slug: string | null | undefined): Map<string, string> {
   const { peoples, photoBaseUrl } = usePeoplesData(slug);
   const map = new Map<string, string>();

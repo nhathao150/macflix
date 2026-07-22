@@ -6,9 +6,13 @@ import Navbar from '@/components/layout/Navbar';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, Play, Loader2, AlertCircle } from 'lucide-react';
+import { useTv } from '@/context/TvContext';
+import { useRouter } from 'next/navigation';
 
 export default function FavoritesPage() {
   const { data: session, status } = useSession();
+  const { isTvMode } = useTv();
+  const router = useRouter();
   const [favorites, setFavorites] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -36,60 +40,98 @@ export default function FavoritesPage() {
   if (isLoading || status === 'loading') {
     return (
       <main className="min-h-screen bg-[#0a0a0c] flex items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin" style={{color:'#F042FF'}} />
+        <Loader2 className="w-12 h-12 animate-spin text-[#F042FF]" />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-28">
-      <Navbar />
+    <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-24 relative overflow-hidden">
+      {!isTvMode && <Navbar />}
 
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 pt-6 md:pt-[120px]">
-        <div className="mb-8 flex items-end justify-between border-b border-white/10 pb-4">
-          <div className="flex items-center gap-3">
-            <Heart className="w-8 h-8 md:w-10 md:h-10" style={{color:'#F042FF', fill:'#F042FF', filter:'drop-shadow(0 0 15px rgba(240,66,255,0.5))'}} />
-            <h1 className="font-black tracking-widest text-white uppercase drop-shadow-md text-xl md:text-3xl">
+      <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none z-0">
+         <div className="absolute top-[-10%] left-[-10%] w-[55%] h-[55%] bg-[#7226FF]/15 blur-[140px] rounded-full mix-blend-screen" />
+         <div className="absolute bottom-[-10%] right-[-10%] w-[55%] h-[55%] bg-[#F042FF]/10 blur-[140px] rounded-full mix-blend-screen" />
+      </div>
+
+      <div className={`w-full px-6 md:px-16 lg:px-24 relative z-10 flex flex-col gap-8 ${isTvMode ? 'pt-8 md:pt-12' : 'pt-4 md:pt-[100px]'}`}>
+        
+        {/* TIÊU ĐỀ HÀNG YÊU THÍCH ĐẶT Ở GIỮA TRÊN CÙNG */}
+        <div className="flex items-center justify-center text-center border-b border-white/10 pb-6 mb-4 w-full">
+          <div className="flex items-center justify-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-[#7226FF]/30 border-2 border-[#F042FF]/40 flex items-center justify-center shadow-xl">
+              <Heart className="w-8 h-8 text-[#F042FF] fill-[#F042FF] drop-shadow-[0_0_14px_rgba(240,66,255,0.9)]" />
+            </div>
+            <h1 className="font-black tracking-wider text-white uppercase drop-shadow-2xl text-3xl md:text-5xl text-center">
               Phim Yêu Thích
             </h1>
           </div>
         </div>
 
         {status === 'unauthenticated' ? (
-          <div className="text-center mt-20 md:mt-32 flex flex-col items-center gap-4 bg-white/5 p-8 rounded-3xl border border-white/10 max-w-md mx-auto backdrop-blur-sm shadow-xl">
-            <AlertCircle className="w-16 h-16 text-yellow-500 opacity-80" />
-            <h2 className="text-lg font-bold">Chưa đăng nhập</h2>
-            <p className="text-white/50 text-sm">Vui lòng đăng nhập để xem danh sách 15 bộ phim yêu thích của riêng bạn!</p>
-            <Link href="/dang-nhap" className="mt-4 px-8 py-3 text-white rounded-full font-bold transition-all hover:opacity-90 active-scale shadow-[0_0_20px_rgba(240,66,255,0.3)]" style={{background:'linear-gradient(135deg,#F042FF,#7226FF)'}}>
-              Đăng nhập ngay
+          <div className="text-center my-16 flex flex-col items-center gap-5 bg-white/5 p-10 rounded-3xl border border-white/10 max-w-lg mx-auto backdrop-blur-md shadow-2xl">
+            <AlertCircle className="w-16 h-16 text-yellow-400 opacity-90" />
+            <h2 className="text-2xl font-black text-white">Chưa Đăng Nhập</h2>
+            <p className="text-white/60 text-base font-medium leading-relaxed">Vui lòng đăng nhập tài khoản để lưu trữ và thưởng thức bộ sưu tập phim yêu thích của bạn!</p>
+            <Link 
+              tabIndex={0} 
+              href="/dang-nhap" 
+              className="mt-2 px-8 py-3.5 bg-gradient-to-r from-[#7226FF] to-[#F042FF] text-white rounded-2xl font-black text-lg shadow-xl hover:scale-105 focus:scale-105 focus:outline-none focus:ring-4 focus:ring-[#F042FF]/60 transition-all cursor-pointer"
+            >
+              Đăng Nhập Ngay
             </Link>
           </div>
         ) : favorites.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 md:gap-8">
             {favorites.map((movie, index) => (
-              <Link href={`/phim/${movie.slug}`} key={index} className="group flex flex-col cursor-pointer active-scale focus:outline-none focus:scale-[1.05] transition-transform duration-300">
-                <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-[#160078/20] group-focus:ring-4 group-focus:ring-purple-500 group-focus:border-purple-500 transition-all duration-300">
-                  <Image src={movie.imageSrc || '/placeholder-image.jpg'} alt={movie.name} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover opacity-80 transition-transform duration-500 group-hover:scale-110 group-focus:scale-110" />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center transform scale-75 group-hover:scale-100 group-focus:scale-100 transition-transform duration-300 shadow-2xl">
-                      <Play className="w-5 h-5 text-white fill-white ml-1" />
+              <div 
+                key={index} 
+                tabIndex={0}
+                onClick={() => router.push(`/phim/${movie.slug}`)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) {
+                    e.preventDefault();
+                    router.push(`/phim/${movie.slug}`);
+                  }
+                }}
+                className="group flex flex-col cursor-pointer focus:outline-none transition-all duration-300"
+              >
+                <div className="relative w-full aspect-[2/3] rounded-3xl overflow-hidden mb-3 border-2 border-white/20 group-focus:border-4 group-focus:border-[#F042FF] group-focus:scale-105 transition-all duration-300 shadow-2xl bg-black/40">
+                  <Image 
+                    src={movie.imageSrc || '/placeholder-image.jpg'} 
+                    alt={movie.name} 
+                    fill 
+                    sizes="400px" 
+                    className="object-cover transition-transform duration-500 group-hover:scale-110 group-focus:scale-110" 
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                    <div className="w-16 h-16 rounded-full bg-[#7226FF] flex items-center justify-center shadow-2xl transform scale-75 group-hover:scale-100 group-focus:scale-100 transition-transform duration-300">
+                      <Play className="w-8 h-8 text-white fill-white ml-1" />
                     </div>
                   </div>
-                  <div className="absolute top-2 right-2">
-                     <Heart className="w-5 h-5 drop-shadow-lg" style={{color:'#F042FF', fill:'#F042FF'}} />
+                  <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md p-2.5 rounded-2xl border border-white/20 shadow-xl">
+                     <Heart className="w-6 h-6 text-[#F042FF] fill-[#F042FF] drop-shadow-md" />
                   </div>
                 </div>
-                <h3 className="text-xs font-semibold text-white/90 group-hover:text-white group-focus:text-white transition-colors line-clamp-2 leading-snug">
+                <h3 className="text-lg md:text-2xl font-black text-white/90 group-hover:text-white group-focus:text-white transition-colors line-clamp-1 leading-snug">
                   {movie.name}
                 </h3>
-              </Link>
+              </div>
             ))}
           </div>
         ) : (
-          <div className="text-center text-white/50 mt-32 flex flex-col items-center justify-center gap-4">
-            <Heart className="w-16 h-16 opacity-20" />
-            <p>Bộ sưu tập trống. Hãy bấm biểu tượng trái tim ở các bộ phim bạn thích nhé!</p>
-            <Link href="/" className="mt-4 px-6 py-2 bg-white/10 hover:bg-white/20 hover:text-white rounded-full font-bold transition-colors">Khám phá ngay</Link>
+          <div className="text-center text-white/50 my-24 flex flex-col items-center justify-center gap-4 bg-white/5 p-12 rounded-3xl border border-white/10 max-w-xl mx-auto backdrop-blur-md">
+            <Heart className="w-20 h-20 text-[#F042FF]/30" />
+            <p className="text-lg font-bold">Bộ sưu tập phim yêu thích đang trống.</p>
+            <p className="text-white/50 text-base">Hãy bấm vào biểu tượng trái tim khi xem phim để lưu vào đây nhé!</p>
+            <Link 
+              tabIndex={0} 
+              href="/" 
+              className="mt-4 px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-black text-base rounded-2xl border border-white/20 transition-all focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 cursor-pointer"
+            >
+              Khám Phá Ngay
+            </Link>
           </div>
         )}
       </div>

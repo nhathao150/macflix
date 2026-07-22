@@ -10,9 +10,10 @@ interface FavoriteButtonProps {
     name: string;
     imageSrc: string;
   };
+  className?: string;
 }
 
-export default function FavoriteButton({ movieData }: FavoriteButtonProps) {
+export default function FavoriteButton({ movieData, className }: FavoriteButtonProps) {
   const { data: session } = useSession();
   const [isFavorited, setIsFavorited] = useState(false);
 
@@ -35,7 +36,7 @@ export default function FavoriteButton({ movieData }: FavoriteButtonProps) {
 
   // 2. Xử lý khi người dùng bấm vào Trái tim
   const handleToggle = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Ngăn chặn sự kiện click lan ra ngoài làm đóng Popup
+    e.preventDefault();
     e.stopPropagation();
 
     if (!session?.user?.email) {
@@ -43,7 +44,6 @@ export default function FavoriteButton({ movieData }: FavoriteButtonProps) {
       return;
     }
 
-    // Đổi màu ngay lập tức cho mượt (Optimistic UI)
     setIsFavorited(!isFavorited);
 
     try {
@@ -53,28 +53,28 @@ export default function FavoriteButton({ movieData }: FavoriteButtonProps) {
         body: JSON.stringify({ email: session.user.email, movieData })
       });
       const data = await res.json();
-      
-      // Nếu server trả về kết quả thì cập nhật lại cho chắc chắn
       if (res.ok) setIsFavorited(data.isFavorited);
     } catch (error) {
-      // Nếu lỗi mạng thì trả lại trạng thái cũ
-      setIsFavorited(!isFavorited); 
+      setIsFavorited(!isFavorited);
     }
   };
 
+  const defaultStyle = "w-14 h-14 shrink-0 flex items-center justify-center rounded-2xl bg-white/15 hover:bg-white/25 focus:bg-white/25 backdrop-blur-md border border-white/25 hover:scale-105 focus:scale-105 focus:ring-4 focus:ring-[#F042FF] focus:outline-none transition-all cursor-pointer shadow-xl group/fav";
+
   return (
     <button
+      tabIndex={0}
       onClick={handleToggle}
-      className="absolute top-4 right-4 z-50 w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/70 hover:scale-110 focus:scale-110 focus:bg-black/70 focus:ring-2 focus:ring-purple-500 focus:outline-none active:scale-95 transition-all group/fav shadow-xl"
+      className={className || defaultStyle}
       title={isFavorited ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
     >
-      <Heart 
-        className={`w-6 h-6 transition-all duration-300 ${
-          isFavorited 
-          ? 'scale-110' 
-          : 'text-white/70 group-hover/fav:text-white'
+      <Heart
+        className={`w-7 h-7 transition-all duration-300 ${
+          isFavorited
+          ? 'scale-110'
+          : 'text-white/80 group-hover/fav:text-white'
         }`}
-        style={isFavorited ? {color:'#F042FF', fill:'#F042FF', filter:'drop-shadow(0 0 12px rgba(240,66,255,0.8))'} : {}} 
+        style={isFavorited ? { color: '#F042FF', fill: '#F042FF', filter: 'drop-shadow(0 0 14px rgba(240,66,255,0.9))' } : {}}
       />
     </button>
   );

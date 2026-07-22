@@ -9,7 +9,7 @@ export default function TvLayoutWrapper({ children }: { children: React.ReactNod
 
   if (isTvMode) {
     return (
-      <div className="min-h-screen flex bg-[#0a0a0c]">
+      <div className="min-h-screen flex flex-col bg-[#0a0a0c] relative overflow-x-hidden">
         <TvSidebar />
         <div className="flex-1 w-full min-w-0">
           {children}

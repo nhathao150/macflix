@@ -10,6 +10,7 @@ import { ChevronLeft, ChevronRight, Play, Filter, X, RotateCcw, ChevronDown, Sea
 import { motion, AnimatePresence } from 'motion/react';
 import { Movie } from '@/types';
 import FilterDropdown from '@/components/ui/FilterDropdown';
+import { useTv } from '@/context/TvContext';
 
 interface Pagination {
   totalItems: number;
@@ -65,6 +66,7 @@ function GenreContent() {
   const router = useRouter();
 
   const { openModal } = useModal();
+  const { isTvMode } = useTv();
 
   const pageParam = searchParams.get('page');
   const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
@@ -204,24 +206,22 @@ function GenreContent() {
 
 
   return (
-    <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-28">
-      <Navbar />
+    <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-24 relative overflow-hidden">
+      {!isTvMode && <Navbar />}
 
-      <div className="max-w-[1800px] mx-auto px-4 md:px-8 pt-6 md:pt-[120px]">
-        {/* Tiêu đề danh mục */}
-        <div className="mb-8 flex items-end justify-between border-b border-white/10 pb-4">
-          <div>
-            <h1 className="font-black tracking-widest text-white uppercase drop-shadow-md text-2xl md:text-3xl">
-              {pageTitle.split('|')[0].trim()}
-            </h1>
-            {pagination ? (
-              <p className="text-white/50 text-sm mt-2 font-medium">
-                Tìm thấy {pagination.totalItems} bộ phim • Trang {currentPage} / {pagination.totalPages}
-              </p>
-            ) : (
-               <p className="text-white/50 text-sm mt-2 font-medium">Đang tải dữ liệu...</p>
-            )}
-          </div>
+      <div className={`w-full px-6 md:px-16 lg:px-24 relative z-10 flex flex-col gap-8 ${isTvMode ? 'pt-8 md:pt-12' : 'pt-4 md:pt-[100px]'}`}>
+        {/* Tiêu đề danh mục thể loại căn giữa trên cùng */}
+        <div className="flex flex-col items-center justify-center text-center border-b border-white/10 pb-6 mb-4 w-full">
+          <h1 className="font-black tracking-wider text-white uppercase drop-shadow-2xl text-3xl md:text-5xl text-center">
+            {pageTitle.split('|')[0].trim()}
+          </h1>
+          {pagination ? (
+            <p className="text-white/60 text-base md:text-xl mt-3 font-medium text-center">
+              Tìm thấy {pagination.totalItems} bộ phim • Trang {currentPage} / {pagination.totalPages}
+            </p>
+          ) : (
+             <p className="text-white/60 text-base md:text-xl mt-3 font-medium text-center">Đang tải dữ liệu...</p>
+          )}
         </div>
 
         {/* Lưới Phim + Sidebar */}
@@ -255,32 +255,38 @@ function GenreContent() {
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6"
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 lg:gap-8"
                 >
                   {movies.map((movie, index) => (
                     <div 
                       key={`${movie.id}-${index}`}
-                      onClick={() => openModal(movie)}
                       tabIndex={0}
-                      className="group flex flex-col cursor-pointer active-scale focus:outline-none focus:scale-[1.05] transition-transform duration-300"
+                      onClick={() => router.push(`/phim/${movie.slug}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) {
+                          e.preventDefault();
+                          router.push(`/phim/${movie.slug}`);
+                        }
+                      }}
+                      className="group flex flex-col cursor-pointer focus:outline-none transition-all duration-300"
                     >
-                      <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-[#160078/20] group-focus:ring-4 group-focus:ring-purple-500 group-focus:border-purple-500 transition-all duration-300">
+                      <div className="relative w-full aspect-[2/3] rounded-3xl overflow-hidden mb-3 border-2 border-white/15 group-focus:border-[#F042FF] group-focus:ring-4 group-focus:ring-[#F042FF]/40 group-focus:scale-105 transition-all duration-300 shadow-xl bg-black/40">
                         <Image 
                           src={movie.imageSrc} 
                           alt={movie.title} 
                           fill 
-                          sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 12vw"
+                          sizes="(max-width: 640px) 44vw, 20vw"
                           className="object-cover transition-transform duration-500 group-hover:scale-110 group-focus:scale-110" 
                           referrerPolicy="no-referrer"
                           priority={index < 6}
                         />
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                          <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center transform scale-75 group-hover:scale-100 group-focus:scale-100 transition-transform duration-300 shadow-2xl">
-                            <Play className="w-5 h-5 text-white fill-white ml-1" />
+                          <div className="w-14 h-14 rounded-full bg-[#7226FF] flex items-center justify-center shadow-2xl transform scale-75 group-hover:scale-100 group-focus:scale-100 transition-transform duration-300">
+                            <Play className="w-7 h-7 text-white fill-white ml-1" />
                           </div>
                         </div>
                       </div>
-                      <h3 className="text-xs font-semibold text-white/90 group-hover:text-white group-focus:text-white transition-colors line-clamp-2 leading-snug">
+                      <h3 className="text-base md:text-lg font-black text-white/90 group-hover:text-white group-focus:text-white transition-colors line-clamp-1 leading-snug">
                         {movie.title}
                       </h3>
                     </div>

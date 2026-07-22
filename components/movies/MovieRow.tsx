@@ -29,6 +29,7 @@ export default function MovieRow({ title, movies, isTrending, onMovieClick, view
         movies={movies}
         isTrending={isTrending}
         onMovieClick={onMovieClick}
+        viewMoreLink={viewMoreLink}
       />
     );
   }
