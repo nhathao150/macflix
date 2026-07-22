@@ -18,9 +18,31 @@ const authOptions = {
         
         if (!email || !password) throw new Error("Thiếu thông tin đăng nhập!");
 
-        // Tìm user trong Database
+        // 1. Nếu chưa cấu hình MongoDB_URI, hỗ trợ cho đăng nhập ngay với tài khoản TV chỉ định để test giao diện
+        if (!process.env.MONGODB_URI) {
+          if (email.toLowerCase() === "tranphannhathao159@gmail.com") {
+            return {
+              id: "tv-designated-id",
+              name: "Nhật Thảo (TV Mode)",
+              email: email.toLowerCase()
+            };
+          }
+          throw new Error("Chưa cấu hình MONGODB_URI trong file .env.local!");
+        }
+
+        await connectMongoDB();
+
+        // 2. Tìm user trong Database nếu có DB
         const user = await User.findOne({ email });
         if (!user) {
+          // Fallback nếu tài khoản TV chưa được bấm Đăng ký trong DB
+          if (email.toLowerCase() === "tranphannhathao159@gmail.com") {
+            return {
+              id: "tv-designated-id",
+              name: "Nhật Thảo (TV Mode)",
+              email: email.toLowerCase()
+            };
+          }
           throw new Error("Không tìm thấy tài khoản!");
         }
 
@@ -68,7 +90,7 @@ const authOptions = {
     }
   },
 
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "macflix_secret_default_key_123456",
   pages: {
     signIn: "/dang-nhap", 
   },
