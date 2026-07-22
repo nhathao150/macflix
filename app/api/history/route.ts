@@ -16,9 +16,13 @@ export async function GET(req: Request) {
     const email = searchParams.get('email');
     if (!email) return NextResponse.json({ message: "Thiếu email" }, { status: 400 });
 
+    if (!process.env.MONGODB_URI) {
+      return NextResponse.json({ history: [] }, { status: 200 });
+    }
+
     await connectMongoDB();
     const user = await User.findOne({ email });
-    if (!user) return NextResponse.json({ message: "Không tìm thấy user" }, { status: 404 });
+    if (!user) return NextResponse.json({ history: [] }, { status: 200 });
 
     // Lọc: Chỉ lấy những phim xem trong vòng 6 tháng qua
     const sixMonthsAgo = getSixMonthsAgo();

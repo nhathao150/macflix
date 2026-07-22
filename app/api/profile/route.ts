@@ -87,6 +87,17 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: "Thiếu email!" }, { status: 400 });
     }
 
+    if (!process.env.MONGODB_URI) {
+      return NextResponse.json({
+        name: "Nhật Thảo (TV)",
+        email,
+        avatar: "",
+        createdAt: new Date().toISOString(),
+        watchCount: 0,
+        favoriteCount: 0,
+      }, { status: 200 });
+    }
+
     await connectMongoDB();
     const user = await User.findOne({ email }).select("name email avatar createdAt watchHistory favorites");
 
