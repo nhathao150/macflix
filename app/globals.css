@@ -206,3 +206,46 @@ iframe:active {
   border-width: 0 !important;
   box-shadow: none !important;
 }
+
+/* ================================================
+   TV MODE HIGH PERFORMANCE GPU OPTIMIZATION ENGINE
+   Dành riêng cho Smart TV (Cortex-A55 / Mali-G52 GPU / 2GB RAM)
+   ================================================ */
+.tv-mode-active {
+  /* Ép trình duyệt sử dụng GPU compositor cho toàn bộ trang web */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeSpeed;
+}
+
+/* Ép phần tử tương tác TV lên tầng GPU riêng (Hardware Compositing Layer) */
+.tv-mode-active [tabindex="0"],
+.tv-mode-active button,
+.tv-mode-active a {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Tối ưu hiệu ứng Kính mờ (Backdrop Blur) cho Mali-G52 GPU trên Smart TV */
+.tv-mode-active .backdrop-blur-xl,
+.tv-mode-active .backdrop-blur-2xl,
+.tv-mode-active .backdrop-blur-3xl {
+  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(8px) !important;
+  background-color: rgba(22, 24, 31, 0.94) !important;
+}
+
+.tv-mode-active .backdrop-blur-md {
+  -webkit-backdrop-filter: blur(6px) !important;
+  backdrop-filter: blur(6px) !important;
+  background-color: rgba(22, 24, 31, 0.88) !important;
+}
+
+/* Tối ưu cuộn mượt danh sách phim cho D-Pad Remote */
+.tv-mode-active .scroll-smooth {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  contain: layout paint;
+}
+

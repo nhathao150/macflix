@@ -43,34 +43,35 @@ export default function TvMovieRow({ title, movies, isTrending, onMovieClick, vi
   };
 
   return (
-    <div className="w-full relative py-[15px] px-[80px]">
+    <div className="w-full relative py-4 px-4 md:px-12">
       {/* Danh sách phim cuộn ngang mượt mà */}
       <div
         ref={rowRef}
-        className="flex gap-8 overflow-x-auto scrollbar-hide px-6 pb-6 pt-6 scroll-smooth snap-x snap-mandatory"
+        className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide px-2 pb-4 pt-2 scroll-smooth snap-x snap-mandatory transform-gpu contain-layout"
       >
         {/* ICON TRẠNG THÁI DANH MỤC ĐỨNG TRƯỚC CARD 1 (KHÔNG CHỌN/FOCUS ĐƯỢC - tabIndex={-1}) */}
         <div
           tabIndex={-1}
           aria-hidden="true"
-          className={`shrink-0 snap-start aspect-[2/3] ${isTrending ? 'w-[560px]' : 'w-[500px]'
-            } rounded-3xl bg-gradient-to-br from-[#7226FF]/20 via-[#F042FF]/10 to-white/5 border border-white/15 flex flex-col items-center justify-center gap-6 pointer-events-none select-none`}
+          className={`shrink-0 snap-start aspect-[2/3] ${
+            isTrending ? 'w-[360px] md:w-[400px]' : 'w-[280px] md:w-[320px]'
+          } rounded-2xl bg-gradient-to-br from-[#7226FF]/20 via-[#F042FF]/10 to-white/5 border border-white/15 flex flex-col items-center justify-center gap-4 pointer-events-none select-none p-4`}
         >
-          <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-[#7226FF] to-[#F042FF] flex items-center justify-center shadow-[0_0_40px_rgba(240,66,255,0.6)]">
-            <CategoryIcon className="w-16 h-16 text-white" />
+          <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#7226FF] to-[#F042FF] flex items-center justify-center shadow-[0_0_30px_rgba(240,66,255,0.5)]">
+            <CategoryIcon className="w-10 h-10 text-white" />
           </div>
-          <div className="text-center px-8">
-            <span className="text-[#F042FF] font-black text-xl tracking-widest uppercase block mb-2">
+          <div className="text-center px-4">
+            <span className="text-[#F042FF] font-extrabold text-xs md:text-sm tracking-widest uppercase block mb-1">
               Danh Mục
             </span>
-            <span className="text-white font-black text-3xl md:text-4xl line-clamp-2 drop-shadow-md leading-tight">
+            <span className="text-white font-bold text-xl md:text-2xl line-clamp-2 drop-shadow-md leading-snug">
               {title}
             </span>
           </div>
         </div>
 
         {/* DANH SÁCH CÁC THẺ PHIM */}
-        {displayMovies.map((movie) => (
+        {displayMovies.map((movie, index) => (
           <div
             key={movie.id}
             className="shrink-0 snap-start focus-within:z-40"
@@ -79,11 +80,12 @@ export default function TvMovieRow({ title, movies, isTrending, onMovieClick, vi
               movie={movie} 
               isTrending={isTrending} 
               onClick={() => onMovieClick(movie)}
+              priority={index < 4}
             />
           </div>
         ))}
 
-        {/* NÚT XEM THÊM KHỔ CỰC ĐẠI */}
+        {/* NÚT XEM THÊM */}
         {viewMoreLink && (
           <div
             tabIndex={0}
@@ -94,13 +96,14 @@ export default function TvMovieRow({ title, movies, isTrending, onMovieClick, vi
                 handleViewMore();
               }
             }}
-            className={`relative shrink-0 snap-start aspect-[2/3] ${isTrending ? 'w-[560px]' : 'w-[500px]'
-              } rounded-3xl bg-white/10 hover:bg-[#7226FF] focus:bg-[#7226FF] border-2 border-white/20 focus:border-4 focus:border-[#F042FF] flex flex-col items-center justify-center gap-6 cursor-pointer focus:outline-none group overflow-hidden transition-all duration-150`}
+            className={`relative shrink-0 snap-start aspect-[2/3] ${
+              isTrending ? 'w-[360px] md:w-[400px]' : 'w-[280px] md:w-[320px]'
+            } rounded-2xl bg-white/10 hover:bg-[#7226FF] focus:bg-[#7226FF] border-2 border-white/20 focus:border-4 focus:border-[#F042FF] focus:scale-105 flex flex-col items-center justify-center gap-4 cursor-pointer focus:outline-none group overflow-hidden transition-all duration-200 ease-out`}
           >
-            <div className="w-24 h-24 rounded-full bg-white/15 flex items-center justify-center border border-white/30">
-              <ChevronRight className="w-14 h-14 text-white" />
+            <div className="w-16 h-16 rounded-full bg-white/15 flex items-center justify-center border border-white/30">
+              <ChevronRight className="w-9 h-9 text-white" />
             </div>
-            <span className="text-white font-black text-2xl tracking-wide">Xem Tất Cả</span>
+            <span className="text-white font-bold text-lg md:text-xl tracking-wide">Xem Tất Cả</span>
           </div>
         )}
       </div>

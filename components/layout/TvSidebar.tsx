@@ -84,7 +84,7 @@ export default function TvSidebar() {
               handleOpenMenu();
             }
           }}
-          className="fixed top-8 left-12 md:left-16 z-[120] bg-[#2a2d35]/90 border border-white/20 px-5 py-3 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.8)] backdrop-blur-xl flex items-center gap-3.5 cursor-pointer focus:outline-none focus:ring-4 focus:ring-[#F042FF] focus:scale-105 transition-all duration-200 animate-in fade-in"
+          className="fixed top-8 left-12 md:left-16 z-[120] bg-[#2a2d35]/90 border border-white/20 px-5 py-3 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.8)] backdrop-blur-xl flex items-center gap-3.5 cursor-pointer focus:outline-none focus:ring-4 focus:ring-[#F042FF] focus:scale-105 transition-all duration-150 transform-gpu animate-in fade-in"
         >
           <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#7226FF] to-[#F042FF] flex items-center justify-center shadow-md shrink-0">
             <ActiveIcon className="w-5 h-5 text-white" />
@@ -151,7 +151,7 @@ export default function TvSidebar() {
               handleCloseMenu();
             }
           }}
-          className="fixed top-8 left-12 md:left-16 z-[130] w-[360px] bg-[#23262d]/95 backdrop-blur-3xl border border-white/20 rounded-[36px] p-5 shadow-[0_35px_90px_rgba(0,0,0,0.9)] flex flex-col gap-4 animate-in zoom-in-95 duration-200"
+          className="fixed top-8 left-12 md:left-16 z-[130] w-[360px] bg-[#23262d]/95 backdrop-blur-3xl border border-white/20 rounded-[36px] p-5 shadow-[0_35px_90px_rgba(0,0,0,0.9)] flex flex-col gap-4 animate-in zoom-in-95 duration-150 transform-gpu"
         >
           {/* HEADER: AVATAR + TÊN NGƯỜI DÙNG + ĐỒNG HỒ */}
           <div className="flex items-center justify-between px-2 pt-1 pb-3 border-b border-white/10">

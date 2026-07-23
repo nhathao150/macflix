@@ -14,14 +14,15 @@ interface MovieCardProps {
     slug?: string;
   };
   isTrending?: boolean;
+  priority?: boolean;
 }
 
-export default function MovieCard({ movie, isTrending }: MovieCardProps) {
+export default function MovieCard({ movie, isTrending, priority }: MovieCardProps) {
   const { isTvMode } = useTv();
   const [isLoaded, setIsLoaded] = useState(false);
 
   if (isTvMode) {
-    return <TvMovieCard movie={movie as Movie} isTrending={isTrending} />;
+    return <TvMovieCard movie={movie as Movie} isTrending={isTrending} priority={priority} />;
   }
   const poster = movie.posterSrc || movie.imageSrc;
 

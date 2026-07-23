@@ -126,7 +126,6 @@ export default function HomeContent({
         <MovieRow 
           title="Phim Mới Cập Nhật" 
           movies={phimMoi} 
-          isTrending 
           onMovieClick={handleMovieClick}
           viewMoreLink="/phim?danh-muc=phim-moi"
         />

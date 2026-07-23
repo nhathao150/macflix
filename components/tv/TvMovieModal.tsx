@@ -55,7 +55,7 @@ export default function TvMovieModal({ isOpen, onClose, movie }: TvMovieModalPro
   return (
     <div
       data-modal-container
-      className="fixed inset-0 z-[200] bg-[#0a0a0c] flex flex-col overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-[200] bg-[#0a0a0c] flex flex-col overflow-y-auto animate-in fade-in duration-150 transform-gpu"
     >
       {/* BACKGROUND POSTER */}
       <div className="relative w-full h-[50vh] min-h-[420px] bg-black shrink-0">
