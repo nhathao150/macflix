@@ -31,13 +31,21 @@ export default function TvNavigationListener() {
         }
       }
 
-      const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'];
-      if (!keys.includes(e.key)) return;
+      const isSelectKey = 
+        e.key === 'Enter' || 
+        e.key === ' ' || 
+        e.key === 'Select' || 
+        e.keyCode === 13 || 
+        e.keyCode === 66 || 
+        e.keyCode === 23;
+
+      const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+      if (!keys.includes(e.key) && !isSelectKey) return;
 
       const active = document.activeElement as HTMLElement;
 
-      // 1. Xử lý nút Enter cho thẻ có tabIndex={0}
-      if (e.key === 'Enter') {
+      // 1. Xử lý nút OK / Enter / Select cho thẻ có tabIndex={0}
+      if (isSelectKey) {
         if (active && active.tabIndex === 0) {
           const tagName = active.tagName.toLowerCase();
           if (tagName !== 'button' && tagName !== 'a' && tagName !== 'input' && tagName !== 'textarea') {

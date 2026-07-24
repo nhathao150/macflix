@@ -1014,17 +1014,26 @@ export default function MovieDetailPage() {
               data-player-container="true"
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
-              onClick={() => {
-                if (!isFullscreen) {
-                  toggleFullScreen();
-                  return;
+              onClick={(e) => {
+                e.stopPropagation();
+                togglePlay();
+              }}
+              onKeyDown={(e) => {
+                const isOkKey =
+                  e.key === 'Enter' ||
+                  e.key === ' ' ||
+                  e.key === 'Select' ||
+                  e.key === 'MediaPlayPause' ||
+                  e.keyCode === 13 ||
+                  e.keyCode === 66 ||
+                  e.keyCode === 23 ||
+                  e.keyCode === 179;
+
+                if (isOkKey) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  togglePlay();
                 }
-                if (controlsTimeoutRef.current) {
-                  clearTimeout(controlsTimeoutRef.current);
-                  controlsTimeoutRef.current = null;
-                }
-                setIsControlsVisible(true);
-                controlsTimeoutRef.current = setTimeout(() => setIsControlsVisible(false), 4000);
               }}
               className={`relative w-full aspect-video bg-black overflow-hidden group select-none flex flex-col justify-center touch-manipulation cursor-pointer outline-none focus:outline-none transition-all duration-300 ${!isPlaying || isControlsVisible ? 'cursor-auto' : 'cursor-none'} ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-3xl border-2 border-white/15 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 focus:shadow-[0_0_50px_rgba(240,66,255,0.5)] shadow-[0_20px_60px_rgba(0,0,0,0.9)]'}`}
             >
