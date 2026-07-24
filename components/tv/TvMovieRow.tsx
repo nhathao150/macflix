@@ -12,6 +12,7 @@ interface TvMovieRowProps {
   isTrending?: boolean;
   onMovieClick: (movie: Movie) => void;
   viewMoreLink?: string;
+  rowIndex?: number;
 }
 
 // Chọn Icon biểu tượng phù hợp cho từng danh mục
@@ -26,7 +27,7 @@ const getCategoryIcon = (title: string) => {
   return Star;
 };
 
-export default function TvMovieRow({ title, movies, isTrending, onMovieClick, viewMoreLink }: TvMovieRowProps) {
+export default function TvMovieRow({ title, movies, isTrending, onMovieClick, viewMoreLink, rowIndex = 0 }: TvMovieRowProps) {
   const rowRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -47,7 +48,7 @@ export default function TvMovieRow({ title, movies, isTrending, onMovieClick, vi
       {/* Danh sách phim cuộn ngang mượt mà */}
       <div
         ref={rowRef}
-        className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide px-2 pb-4 pt-2 scroll-smooth snap-x snap-mandatory transform-gpu contain-layout"
+        className="flex flex-row items-center gap-4 md:gap-6 overflow-x-auto scrollbar-hide px-2 pb-4 pt-2 scroll-smooth snap-x snap-mandatory transform-gpu contain-layout"
       >
         {/* ICON TRẠNG THÁI DANH MỤC ĐỨNG TRƯỚC CARD 1 (KHÔNG CHỌN/FOCUS ĐƯỢC - tabIndex={-1}) */}
         <div
@@ -81,6 +82,8 @@ export default function TvMovieRow({ title, movies, isTrending, onMovieClick, vi
               isTrending={isTrending} 
               onClick={() => onMovieClick(movie)}
               priority={index < 4}
+              rowIndex={rowIndex}
+              colIndex={index}
             />
           </div>
         ))}
@@ -89,7 +92,17 @@ export default function TvMovieRow({ title, movies, isTrending, onMovieClick, vi
         {viewMoreLink && (
           <div
             tabIndex={0}
+            data-zone="row"
+            data-row={rowIndex}
+            data-col={displayMovies.length}
             onClick={handleViewMore}
+            onFocus={(e) => {
+              e.target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center',
+              });
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();

@@ -116,6 +116,7 @@ export default function HomeContent({
         {/* Hàng "Tiếp tục xem" (nếu có) */}
         {continueWatchingMovies.length > 0 && (
           <MovieRow 
+            rowIndex={0}
             title="Tiếp tục xem" 
             movies={continueWatchingMovies} 
             onMovieClick={handleMovieClick}
@@ -124,6 +125,7 @@ export default function HomeContent({
         )}
 
         <MovieRow 
+          rowIndex={1}
           title="Phim Mới Cập Nhật" 
           movies={phimMoi} 
           onMovieClick={handleMovieClick}
@@ -131,6 +133,7 @@ export default function HomeContent({
         />
 
         <MovieRow 
+          rowIndex={2}
           title="Phim Bộ" 
           movies={phimBo} 
           onMovieClick={handleMovieClick}
@@ -138,6 +141,7 @@ export default function HomeContent({
         />
 
         <MovieRow 
+          rowIndex={3}
           title="Phim Lẻ" 
           movies={phimLe} 
           onMovieClick={handleMovieClick}
@@ -145,6 +149,7 @@ export default function HomeContent({
         />
 
         <MovieRow 
+          rowIndex={4}
           title="Shows & TV Shows" 
           movies={shows} 
           onMovieClick={handleMovieClick}
@@ -152,6 +157,7 @@ export default function HomeContent({
         />
 
         <MovieRow 
+          rowIndex={5}
           title="Hoạt Hình" 
           movies={hoatHinh} 
           onMovieClick={handleMovieClick}
@@ -159,6 +165,7 @@ export default function HomeContent({
         />
 
         <MovieRow 
+          rowIndex={6}
           title="Phim Vietsub" 
           movies={vietsub} 
           onMovieClick={handleMovieClick}
@@ -166,6 +173,7 @@ export default function HomeContent({
         />
 
         <MovieRow 
+          rowIndex={7}
           title="Phim Thuyết Minh" 
           movies={thuyetMinh} 
           onMovieClick={handleMovieClick}
@@ -173,6 +181,7 @@ export default function HomeContent({
         />
 
         <MovieRow 
+          rowIndex={8}
           title="Phim Lồng Tiếng" 
           movies={longTieng} 
           onMovieClick={handleMovieClick}
@@ -180,6 +189,7 @@ export default function HomeContent({
         />
 
         <MovieRow 
+          rowIndex={9}
           title="Phim Bộ Đang Chiếu" 
           movies={dangChieu} 
           onMovieClick={handleMovieClick}
@@ -187,6 +197,7 @@ export default function HomeContent({
         />
 
         <MovieRow 
+          rowIndex={10}
           title="Phim Bộ Đã Hoàn Thành" 
           movies={daHoanThanh} 
           onMovieClick={handleMovieClick}
@@ -194,6 +205,7 @@ export default function HomeContent({
         />
 
         <MovieRow 
+          rowIndex={11}
           title="Subteam" 
           movies={subteam} 
           onMovieClick={handleMovieClick}
@@ -201,6 +213,7 @@ export default function HomeContent({
         />
 
         <MovieRow 
+          rowIndex={12}
           title="Phim Chiếu Rạp" 
           movies={chieuRap} 
           onMovieClick={handleMovieClick}

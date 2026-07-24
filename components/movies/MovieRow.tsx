@@ -14,9 +14,10 @@ interface MovieRowProps {
   isTrending?: boolean;
   onMovieClick: (movie: Movie) => void;
   viewMoreLink?: string;
+  rowIndex?: number;
 }
 
-export default function MovieRow({ title, movies, isTrending, onMovieClick, viewMoreLink }: MovieRowProps) {
+export default function MovieRow({ title, movies, isTrending, onMovieClick, viewMoreLink, rowIndex = 0 }: MovieRowProps) {
   const { isTvMode } = useTv();
   const rowRef = useRef<HTMLDivElement>(null);
 
@@ -30,6 +31,7 @@ export default function MovieRow({ title, movies, isTrending, onMovieClick, view
         isTrending={isTrending}
         onMovieClick={onMovieClick}
         viewMoreLink={viewMoreLink}
+        rowIndex={rowIndex}
       />
     );
   }

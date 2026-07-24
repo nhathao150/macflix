@@ -1,19 +1,42 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function TvNavigationListener() {
+  const lastContentElementRef = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
-    // Chỉ kích hoạt trên môi trường Client
     if (typeof window === 'undefined') return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // 0. Xử lý phím Back Remote TV (Escape, Back, GoBack, BrowserBack, keyCodes: 27, 8, 10009, 461)
+      const isBackKey =
+        e.key === 'Escape' ||
+        e.key === 'Back' ||
+        e.key === 'GoBack' ||
+        e.key === 'BrowserBack' ||
+        e.keyCode === 27 ||
+        e.keyCode === 8 ||
+        e.keyCode === 10009 ||
+        e.keyCode === 461;
+
+      if (isBackKey) {
+        const modalContainer = document.querySelector('[data-modal-container]') as HTMLElement;
+        if (modalContainer) {
+          e.preventDefault();
+          e.stopPropagation();
+          const closeBtn = modalContainer.querySelector('button[aria-label="Close"], button[data-close-modal], button') as HTMLElement;
+          closeBtn?.click();
+          return;
+        }
+      }
+
       const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'];
       if (!keys.includes(e.key)) return;
 
       const active = document.activeElement as HTMLElement;
 
-      // 1. Xử lý nút Enter cho các thẻ không phải button/link mặc định nhưng có tabIndex
+      // 1. Xử lý nút Enter cho thẻ có tabIndex={0}
       if (e.key === 'Enter') {
         if (active && active.tabIndex === 0) {
           const tagName = active.tagName.toLowerCase();
@@ -25,41 +48,80 @@ export default function TvNavigationListener() {
         return;
       }
 
-      // 2. Tìm tất cả các phần tử có thể nhận focus trên trang
-      // Nếu có modal đang mở (có data-modal-container), chỉ quét các phần tử bên trong modal đó
+      // Quét các phần tử có thể nhận focus
       const modalContainer = document.querySelector('[data-modal-container]') as HTMLElement;
       const searchRoot = modalContainer || document;
 
       const focusables = Array.from(
-        searchRoot.querySelectorAll('button, a, input, select, textarea, [tabindex="0"]')
+        searchRoot.querySelectorAll<HTMLElement>('button, a, input, select, textarea, [tabindex="0"]')
       ).filter((el) => {
-        const htmlEl = el as HTMLElement;
-        // Bỏ qua các phần tử bị ẩn hoặc không thể tương tác
-        const style = window.getComputedStyle(htmlEl);
-        if (style.display === 'none' || style.visibility === 'hidden' || htmlEl.offsetWidth === 0 || htmlEl.offsetHeight === 0) {
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden' || el.offsetWidth === 0 || el.offsetHeight === 0) {
           return false;
         }
         return true;
-      }) as HTMLElement[];
+      });
 
       if (focusables.length === 0) return;
 
-      // 3. Nếu chưa có phần tử nào đang focus, hoặc phần tử đang focus nằm ngoài vùng tìm kiếm hiện tại (ví dụ: khi modal vừa mở)
+      // Nếu chưa có focus, gán focus vào phần tử đầu tiên
       if (!active || active === document.body || !focusables.includes(active)) {
-        if (focusables.length > 0) {
-          focusables[0].focus();
-          e.preventDefault();
-        }
+        focusables[0].focus();
+        e.preventDefault();
         return;
       }
 
+      const currentZone = active.getAttribute('data-zone');
+      const currentCol = parseInt(active.getAttribute('data-col') || '-1', 10);
+
+      // Lưu lại phần tử nội dung active trước đó (khi đang nằm ở Hero hoặc Row)
+      if (currentZone === 'hero' || currentZone === 'row') {
+        lastContentElementRef.current = active;
+      }
+
+      // === FOCUS ZONE MEMORY & D-PAD RULE ===
+      // A. Nhảy từ Sidebar (Zone 1) sang Nội dung (Zone 2/3) khi bấm ArrowRight
+      if (currentZone === 'sidebar' && e.key === 'ArrowRight') {
+        e.preventDefault();
+        const remembered = lastContentElementRef.current;
+        if (remembered && document.body.contains(remembered) && focusables.includes(remembered)) {
+          remembered.focus();
+          remembered.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          return;
+        }
+
+        // Nếu không có phần tử ghi nhớ, tìm phần tử đầu tiên ở Hero hoặc Row
+        const targetContent = focusables.find((el) => {
+          const z = el.getAttribute('data-zone');
+          return z === 'hero' || z === 'row';
+        });
+
+        if (targetContent) {
+          targetContent.focus();
+          targetContent.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          return;
+        }
+      }
+
+      // B. Nhảy từ Nội dung (Hero/Row) sang Sidebar khi bấm ArrowLeft ở thẻ đầu tiên (data-col === 0)
+      if ((currentZone === 'hero' || currentZone === 'row') && e.key === 'ArrowLeft' && currentCol === 0) {
+        e.preventDefault();
+        const sidebarTarget = focusables.find((el) => el.getAttribute('data-zone') === 'sidebar');
+        if (sidebarTarget) {
+          sidebarTarget.focus();
+          sidebarTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          return;
+        }
+      }
+
+      // === SPATIAL NAVIGATION THEO TỌA ĐỘ HÌNH HỌC (X, Y) ===
       const activeRect = active.getBoundingClientRect();
       const activeCenterX = activeRect.left + activeRect.width / 2;
       const activeCenterY = activeRect.top + activeRect.height / 2;
 
       let nextElement: HTMLElement | null = null;
       let minDistance = Infinity;
-      const tolerance = 5; // Độ sai số tọa độ nhỏ để xử lý lệch mép nhẹ
+      const tolerance = 5;
 
       focusables.forEach((el) => {
         if (el === active) return;
@@ -71,14 +133,11 @@ export default function TvNavigationListener() {
         let isCandidate = false;
         let distance = 0;
 
-        // Xác định xem phần tử này có nằm cùng hàng ngang với phần tử đang active không
-        const isSameRow = (rect.top < activeRect.bottom - 5 && rect.bottom > activeRect.top + 5) || 
+        const isSameRow = (rect.top < activeRect.bottom - 5 && rect.bottom > activeRect.top + 5) ||
                           Math.abs(elCenterY - activeCenterY) < 50;
 
-        // Xác định góc/hướng dựa trên phím bấm
         if (e.key === 'ArrowRight' && rect.left >= activeRect.right - tolerance) {
           isCandidate = true;
-          // Phạt lệch trục Y cực nặng nếu không cùng hàng để ngăn việc nhảy hàng xiên xẹo
           const verticalPenalty = isSameRow ? 10 : 1000000;
           distance = Math.pow(elCenterX - activeCenterX, 2) + Math.pow(elCenterY - activeCenterY, 2) * verticalPenalty;
         } else if (e.key === 'ArrowLeft' && rect.right <= activeRect.left + tolerance) {
@@ -87,11 +146,9 @@ export default function TvNavigationListener() {
           distance = Math.pow(elCenterX - activeCenterX, 2) + Math.pow(elCenterY - activeCenterY, 2) * verticalPenalty;
         } else if (e.key === 'ArrowDown' && rect.top >= activeRect.bottom - tolerance) {
           isCandidate = true;
-          // Phạt lệch trục X để ưu tiên phần tử thẳng đứng bên dưới
           distance = Math.pow(elCenterX - activeCenterX, 2) * 5 + Math.pow(rect.top - activeRect.bottom, 2);
         } else if (e.key === 'ArrowUp' && rect.bottom <= activeRect.top + tolerance) {
           isCandidate = true;
-          // Phạt lệch trục X để ưu tiên phần tử thẳng đứng bên trên
           distance = Math.pow(elCenterX - activeCenterX, 2) * 5 + Math.pow(activeRect.top - rect.bottom, 2);
         }
 
@@ -101,15 +158,12 @@ export default function TvNavigationListener() {
         }
       });
 
-      // 4. Nếu tìm thấy phần tử thích hợp tiếp theo, focus vào và scroll màn hình
       if (nextElement) {
         e.preventDefault();
         (nextElement as HTMLElement).focus();
-        
-        // Cuộn mượt màn hình sao cho phần tử đó nằm ở giữa
         (nextElement as HTMLElement).scrollIntoView({
           behavior: 'smooth',
-          block: 'center',
+          block: 'nearest',
           inline: 'center',
         });
       }

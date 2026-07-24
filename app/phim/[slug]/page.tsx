@@ -1030,6 +1030,8 @@ export default function MovieDetailPage() {
             >
               <video 
                 ref={videoRef} 
+                preload="metadata"
+                playsInline
                 className={`w-full h-full object-${videoFitMode} bg-black outline-none pointer-events-none transition-all duration-300`}
                 poster={bannerUrl} 
                 onTimeUpdate={handleTimeUpdate}
@@ -1049,7 +1051,6 @@ export default function MovieDetailPage() {
                   setUseEmbedPlayer(true);
                 }}
                 autoPlay
-                playsInline
               />
 
               {/* OVERLAY TƯƠNG TÁC */}
@@ -1336,55 +1337,28 @@ export default function MovieDetailPage() {
         {(hasLinkMovie || servers.length > 1 || episodesList.length > 0) && (
             <div className="bg-[#1c1c1e] border-2 border-white/15 p-8 md:p-10 rounded-[36px] backdrop-blur-xl flex flex-col gap-8 shadow-2xl">
                 
-                {/* 1. CHỌN TRÌNH PHÁT VÀ ÂM THANH / SERVER */}
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/15">
-                    
-                    {/* Chọn Trình Phát (HLS Custom vs Embed) */}
-                    {hasLinkMovie && (
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                {/* 1. CHỌN ÂM THANH / SERVER (NẾU CÓ NHIỀU SERVER) */}
+                {servers.length > 1 && (
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/15">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                         <div className="flex items-center gap-3 text-white font-black text-lg md:text-xl uppercase tracking-wider shrink-0">
-                          <Tv className="w-7 h-7 text-[#F042FF]" /> Trình phát:
+                            <Mic2 className="w-7 h-7 text-yellow-400" /> Ngôn ngữ:
                         </div>
                         <div className="flex flex-wrap gap-3">
-                          <button
-                            tabIndex={0}
-                            onClick={() => setUseEmbedPlayer(false)}
-                            className={`px-6 py-3 rounded-2xl text-base md:text-lg font-black transition-all border-2 ${!useEmbedPlayer ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105' : 'bg-black/50 text-white/70 border-white/15 hover:bg-white/10 hover:text-white'} focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 cursor-pointer`}
-                          >
-                            Chính (HLS)
-                          </button>
-                          <button
-                            tabIndex={0}
-                            onClick={() => setUseEmbedPlayer(true)}
-                            className={`px-6 py-3 rounded-2xl text-base md:text-lg font-black transition-all border-2 ${useEmbedPlayer ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105' : 'bg-black/50 text-white/70 border-white/15 hover:bg-white/10 hover:text-white'} focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 cursor-pointer`}
-                          >
-                            Dự Phòng (Embed)
-                          </button>
+                            {servers.map((server: { server_name: string }, idx: number) => (
+                                <button
+                                    key={idx}
+                                    tabIndex={0}
+                                    onClick={() => { setActiveServerIndex(idx); setCurrentEpisodeIndex(0); setActiveGroupIndex(0); setIsExpanded(false); }}
+                                    className={`px-6 py-3 rounded-2xl text-base md:text-lg font-black transition-all border-2 ${activeServerIndex === idx ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105' : 'bg-black/50 text-white/70 border-white/15 hover:bg-white/10 hover:text-white'} focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 cursor-pointer`}
+                                >
+                                    {server.server_name}
+                                </button>
+                            ))}
                         </div>
-                      </div>
-                    )}
-
-                    {/* Chọn Âm thanh / Phụ đề / Server */}
-                    {servers.length > 1 && (
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                          <div className="flex items-center gap-3 text-white font-black text-lg md:text-xl uppercase tracking-wider shrink-0">
-                              <Mic2 className="w-7 h-7 text-yellow-400" /> Ngôn ngữ:
-                          </div>
-                          <div className="flex flex-wrap gap-3">
-                              {servers.map((server: { server_name: string }, idx: number) => (
-                                  <button
-                                      key={idx}
-                                      tabIndex={0}
-                                      onClick={() => { setActiveServerIndex(idx); setCurrentEpisodeIndex(0); setActiveGroupIndex(0); setIsExpanded(false); }}
-                                      className={`px-6 py-3 rounded-2xl text-base md:text-lg font-black transition-all border-2 ${activeServerIndex === idx ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105' : 'bg-black/50 text-white/70 border-white/15 hover:bg-white/10 hover:text-white'} focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 cursor-pointer`}
-                                  >
-                                      {server.server_name}
-                                  </button>
-                              ))}
-                          </div>
-                      </div>
-                    )}
-                </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* 2. CHỌN TẬP PHIM (DANH SÁCH KHỔ LỚN DỄ BẤM REMOTE) */}
                 {episodesList.length > 0 && (

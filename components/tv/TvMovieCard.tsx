@@ -9,16 +9,28 @@ interface TvMovieCardProps {
   isTrending?: boolean;
   onClick?: () => void;
   priority?: boolean;
+  rowIndex?: number;
+  colIndex?: number;
 }
 
-export default function TvMovieCard({ movie, isTrending, onClick, priority }: TvMovieCardProps) {
+export default function TvMovieCard({ movie, isTrending, onClick, priority, rowIndex, colIndex }: TvMovieCardProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const poster = movie.posterSrc || movie.imageSrc;
 
   return (
     <div
       tabIndex={0}
+      data-zone="row"
+      data-row={rowIndex}
+      data-col={colIndex}
       onClick={onClick}
+      onFocus={(e) => {
+        e.target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center',
+        });
+      }}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) {
           e.preventDefault();

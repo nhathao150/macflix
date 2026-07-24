@@ -46,7 +46,12 @@ export default function TvHero({ movies, onPlayClick }: TvHeroProps) {
         <div className="flex items-center gap-4 mt-2">
           <button
             tabIndex={0}
+            data-zone="hero"
+            data-col={0}
             onClick={() => onPlayClick(currentMovie)}
+            onFocus={(e) => {
+              e.target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) {
                 e.preventDefault();
@@ -62,7 +67,12 @@ export default function TvHero({ movies, onPlayClick }: TvHeroProps) {
 
           <button
             tabIndex={0}
+            data-zone="hero"
+            data-col={1}
             onClick={() => onPlayClick(currentMovie)}
+            onFocus={(e) => {
+              e.target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) {
                 e.preventDefault();
@@ -70,7 +80,7 @@ export default function TvHero({ movies, onPlayClick }: TvHeroProps) {
                 onPlayClick(currentMovie);
               }
             }}
-            className="flex items-center gap-2.5 bg-white/20 text-white px-7 py-3 md:px-8 md:py-3.5 rounded-2xl font-extrabold text-sm md:text-base border border-white/30 transition-transform duration-150 transform-gpu focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 cursor-pointer shadow-xl backdrop-blur-md"
+            className="flex items-center gap-2.5 bg-white/20 text-white px-7 py-3 md:px-8 md:py-3.5 rounded-2xl font-extrabold text-sm md:text-base border border-white/30 transition-transform duration-150 transform-gpu will-change-transform focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 cursor-pointer shadow-xl bg-[#2a2b36]/90"
           >
             <Info className="w-5 h-5" />
             <span>Chi Tiết</span>
