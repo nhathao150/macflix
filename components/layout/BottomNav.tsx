@@ -8,7 +8,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Grid, Heart, History, Search } from 'lucide-react';
 import { clsx } from 'clsx';
 import { searchMovies } from '@/lib/api';
-import { useTv } from '@/context/TvContext';
 
 const GENRES = [
   { name: 'Hành Động', slug: 'hanh-dong' }, { name: 'Tình Cảm', slug: 'tinh-cam' }, { name: 'Hài Hước', slug: 'hai-huoc' },
@@ -91,11 +90,9 @@ const NAV_ITEMS = [
 ];
 
 export default function BottomNav() {
-  const { isTvMode } = useTv();
   const pathname = usePathname();
   const router = useRouter();
 
-  if (isTvMode) return null;
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'genre' | 'country'>('genre');
 

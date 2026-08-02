@@ -8,7 +8,6 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Search, User, ChevronDown, Menu, LogOut, History, Settings, Heart } from 'lucide-react';
 import { searchMovies } from '@/lib/api';
 import { useSession, signOut } from 'next-auth/react';
-import { useTv } from '@/context/TvContext';
 
 const GENRES = [
   { name: 'Hành Động', slug: 'hanh-dong' }, { name: 'Tình Cảm', slug: 'tinh-cam' }, { name: 'Hài Hước', slug: 'hai-huoc' },
@@ -34,12 +33,10 @@ const COUNTRIES = [
 ];
 
 export default function Navbar() {
-  const { isTvMode } = useTv();
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
 
-  if (isTvMode) return null;
   const [userAvatar, setUserAvatar] = useState<string>('');
 
   const [searchTerm, setSearchTerm] = useState('');

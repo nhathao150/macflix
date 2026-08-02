@@ -5,8 +5,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import MovieCard from './MovieCard';
 import Link from 'next/link';
 import { Movie } from '@/types';
-import { useTv } from '@/context/TvContext';
-import TvMovieRow from '@/components/tv/TvMovieRow';
 
 interface MovieRowProps {
   title: string;
@@ -18,23 +16,9 @@ interface MovieRowProps {
 }
 
 export default function MovieRow({ title, movies, isTrending, onMovieClick, viewMoreLink, rowIndex = 0 }: MovieRowProps) {
-  const { isTvMode } = useTv();
   const rowRef = useRef<HTMLDivElement>(null);
 
   if (!movies || movies.length === 0) return null;
-
-  if (isTvMode) {
-    return (
-      <TvMovieRow
-        title={title}
-        movies={movies}
-        isTrending={isTrending}
-        onMovieClick={onMovieClick}
-        viewMoreLink={viewMoreLink}
-        rowIndex={rowIndex}
-      />
-    );
-  }
 
   const scroll = (direction: 'left' | 'right') => {
     if (rowRef.current) {

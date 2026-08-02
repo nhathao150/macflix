@@ -7,12 +7,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { History, Play, Loader2, AlertCircle } from 'lucide-react';
 import { getMovieDetails } from '@/lib/api';
-import { useTv } from '@/context/TvContext';
 import { useRouter } from 'next/navigation';
 
 export default function HistoryPage() {
   const { data: session, status } = useSession();
-  const { isTvMode } = useTv();
   const router = useRouter();
   const [history, setHistory] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,14 +65,14 @@ export default function HistoryPage() {
 
   return (
     <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-24 relative overflow-hidden">
-      {!isTvMode && <Navbar />}
+      <Navbar />
 
       <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none z-0">
          <div className="absolute top-[-10%] left-[-10%] w-[55%] h-[55%] bg-cyan-500/10 blur-[140px] rounded-full mix-blend-screen" />
          <div className="absolute bottom-[-10%] right-[-10%] w-[55%] h-[55%] bg-[#7226FF]/15 blur-[140px] rounded-full mix-blend-screen" />
       </div>
 
-      <div className={`max-w-[1600px] mx-auto px-4 md:px-12 relative z-10 flex flex-col gap-8 ${isTvMode ? 'pt-8 md:pt-12' : 'pt-4 md:pt-[100px]'}`}>
+      <div className="max-w-[1600px] mx-auto px-4 md:px-12 relative z-10 flex flex-col gap-8 pt-4 md:pt-[100px]">
         
         {/* Tiêu đề */}
         <div className="flex items-center justify-between border-b border-white/10 pb-5 mb-4">

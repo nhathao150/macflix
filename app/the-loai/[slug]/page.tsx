@@ -8,9 +8,7 @@ import { useModal } from '@/context/ModalContext';
 import { getMoviesByGenrePaginated } from '@/lib/api';
 import { ChevronLeft, ChevronRight, Play, Filter, X, RotateCcw, ChevronDown, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Movie } from '@/types';
 import FilterDropdown from '@/components/ui/FilterDropdown';
-import { useTv } from '@/context/TvContext';
 
 interface Pagination {
   totalItems: number;
@@ -66,7 +64,6 @@ function GenreContent() {
   const router = useRouter();
 
   const { openModal } = useModal();
-  const { isTvMode } = useTv();
 
   const pageParam = searchParams.get('page');
   const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
@@ -207,7 +204,7 @@ function GenreContent() {
 
   return (
     <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-28">
-      {!isTvMode && <Navbar />}
+      <Navbar />
 
       <div className="max-w-[1800px] mx-auto px-4 md:px-8 pt-6 md:pt-[120px]">
         {/* Tiêu đề danh mục */}

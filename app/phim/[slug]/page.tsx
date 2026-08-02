@@ -11,7 +11,6 @@ import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { MovieDetails, Movie } from '@/types';
 import CastCard, { useTmdbActorPhotos } from '@/components/movies/CastCard';
-import { useTv } from '@/context/TvContext';
 
 const EPISODES_PER_GROUP = 100;
 const INITIAL_VISIBLE_EPISODES = 24; 
@@ -19,8 +18,7 @@ const INITIAL_VISIBLE_EPISODES = 24;
 export default function MovieDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const { data: session } = useSession(); 
-  const { isTvMode } = useTv();
+  const { data: session } = useSession();
 
   const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -757,11 +755,11 @@ export default function MovieDetailPage() {
         setIsControlsVisible(false);
       }, 4000);
 
-      // 3. ĐIỀU HƯỚNG D-PAD 3 TẦNG BÊN TRONG VIDEO (CHỈ KHI ĐÃ BẬT FULLSCREEN):
+      // 3. ĐIỀU HƯỚNG D-PAD 3 TẦNG BÊN TRONG VIDEO:
       // TẦNG 1 (TOP BAR): Các Nút Chức Năng (sub-btn ⟷ speed-btn ⟷ fit-btn ⟷ fullscreen-btn ⟷ volume-btn)
       // TẦNG 2 (TRUNG TÂM): Cụm Nút Tạm Dừng / Phát (rewind ⟷ play ⟷ forward)
       // TẦNG 3 (DƯỚI ĐÁY): Thanh Timeline (timeline)
-      if (isFullscreen && isInsidePlayer) {
+      if (isInsidePlayer) {
         const activeControl = activeEl?.getAttribute('data-player-control');
 
         if (e.key === 'ArrowDown') {
@@ -973,14 +971,14 @@ export default function MovieDetailPage() {
         }
       `}} />
       
-      {!isTvMode && <Navbar />}
+      <Navbar />
 
       <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none z-0">
          <div className="absolute top-[-10%] left-[-10%] w-[55%] h-[55%] bg-[#7226FF]/20 blur-[140px] rounded-full mix-blend-screen" />
          <div className="absolute bottom-[-10%] right-[-10%] w-[55%] h-[55%] bg-[#F042FF]/15 blur-[140px] rounded-full mix-blend-screen" />
       </div>
 
-      <div className={`w-full px-6 md:px-16 lg:px-24 relative z-10 flex flex-col gap-8 md:gap-10 ${isTvMode ? 'pt-8 md:pt-12' : 'pt-4 md:pt-[100px]'}`}>
+      <div className="w-full px-6 md:px-16 lg:px-24 relative z-10 flex flex-col gap-8 md:gap-10 pt-4 md:pt-[100px]">
         
         {/* ======================================================= */}
         {/* TẦNG 1: KHUNG VIDEO PLAYER CHUẨN 4K                      */}
@@ -1014,26 +1012,12 @@ export default function MovieDetailPage() {
               data-player-container="true"
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
+              onFocus={() => {
+                safeFocus('[data-center-play]');
+              }}
               onClick={(e) => {
                 e.stopPropagation();
-                togglePlay();
-              }}
-              onKeyDown={(e) => {
-                const isOkKey =
-                  e.key === 'Enter' ||
-                  e.key === ' ' ||
-                  e.key === 'Select' ||
-                  e.key === 'MediaPlayPause' ||
-                  e.keyCode === 13 ||
-                  e.keyCode === 66 ||
-                  e.keyCode === 23 ||
-                  e.keyCode === 179;
-
-                if (isOkKey) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  togglePlay();
-                }
+                setIsControlsVisible((prev) => !prev);
               }}
               className={`relative w-full aspect-video bg-black overflow-hidden group select-none flex flex-col justify-center touch-manipulation cursor-pointer outline-none focus:outline-none transition-all duration-300 ${!isPlaying || isControlsVisible ? 'cursor-auto' : 'cursor-none'} ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-3xl border-2 border-white/15 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 focus:shadow-[0_0_50px_rgba(240,66,255,0.5)] shadow-[0_20px_60px_rgba(0,0,0,0.9)]'}`}
             >
@@ -1118,7 +1102,7 @@ export default function MovieDetailPage() {
                                   </div>
                               </>
                           )}
-                          <button tabIndex={isFullscreen ? 0 : -1} data-player-control="sub-btn" onClick={() => { setIsSubMenuOpen(!isSubMenuOpen); setIsSpeedMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus:outline-none focus:text-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 rounded-xl p-1.5 ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-[#F042FF]' : 'text-white/80'}`} title="Phụ đề"><Subtitles className="w-6 h-6" /></button>
+                          <button tabIndex={0} data-player-control="sub-btn" onClick={() => { setIsSubMenuOpen(!isSubMenuOpen); setIsSpeedMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus:outline-none focus:text-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 rounded-xl p-1.5 ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-[#F042FF]' : 'text-white/80'}`} title="Phụ đề"><Subtitles className="w-6 h-6" /></button>
                       </div>
 
                       {/* 2. Nút Tốc Độ */}
@@ -1136,12 +1120,12 @@ export default function MovieDetailPage() {
                                   </div>
                               </>
                           )}
-                          <button tabIndex={isFullscreen ? 0 : -1} data-player-control="speed-btn" onClick={() => { setIsSpeedMenuOpen(!isSpeedMenuOpen); setIsSubMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus:outline-none focus:text-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 rounded-xl p-1.5 ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-[#F042FF]' : 'text-white/80'}`} title="Cài đặt tốc độ"><Settings className="w-6 h-6" /></button>
+                          <button tabIndex={0} data-player-control="speed-btn" onClick={() => { setIsSpeedMenuOpen(!isSpeedMenuOpen); setIsSubMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus:outline-none focus:text-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 rounded-xl p-1.5 ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-[#F042FF]' : 'text-white/80'}`} title="Cài đặt tốc độ"><Settings className="w-6 h-6" /></button>
                       </div>
 
                       {/* 3. Nút Tỷ Lệ Màn Hình */}
                       <button 
-                          tabIndex={isFullscreen ? 0 : -1}
+                          tabIndex={0}
                           data-player-control="fit-btn"
                           onClick={(e) => { e.stopPropagation(); changeFitMode(videoFitMode === 'contain' ? 'cover' : 'contain'); }} 
                           className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus:outline-none focus:text-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 rounded-xl p-1.5 ${videoFitMode === 'cover' ? 'text-[#F042FF]' : 'text-white/80'}`} 
@@ -1151,7 +1135,7 @@ export default function MovieDetailPage() {
                       </button>
 
                       {/* 4. Nút Toàn Màn Hình */}
-                      <button tabIndex={isFullscreen ? 0 : -1} data-player-control="fullscreen-btn" onClick={toggleFullScreen} className="text-white/80 hover:text-white hover:scale-110 transition flex items-center justify-center cursor-pointer focus:outline-none focus:text-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 rounded-xl p-1.5" title="Toàn màn hình">
+                      <button tabIndex={0} data-player-control="fullscreen-btn" onClick={toggleFullScreen} className="text-white/80 hover:text-white hover:scale-110 transition flex items-center justify-center cursor-pointer focus:outline-none focus:text-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 rounded-xl p-1.5" title="Toàn màn hình">
                           {isFullscreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
                       </button>
                   </div>
@@ -1159,7 +1143,7 @@ export default function MovieDetailPage() {
                   {/* 5. Nút Âm Lượng (Góc Trên Bên Phải) */}
                   <div className="pointer-events-auto flex items-center group/vol bg-black/60 backdrop-blur-xl px-5 py-2.5 rounded-2xl border border-white/20 shadow-2xl">
                       <button 
-                          tabIndex={isFullscreen ? 0 : -1}
+                          tabIndex={0}
                           data-player-control="volume-btn"
                           onClick={toggleMute} 
                           className="text-white/80 hover:text-white focus:text-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 rounded-xl p-1 transition flex items-center justify-center shrink-0 cursor-pointer focus:outline-none" 
@@ -1170,7 +1154,7 @@ export default function MovieDetailPage() {
                       
                       <div className="w-0 overflow-hidden group-hover/vol:w-32 transition-all duration-300 ease-out flex items-center ml-0 group-hover/vol:ml-4">
                           <input
-                              tabIndex={isFullscreen ? 0 : -1}
+                              tabIndex={0}
                               type="range"
                               min={0}
                               max={1}
@@ -1193,7 +1177,7 @@ export default function MovieDetailPage() {
                 onClick={(e) => e.stopPropagation()}
               >
                   <button 
-                    tabIndex={isFullscreen ? 0 : -1}
+                    tabIndex={0}
                     data-player-control="rewind"
                     onClick={(e) => { e.stopPropagation(); skipTime(-10); }} 
                     className="pointer-events-auto w-14 h-14 md:w-20 md:h-20 rounded-full bg-black/60 hover:bg-[#7226FF] focus:bg-[#7226FF] backdrop-blur-xl flex items-center justify-center border-2 border-white/20 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/70 text-white hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer shadow-2xl outline-none"
@@ -1202,7 +1186,7 @@ export default function MovieDetailPage() {
                   </button>
 
                   <button 
-                    tabIndex={isFullscreen ? 0 : -1}
+                    tabIndex={0}
                     data-player-control="play"
                     data-center-play="true"
                     onClick={(e) => { e.stopPropagation(); togglePlay(); }} 
@@ -1212,7 +1196,7 @@ export default function MovieDetailPage() {
                   </button>
 
                   <button 
-                    tabIndex={isFullscreen ? 0 : -1}
+                    tabIndex={0}
                     data-player-control="forward"
                     onClick={(e) => { e.stopPropagation(); skipTime(10); }} 
                     className="pointer-events-auto w-14 h-14 md:w-20 md:h-20 rounded-full bg-black/60 hover:bg-[#7226FF] focus:bg-[#7226FF] backdrop-blur-xl flex items-center justify-center border-2 border-white/20 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/70 text-white hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer shadow-2xl outline-none"
@@ -1244,7 +1228,7 @@ export default function MovieDetailPage() {
 
                           <div className="flex-1 relative flex items-center">
                               <input
-                                  tabIndex={isFullscreen ? 0 : -1}
+                                  tabIndex={0}
                                   data-player-control="timeline"
                                   type="range"
                                   min={0}

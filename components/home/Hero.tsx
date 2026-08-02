@@ -5,8 +5,6 @@ import Image from 'next/image';
 import { Play, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Movie } from '@/types';
-import { useTv } from '@/context/TvContext';
-import TvHero from '@/components/tv/TvHero';
 
 interface HeroProps {
   movies: Movie[];
@@ -14,12 +12,7 @@ interface HeroProps {
 }
 
 export default function Hero({ movies, onPlayClick }: HeroProps) {
-  const { isTvMode } = useTv();
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  if (isTvMode) {
-    return <TvHero movies={movies} onPlayClick={onPlayClick} />;
-  }
 
   // Lấy ra 5 phim đầu tiên làm Banner cho đỡ nặng
   const heroMovies = movies?.slice(0, 5) || [];

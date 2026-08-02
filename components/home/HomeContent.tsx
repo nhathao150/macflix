@@ -9,7 +9,6 @@ const MovieModal = dynamic(() => import('../movies/MovieModal'), { ssr: false })
 import { Movie } from '@/types';
 import { useSession } from 'next-auth/react';
 import { getMovieDetails } from '@/lib/api';
-import { useTv } from '@/context/TvContext';
 import { useRouter } from 'next/navigation';
 
 interface HomeContentProps {
@@ -93,16 +92,11 @@ export default function HomeContent({
     fetchHistory();
   }, [session, phimMoi, chieuRap, phimBo, phimLe, hoatHinh]);
 
-  const { isTvMode } = useTv();
   const router = useRouter();
 
   const handleMovieClick = (movie: Movie) => {
-    if (isTvMode) {
-      router.push(`/phim/${movie.slug}`);
-    } else {
-      setSelectedMovie(movie);
-      setIsModalOpen(true);
-    }
+    setSelectedMovie(movie);
+    setIsModalOpen(true);
   };
 
   return (

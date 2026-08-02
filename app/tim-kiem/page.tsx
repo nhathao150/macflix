@@ -9,13 +9,10 @@ import { searchMoviesPaginated, searchMovies } from '@/lib/api';
 import { ChevronLeft, ChevronRight, Play, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-import { useTv } from '@/context/TvContext';
-
 function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { openModal } = useModal();
-  const { isTvMode } = useTv();
 
   const keyword = searchParams.get('q') || '';
   const pageParam = searchParams.get('page');
@@ -76,9 +73,9 @@ function SearchContent() {
 
   return (
     <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-24 relative overflow-hidden">
-      {!isTvMode && <Navbar />}
+      <Navbar />
 
-      <div className={`max-w-[1600px] mx-auto px-4 md:px-12 relative z-10 flex flex-col gap-8 ${isTvMode ? 'pt-8 md:pt-12' : 'pt-4 md:pt-[100px]'}`}>
+      <div className="max-w-[1600px] mx-auto px-4 md:px-12 relative z-10 flex flex-col gap-8 pt-4 md:pt-[100px]">
 
         {/* Header */}
         <div className="mb-4 border-b border-white/10 pb-5">
