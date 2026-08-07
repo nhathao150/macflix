@@ -57,6 +57,7 @@ export default function Hero({ movies, onPlayClick }: HeroProps) {
               src={currentMovie.imageSrc} 
               alt={currentMovie.title} 
               fill 
+              sizes="100vw"
               className="object-cover"
               priority={currentIndex === 0}
               loading={currentIndex === 0 ? 'eager' : 'lazy'}
@@ -69,6 +70,7 @@ export default function Hero({ movies, onPlayClick }: HeroProps) {
               src={currentMovie.posterSrc || currentMovie.imageSrc} 
               alt={currentMovie.title} 
               fill 
+              sizes="100vw"
               className="object-cover"
               priority={currentIndex === 0}
               loading={currentIndex === 0 ? 'eager' : 'lazy'}

@@ -48,7 +48,7 @@ export default function CastCard({ name, role, colorIndex, variant = 'pill', pho
           {showPhoto ? (
             <Image src={photoUrl!} alt={name} width={96} height={96}
               className="w-full h-full object-cover object-top"
-              onError={() => setImgError(true)} unoptimized />
+              onError={() => setImgError(true)} loading="lazy" />
           ) : (
             <div className={`w-full h-full bg-gradient-to-tr ${gradient} flex items-center justify-center text-white font-black text-2xl md:text-3xl`}>
               {initials}
@@ -69,7 +69,7 @@ export default function CastCard({ name, role, colorIndex, variant = 'pill', pho
         {showPhoto ? (
           <Image src={photoUrl!} alt={name} width={48} height={48}
             className="w-full h-full object-cover object-top"
-            onError={() => setImgError(true)} unoptimized />
+            onError={() => setImgError(true)} loading="lazy" />
         ) : (
           <div className={`w-full h-full bg-gradient-to-tr ${gradient} flex items-center justify-center text-white font-black text-base`}>
             {initials}

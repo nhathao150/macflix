@@ -11,8 +11,9 @@ const nextConfig: NextConfig = {
   compress: true, // Nén Gzip/Brotli
   // Allow access to remote image placeholder and API images.
   images: {
-    unoptimized: true,
+    unoptimized: false,
     formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 86400,
     remotePatterns: [
       {
         protocol: 'https',
@@ -41,6 +42,18 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '**.phimapi.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'image.tmdb.org',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.tmdb.org',
         port: '',
         pathname: '/**',
       },

@@ -29,14 +29,19 @@ export default function MovieCard({ movie, isTrending, priority }: MovieCardProp
           isTrending ? 'w-[135px]' : 'w-[125px]'
         }`}
       >
+        {!isLoaded && (
+          <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 animate-pulse" />
+        )}
         <Image
           src={poster}
           alt={movie.title}
           fill
-          sizes="150px"
-          className="object-cover transition-all duration-500"
+          sizes="(max-width: 768px) 135px, 150px"
+          className={`object-cover transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           referrerPolicy="no-referrer"
-          loading="lazy"
+          priority={priority}
+          loading={priority ? 'eager' : 'lazy'}
+          onLoad={() => setIsLoaded(true)}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent opacity-80" />
         <div className="absolute bottom-0 left-0 w-full p-2.5">
@@ -61,11 +66,12 @@ export default function MovieCard({ movie, isTrending, priority }: MovieCardProp
           src={movie.imageSrc}
           alt={movie.title}
           fill
-          sizes="(max-width: 1200px) 50vw, 33vw"
+          sizes="(max-width: 1024px) 320px, 400px"
           className={`object-cover transition-all duration-500 group-hover:scale-110 group-focus:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           referrerPolicy="no-referrer"
+          priority={priority}
+          loading={priority ? 'eager' : 'lazy'}
           onLoad={() => setIsLoaded(true)}
-          loading="lazy"
         />
         
         {/* Lớp phủ gradient đen ở dưới để hiện chữ cho rõ */}
