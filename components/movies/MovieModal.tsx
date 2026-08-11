@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { X, Play } from 'lucide-react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 import CastCard, { usePeoplesData } from '@/components/movies/CastCard';
 import { Movie, MovieDetails } from '@/types';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
 interface MovieModalProps {
   isOpen: boolean;
@@ -26,60 +27,42 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
   const movieSlug = movieDetails?.movie?.slug || movie?.slug;
   const { peoples, photoBaseUrl } = usePeoplesData(movieSlug);
 
-  const lastActiveElementRef = useRef<HTMLElement | null>(null);
+  // Sử dụng Custom Hook để khoá cuộn trang (scroll lock) khi Modal mở
+  useBodyScrollLock(isOpen);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      lastActiveElementRef.current = document.activeElement as HTMLElement;
-      setTimeout(() => {
-        const modalContainer = document.querySelector('[data-modal-container]') as HTMLElement;
-        if (modalContainer) {
-          const firstFocusable = modalContainer.querySelector('button, [tabindex="0"]') as HTMLElement;
-          if (firstFocusable) {
-            firstFocusable.focus();
-          }
-        }
-      }, 150);
-    } else {
-      document.body.style.overflow = 'unset';
-      if (lastActiveElementRef.current) {
-        lastActiveElementRef.current.focus();
-        lastActiveElementRef.current = null;
-      }
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+    let isMounted = true;
 
-  useEffect(() => {
     const fetchMovieData = async () => {
       if (isOpen && movie?.slug) {
         setIsLoading(true);
         try {
           const data = await getMovieDetails(movie.slug);
-          setMovieDetails(data);
+          if (isMounted) setMovieDetails(data);
         } catch (error) {
           console.error("Lỗi lấy chi tiết phim:", error);
         } finally {
-          setIsLoading(false);
+          if (isMounted) setIsLoading(false);
         }
       } else {
-        setMovieDetails(null);
+        if (isMounted) setMovieDetails(null);
       }
     };
 
     fetchMovieData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [isOpen, movie]);
 
-  const handleWatchMovie = () => {
+  const handleWatchMovie = useCallback(() => {
     const slug = movieDetails?.movie?.slug || movie?.slug;
     if (slug) {
       onClose();
       router.push(`/phim/${slug}`);
     }
-  };
+  }, [movieDetails, movie, onClose, router]);
 
   if (!isOpen) return null;
 
