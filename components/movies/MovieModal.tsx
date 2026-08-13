@@ -17,23 +17,32 @@ interface MovieModalProps {
   movie: Movie | null;
 }
 
+// Component MovieModal hiển thị popup chi tiết phim khi click vào một MovieCard
 export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) {
-  const router = useRouter();
+  const router = useRouter(); // Dùng để điều hướng người dùng khi click nút xem phim
 
+  // State lưu trữ dữ liệu chi tiết của phim (được gọi từ API khi mở Modal)
   const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Lấy danh sách diễn viên + ảnh từ ophim peoples API
+  // Xác định slug của phim để truyền vào hook lấy dữ liệu diễn viên
+  // Ưu tiên slug từ movieDetails (đã fetch mới) nếu có, nếu không dùng slug từ movie (truyền qua props)
   const movieSlug = movieDetails?.movie?.slug || movie?.slug;
+  
+  // Custom Hook: Lấy danh sách diễn viên (peoples) + đường dẫn ảnh gốc (photoBaseUrl) từ API
   const { peoples, photoBaseUrl } = usePeoplesData(movieSlug);
 
-  // Sử dụng Custom Hook để khoá cuộn trang (scroll lock) khi Modal mở
+  // Custom Hook: Khóa tính năng cuộn (scroll) của thẻ <body> trên toàn trang khi Modal đang được mở ra
   useBodyScrollLock(isOpen);
 
+  // Effect gọi API lấy thông tin chi tiết phim (thời lượng, tập phim, đạo diễn, mô tả...) khi modal mở
   useEffect(() => {
+    // Biến cờ (flag) để kiểm tra xem component có còn đang được render hay không
+    // Giúp tránh lỗi "update state on unmounted component" nếu người dùng đóng Modal trước khi API gọi xong
     let isMounted = true;
 
     const fetchMovieData = async () => {
+      // Chỉ gọi API nếu Modal đang mở và có slug của phim
       if (isOpen && movie?.slug) {
         setIsLoading(true);
         try {
@@ -45,22 +54,25 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
           if (isMounted) setIsLoading(false);
         }
       } else {
+        // Khi Modal đóng, reset lại dữ liệu
         if (isMounted) setMovieDetails(null);
       }
     };
 
     fetchMovieData();
 
+    // Cleanup function: Đánh dấu là component đã bị unmount khi effect dọn dẹp
     return () => {
       isMounted = false;
     };
   }, [isOpen, movie]);
 
+  // Hàm xử lý sự kiện bấm vào nút Phát ngay
   const handleWatchMovie = useCallback(() => {
     const slug = movieDetails?.movie?.slug || movie?.slug;
     if (slug) {
-      onClose();
-      router.push(`/phim/${slug}`);
+      onClose(); // Đóng Modal trước
+      router.push(`/phim/${slug}`); // Chuyển hướng sang trang xem phim
     }
   }, [movieDetails, movie, onClose, router]);
 
@@ -115,6 +127,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                       src={backdropUrl}
                       alt={movieData?.name || ''}
                       fill
+                      sizes="(max-width: 1800px) 96vw, 1800px"
                       className="object-cover opacity-70 mask-image-gradient"
                       referrerPolicy="no-referrer"
                       priority

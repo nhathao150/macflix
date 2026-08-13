@@ -11,31 +11,45 @@ interface HeroProps {
   onPlayClick: (movie: Movie) => void;
 }
 
+// Component Hero hiển thị banner chính của trang chủ với hiệu ứng carousel (trượt ảnh)
 export default function Hero({ movies, onPlayClick }: HeroProps) {
+  // State lưu trữ chỉ số (index) của phim đang được hiển thị trên banner
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Lấy ra 5 phim đầu tiên làm Banner cho đỡ nặng
+  // Lấy ra 5 phim đầu tiên từ danh sách truyền vào làm Banner để tối ưu hiệu suất (đỡ nặng)
   const heroMovies = movies?.slice(0, 5) || [];
 
+  // Hàm chuyển sang slide tiếp theo
+  // Sử dụng useCallback để không tạo lại hàm mỗi khi component render, tối ưu performance
   const nextSlide = useCallback(() => {
+    // Nếu đang ở slide cuối thì quay lại slide đầu tiên (0), ngược lại thì tăng index lên 1
     setCurrentIndex((prevIndex) => (prevIndex + 1) % heroMovies.length);
   }, [heroMovies.length]);
 
+  // Hàm lùi về slide trước đó
   const prevSlide = () => {
+    // Nếu đang ở slide đầu thì lùi về slide cuối cùng, ngược lại thì giảm index đi 1
     setCurrentIndex((prevIndex) => (prevIndex === 0 ? heroMovies.length - 1 : prevIndex - 1));
   };
 
-  // Tự động chuyển slide sau mỗi 6 giây
+  // Effect tự động chuyển slide sau mỗi 6 giây
   useEffect(() => {
+    // Nếu chỉ có 1 phim hoặc không có phim nào thì không cần tự động chuyển
     if (heroMovies.length <= 1) return;
+    
+    // Thiết lập bộ đếm thời gian (timer) gọi hàm nextSlide mỗi 6000ms (6 giây)
     const timer = setInterval(nextSlide, 6000);
+    
+    // Cleanup function: Xóa bỏ timer khi component bị unmount hoặc trước khi effect chạy lại
     return () => clearInterval(timer);
   }, [nextSlide, heroMovies.length]);
 
+  // Nếu chưa có dữ liệu phim, hiển thị khung skeleton (loading mờ ảo) để giữ layout
   if (heroMovies.length === 0) {
     return <div className="w-full h-[60vh] md:h-[85vh] bg-[#0a0a0c] animate-pulse" />;
   }
 
+  // Lấy thông tin phim hiện tại đang được chọn để hiển thị trên màn hình
   const currentMovie = heroMovies[currentIndex];
 
   return (
@@ -57,10 +71,9 @@ export default function Hero({ movies, onPlayClick }: HeroProps) {
               src={currentMovie.imageSrc}
               alt={currentMovie.title}
               fill
-              sizes="100vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
               className="object-cover"
-              priority={currentIndex === 0}
-              loading={currentIndex === 0 ? 'eager' : 'lazy'}
+              priority
               referrerPolicy="no-referrer"
             />
           </div>
@@ -70,10 +83,9 @@ export default function Hero({ movies, onPlayClick }: HeroProps) {
               src={currentMovie.posterSrc || currentMovie.imageSrc}
               alt={currentMovie.title}
               fill
-              sizes="100vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
               className="object-cover"
-              priority={currentIndex === 0}
-              loading={currentIndex === 0 ? 'eager' : 'lazy'}
+              priority
               referrerPolicy="no-referrer"
             />
           </div>

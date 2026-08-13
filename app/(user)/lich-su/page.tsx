@@ -9,15 +9,20 @@ import { History, Play, Loader2, AlertCircle } from 'lucide-react';
 import { getMovieDetails } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 
+// Component trang hiển thị Lịch sử các phim người dùng đã xem
 export default function HistoryPage() {
+  // Lấy dữ liệu phiên đăng nhập hiện tại
   const { data: session, status } = useSession();
   const router = useRouter();
+  
+  // State lưu mảng lịch sử xem phim và trạng thái loading
   const [history, setHistory] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Gọi API lấy dữ liệu từ MongoDB khi trang được load
+  // Gọi API lấy dữ liệu lịch sử từ cơ sở dữ liệu (MongoDB) khi trang được load
   useEffect(() => {
     const fetchHistory = async () => {
+      // Tương tự trang Yêu thích, nếu chưa đăng nhập thì dừng lại
       if (status === 'unauthenticated') {
         setIsLoading(false);
         return;
@@ -25,23 +30,34 @@ export default function HistoryPage() {
 
       if (session?.user?.email) {
         try {
+          // Gọi API route lấy lịch sử của user theo email
           const res = await fetch(`/api/history?email=${session.user.email}`);
           const data = await res.json();
+          
           if (res.ok) {
             const historyData = data.history;
+            
+            // Vòng lặp lấy thêm hình ảnh phim (nếu trong DB bị thiếu hoặc lưu dưới dạng placeholder)
+            // Dùng Promise.all để chờ tất cả các API fetch ảnh hoàn thành
             const updatedHistory = await Promise.all(historyData.map(async (item: any) => {
               let imgSrc = item.imageSrc || '/placeholder-image.jpg';
+              
+              // Fallback: nếu ảnh bị lỗi/chưa có, gọi API lấy chi tiết phim từ ophim để lấy lại ảnh
               if (imgSrc === '/placeholder-image.jpg') {
                 try {
                   const detail = await getMovieDetails(item.slug);
                   if (detail && detail.movie) {
                     const imgUrl = detail.movie.thumb_url || detail.movie.poster_url;
+                    // Xử lý đường dẫn ảnh (nếu là đường dẫn tương đối thì thêm domain phimimg.com)
                     imgSrc = imgUrl.startsWith('http') ? imgUrl : `https://phimimg.com/${imgUrl}`;
                   }
-                } catch (e) {}
+                } catch (e) { /* Bỏ qua lỗi nếu không lấy được detail */ }
               }
+              // Trả về item đã được cập nhật đường dẫn ảnh mới
               return { ...item, imageSrc: imgSrc };
             }));
+            
+            // Lưu dữ liệu đã cập nhật vào state
             setHistory(updatedHistory);
           }
         } catch (error) {
@@ -120,6 +136,7 @@ export default function HistoryPage() {
                     sizes="400px" 
                     className="object-cover transition-transform duration-500 group-hover:scale-110 group-focus:scale-110" 
                     referrerPolicy="no-referrer"
+                    priority={index < 6}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
                     <div className="w-16 h-16 rounded-full bg-[#7226FF] flex items-center justify-center shadow-2xl transform scale-75 group-hover:scale-100 group-focus:scale-100 transition-transform duration-300">

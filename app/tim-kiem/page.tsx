@@ -217,6 +217,7 @@ function SearchContent() {
                         sizes="(max-width: 640px) 44vw, 20vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-110 group-focus:scale-110"
                         referrerPolicy="no-referrer"
+                        priority={index < 6}
                       />
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
                         <div className="w-14 h-14 rounded-full bg-[#7226FF] flex items-center justify-center shadow-2xl transform scale-75 group-hover:scale-100 group-focus:scale-100 transition-transform duration-300">

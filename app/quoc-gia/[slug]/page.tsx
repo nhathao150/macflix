@@ -57,40 +57,45 @@ const YEARS = [
   })
 ];
 
+// Component nội dung chính của trang Quốc gia, dùng để lấy và hiển thị danh sách phim
 function CountryContent() {
-  const params = useParams();
-  const slug = params.slug as string;
-  const searchParams = useSearchParams();
-  const router = useRouter();
+  const params = useParams(); // Hook lấy các dynamic params từ URL (vd: /quoc-gia/han-quoc -> slug là 'han-quoc')
+  const slug = params.slug as string; // Lấy slug của quốc gia
+  const searchParams = useSearchParams(); // Hook lấy các query parameters (vd: ?page=1&genre=hanh-dong)
+  const router = useRouter(); // Hook điều hướng trang
   const { openModal } = useModal();
 
+  // Lấy các tham số filter từ URL để render
   const pageParam = searchParams.get('page');
   const genreParam = searchParams.get('genre') || '';
   const yearParam = searchParams.get('year') || '';
-  const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
+  const currentPage = pageParam ? parseInt(pageParam, 10) : 1; // Parse số trang hiện tại
 
-  // Local temporary states
+  // Local temporary states: Các state lưu trữ giá trị bộ lọc tạm thời trên giao diện (trước khi ấn Tìm kiếm)
   const [tempCountry, setTempCountry] = useState(slug);
   const [tempGenre, setTempGenre] = useState(genreParam);
   const [tempYear, setTempYear] = useState(yearParam);
-  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false); // State mở/đóng menu filter trên Mobile
 
+  // State lưu trữ dữ liệu chính: danh sách phim, thông tin phân trang, và tiêu đề
   const [movies, setMovies] = useState<any[]>([]);
   const [pagination, setPagination] = useState<any>(null);
   const [pageTitle, setPageTitle] = useState('Đang tải...');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Sync temporary states with active route and URL params
+  // Effect đồng bộ trạng thái bộ lọc tạm thời với URL parameters mỗi khi URL thay đổi
   useEffect(() => {
     setTempCountry(slug);
     setTempGenre(genreParam);
     setTempYear(yearParam);
   }, [slug, genreParam, yearParam]);
 
+  // Effect gọi API để tải dữ liệu phim mỗi khi slug, trang, thể loại, hoặc năm thay đổi
   useEffect(() => {
     const fetchMovies = async () => {
       setIsLoading(true);
       let data;
+      // Nếu có chọn thể loại thì gọi hàm filter kết hợp, ngược lại chỉ gọi theo quốc gia
       if (genreParam) {
         data = await getMoviesByCountryAndGenre(slug, genreParam, currentPage, 24, yearParam);
       } else {
@@ -98,8 +103,12 @@ function CountryContent() {
       }
       setMovies(data.items);
       setPagination(data.pagination);
+      
+      // Xử lý chuỗi tiêu đề từ API trả về (loại bỏ phần hậu tố phía sau dấu '|')
       if (data.title) setPageTitle(data.title.split('|')[0].trim());
+      
       setIsLoading(false);
+      // Cuộn lên đầu trang một cách mượt mà sau khi có dữ liệu mới
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     fetchMovies();

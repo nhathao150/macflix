@@ -66,7 +66,9 @@ export async function getMoviesByCategory(category: string, limit = 20): Promise
   try {
     const res = await fetch(`${MOVIE_API_URL}/v1/api/danh-sach/${category}?limit=${limit}`, { next: { revalidate: 3600 } });
     if (!res.ok) {
-      console.warn(`Cảnh báo: HTTP ${res.status} khi lấy danh mục ${category}`);
+      if (res.status !== 404) {
+        console.warn(`Cảnh báo: HTTP ${res.status} khi lấy danh mục ${category}`);
+      }
       return [];
     }
     

@@ -8,26 +8,37 @@ import Image from 'next/image';
 import { Heart, Play, Loader2, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+// Component trang hiển thị danh sách các phim đã được người dùng lưu vào Yêu thích
 export default function FavoritesPage() {
+  // Lấy thông tin phiên đăng nhập (session) và trạng thái (loading, authenticated, unauthenticated) từ next-auth
   const { data: session, status } = useSession();
   const router = useRouter();
+  
+  // State lưu trữ danh sách phim yêu thích và trạng thái tải dữ liệu
   const [favorites, setFavorites] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Effect tự động gọi API lấy danh sách yêu thích khi trạng thái session thay đổi
   useEffect(() => {
     const fetchFavorites = async () => {
+      // Nếu người dùng chưa đăng nhập, kết thúc trạng thái loading và dừng lại
       if (status === 'unauthenticated') {
         setIsLoading(false);
         return;
       }
+      
+      // Nếu đã đăng nhập và có email
       if (session?.user?.email) {
         try {
+          // Gọi API endpoint của chúng ta để lấy danh sách phim yêu thích dựa trên email
           const res = await fetch(`/api/favorites?email=${session.user.email}`);
           const data = await res.json();
+          // Nếu API trả về thành công (status 200-299), cập nhật state favorites
           if (res.ok) setFavorites(data.favorites);
         } catch (error) {
           console.error("Lỗi tải phim yêu thích:", error);
         } finally {
+          // Dù thành công hay thất bại, cũng cần tắt trạng thái loading
           setIsLoading(false);
         }
       }
@@ -100,6 +111,7 @@ export default function FavoritesPage() {
                     sizes="400px" 
                     className="object-cover transition-transform duration-500 group-hover:scale-110 group-focus:scale-110" 
                     referrerPolicy="no-referrer"
+                    priority={index < 6}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
                     <div className="w-16 h-16 rounded-full bg-[#7226FF] flex items-center justify-center shadow-2xl transform scale-75 group-hover:scale-100 group-focus:scale-100 transition-transform duration-300">

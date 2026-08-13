@@ -120,11 +120,11 @@ export function usePeoplesData(slug: string | null | undefined): PeoplesData {
     if (!slug) return; // Không gọi API nếu không có slug phim
     let cancelled = false; // Dùng để cancel khi component bị xoá (unmount)
 
-    // Lấy URL nguồn từ biến môi trường (env)
-    const OPHIM_API_URL = process.env.NEXT_PUBLIC_OPHIM_API_URL || 'https://ophim1.com';
+    // Lấy URL nguồn từ biến môi trường của phimapi (vì ophim1 không hỗ trợ endpoint /peoples)
+    const PHIMAPI_URL = process.env.NEXT_PUBLIC_MOVIE_API_URL || 'https://phimapi.com';
     
-    // Gọi API của ophim thông qua API route trung gian /api/proxy (để tránh lỗi CORS)
-    fetch(`/api/proxy?url=${encodeURIComponent(`${OPHIM_API_URL}/v1/api/phim/${slug}/peoples`)}`)
+    // Gọi API của phimapi thông qua API route trung gian /api/proxy (để tránh lỗi CORS)
+    fetch(`/api/proxy?url=${encodeURIComponent(`${PHIMAPI_URL}/v1/api/phim/${slug}/peoples`)}`)
       .then((r) => r.json())
       .then((res: {
         success: boolean;
