@@ -474,6 +474,11 @@ export default function MovieDetailPage() {
     if (videoRef.current?.paused) {
       videoRef.current.play().catch(() => {});
       setIsPlaying(true);
+      
+      // NEW: Tự động bật full screen khi ấn Play ở dạng thu nhỏ trên Mobile
+      if (typeof window !== 'undefined' && window.innerWidth < 768 && !isFullscreen) {
+        toggleFullScreen();
+      }
     } else {
       videoRef.current?.pause();
       setIsPlaying(false);
@@ -482,10 +487,6 @@ export default function MovieDetailPage() {
   };
 
   const handleVideoInteraction = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isFullscreen) {
-      toggleFullScreen();
-      return;
-    }
 
     const now = Date.now();
     const DOUBLE_TAP_DELAY = 300;
@@ -618,17 +619,33 @@ export default function MovieDetailPage() {
           targetFocusable?.focus();
         }, 150);
       }
-      if (!isFs && screen.orientation && screen.orientation.unlock) {
-        try {
-          screen.orientation.unlock();
-        } catch (e) {}
+      
+      if (!isFs) {
+        if (screen.orientation && screen.orientation.unlock) {
+          try {
+            screen.orientation.unlock();
+          } catch (e) {}
+        }
+        
+        // NEW: Tự động pause video khi thoát fullscreen trên Mobile
+        if (typeof window !== 'undefined' && window.innerWidth < 768 && videoRef.current && !videoRef.current.paused) {
+          videoRef.current.pause();
+          setIsPlaying(false);
+        }
       }
     };
     document.addEventListener('fullscreenchange', handleFsChange);
     
     const video = videoRef.current;
     const handleWebKitFsChange = () => {
-      setIsFullscreen((video as any).webkitDisplayingFullscreen || false);
+      const isFs = (video as any).webkitDisplayingFullscreen || false;
+      setIsFullscreen(isFs);
+      
+      // NEW: Tự động pause video khi thoát fullscreen trên iOS Safari
+      if (!isFs && typeof window !== 'undefined' && window.innerWidth < 768 && video && !video.paused) {
+        video.pause();
+        setIsPlaying(false);
+      }
     };
     if (video) {
       video.addEventListener('webkitbeginfullscreen', handleWebKitFsChange);
@@ -905,7 +922,7 @@ export default function MovieDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0c] text-white pt-6 md:pt-[100px] px-4 md:px-12 pb-20">
+      <div className="min-h-dvh bg-[#0a0a0c] text-white pt-6 md:pt-[100px] px-4 md:px-12 pb-20">
         <div className="max-w-[1600px] mx-auto flex flex-col gap-8">
           <div className="w-full aspect-video bg-white/5 border border-white/10 rounded-3xl animate-skeleton" />
           <div className="flex flex-col gap-4 mt-4">
@@ -931,7 +948,7 @@ export default function MovieDetailPage() {
 
   if (!movieDetails?.movie) {
     return (
-      <div className="min-h-screen bg-[#0a0a0c] flex flex-col items-center justify-center text-white p-6">
+      <div className="min-h-dvh bg-[#0a0a0c] flex flex-col items-center justify-center text-white p-6">
         <h1 className="text-3xl font-black mb-6">Không tìm thấy thông tin phim!</h1>
         <Link href="/" className="px-8 py-3.5 bg-[#7226FF] hover:bg-[#853aff] text-white font-black text-lg rounded-2xl transition-all shadow-xl">
           Về trang chủ
@@ -953,7 +970,7 @@ export default function MovieDetailPage() {
   const validCast = [...(movie.director || []), ...(movie.actor || [])].filter(name => name && name !== 'Đang cập nhật');
 
   return (
-    <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-24 relative overflow-hidden">
+    <main className="min-h-dvh bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-24 relative overflow-hidden">
       <style dangerouslySetInnerHTML={{ __html: `
         *:fullscreen,
         *:-webkit-full-screen,
@@ -973,7 +990,7 @@ export default function MovieDetailPage() {
       
       <Navbar />
 
-      <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none z-0">
+      <div className="fixed top-0 left-0 right-0 h-dvh pointer-events-none z-0">
          <div className="absolute top-[-10%] left-[-10%] w-[55%] h-[55%] bg-[#7226FF]/20 blur-[140px] rounded-full mix-blend-screen" />
          <div className="absolute bottom-[-10%] right-[-10%] w-[55%] h-[55%] bg-[#F042FF]/15 blur-[140px] rounded-full mix-blend-screen" />
       </div>
@@ -989,18 +1006,11 @@ export default function MovieDetailPage() {
               ref={playerContainerRef} 
               tabIndex={0}
               data-player-container="true"
-              onClick={() => toggleFullScreen()}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) {
-                  e.preventDefault();
-                  toggleFullScreen();
-                }
-              }}
-              className={`relative w-full aspect-video bg-black overflow-hidden outline-none cursor-pointer focus:outline-none transition-all duration-300 ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-3xl border-2 border-white/15 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 focus:shadow-[0_0_50px_rgba(240,66,255,0.5)] shadow-[0_20px_60px_rgba(0,0,0,0.9)]'}`}
+              className={`relative w-full aspect-video bg-black overflow-hidden outline-none transition-all duration-300 ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-3xl border-2 border-white/15 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 focus-visible:shadow-[0_0_50px_rgba(240,66,255,0.5)] shadow-[0_20px_60px_rgba(0,0,0,0.9)]'}`}
             >
               <iframe
                 src={currentEpisode?.link_embed?.startsWith('http://') ? currentEpisode.link_embed.replace('http://', 'https://') : currentEpisode?.link_embed}
-                className="w-full h-full border-none pointer-events-none"
+                className="w-full h-full border-none"
                 allowFullScreen
                 allow="autoplay; encrypted-media; picture-in-picture"
               />
@@ -1019,7 +1029,7 @@ export default function MovieDetailPage() {
                 e.stopPropagation();
                 setIsControlsVisible((prev) => !prev);
               }}
-              className={`relative w-full aspect-video bg-black overflow-hidden group select-none flex flex-col justify-center touch-manipulation cursor-pointer outline-none focus:outline-none transition-all duration-300 ${!isPlaying || isControlsVisible ? 'cursor-auto' : 'cursor-none'} ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-3xl border-2 border-white/15 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 focus:shadow-[0_0_50px_rgba(240,66,255,0.5)] shadow-[0_20px_60px_rgba(0,0,0,0.9)]'}`}
+              className={`relative w-full aspect-video bg-black overflow-hidden group select-none flex flex-col justify-center touch-manipulation outline-none focus-visible:outline-none transition-all duration-300 ${!isPlaying || isControlsVisible ? 'cursor-pointer' : 'cursor-none'} ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-3xl border-2 border-white/15 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 focus-visible:shadow-[0_0_50px_rgba(240,66,255,0.5)] shadow-[0_20px_60px_rgba(0,0,0,0.9)]'}`}
             >
               <video 
                 ref={videoRef} 
@@ -1048,7 +1058,7 @@ export default function MovieDetailPage() {
 
               {/* OVERLAY TƯƠNG TÁC */}
               <div 
-                className="absolute inset-0 z-0 cursor-pointer"
+                className="absolute inset-0 z-0"
                 onClick={(e) => { e.stopPropagation(); handleVideoInteraction(e); }}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
@@ -1076,111 +1086,31 @@ export default function MovieDetailPage() {
                   </div>
               </div>
 
-              {/* TẦNG 1 INTERFACE FULLSCREEN: THANH TOP BAR (GỒM PHỤ ĐỀ, TỐC ĐỘ, TỶ LỆ, FULLSCREEN VÀ ÂM LƯỢNG) */}
-              <div className={`absolute top-6 left-6 right-6 flex justify-end items-center gap-3 md:gap-4 z-30 transition-all duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`} onClick={(e) => e.stopPropagation()}>
-                  
-                  {/* CỤM NÚT CHỨC NĂNG GỘP VÀO TẦNG 1 GÓC TRÊN */}
-                  <div className="pointer-events-auto flex items-center gap-2 md:gap-4 bg-black/60 backdrop-blur-xl px-4 md:px-5 py-2 md:py-2.5 rounded-2xl border border-white/20 shadow-2xl shrink-0">
-                      
-                      {/* 1. Nút Phụ Đề */}
-                      <div className="relative">
-                          {isSubMenuOpen && (
-                              <>
-                                  <div className="fixed inset-0 z-40" onClick={() => setIsSubMenuOpen(false)} />
-                                  <div className="absolute top-full right-0 mt-3 w-max min-w-[200px] z-50">
-                                    <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl flex flex-col py-3">
-                                        <div className="px-5 py-2 text-xs font-black text-[#F042FF] border-b border-white/10 uppercase mb-1">Ngôn ngữ hỗ trợ</div>
-                                        <button onClick={() => changeSubtitle(-1)} className={`px-5 py-3 text-base text-left hover:bg-white/20 transition-colors flex items-center gap-2 ${activeSubIndex === -1 ? 'text-[#F042FF]' : 'text-white/80'}`}>Tắt phụ đề</button>
-                                        {subtitleTracks.length > 0 ? (
-                                            subtitleTracks.map((track, idx) => (
-                                                <button key={idx} onClick={() => changeSubtitle(idx)} className={`px-5 py-3 text-base text-left hover:bg-white/20 transition-colors flex items-center gap-2 ${activeSubIndex === idx ? 'text-[#F042FF] font-black' : 'text-white/80 font-bold'}`}>{track.name || track.label || track.language || `Ngôn ngữ ${idx + 1}`}</button>
-                                            ))
-                                        ) : (
-                                            <div className="px-5 py-3 text-sm text-white/50 italic">Bản mặc định (Vietsub)</div>
-                                        )}
-                                    </div>
-                                  </div>
-                              </>
-                          )}
-                          <button tabIndex={0} data-player-control="sub-btn" onClick={() => { setIsSubMenuOpen(!isSubMenuOpen); setIsSpeedMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus:outline-none focus:text-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 rounded-xl p-1.5 ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-[#F042FF]' : 'text-white/80'}`} title="Phụ đề"><Subtitles className="w-6 h-6" /></button>
-                      </div>
-
-                      {/* 2. Nút Tốc Độ */}
-                      <div className="relative">
-                          {isSpeedMenuOpen && (
-                              <>
-                                  <div className="fixed inset-0 z-40" onClick={() => setIsSpeedMenuOpen(false)} />
-                                  <div className="absolute top-full right-0 mt-3 w-44 z-50">
-                                    <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl flex flex-col py-3">
-                                        <div className="px-5 py-2 text-xs font-black text-[#F042FF] border-b border-white/10 uppercase mb-1">Tốc độ phát</div>
-                                        {speedOptions.map(rate => (
-                                            <button key={rate} onClick={() => changePlaybackRate(rate)} className={`px-5 py-2.5 text-base text-left hover:bg-white/20 transition-colors ${playbackRate === rate ? 'text-[#F042FF] font-black' : 'text-white/80 font-bold'}`}>{rate === 1 ? 'Chuẩn (1x)' : `${rate}x`}</button>
-                                        ))}
-                                    </div>
-                                  </div>
-                              </>
-                          )}
-                          <button tabIndex={0} data-player-control="speed-btn" onClick={() => { setIsSpeedMenuOpen(!isSpeedMenuOpen); setIsSubMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus:outline-none focus:text-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 rounded-xl p-1.5 ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-[#F042FF]' : 'text-white/80'}`} title="Cài đặt tốc độ"><Settings className="w-6 h-6" /></button>
-                      </div>
-
-                      {/* 3. Nút Tỷ Lệ Màn Hình */}
-                      <button 
-                          tabIndex={0}
-                          data-player-control="fit-btn"
-                          onClick={(e) => { e.stopPropagation(); changeFitMode(videoFitMode === 'contain' ? 'cover' : 'contain'); }} 
-                          className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus:outline-none focus:text-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 rounded-xl p-1.5 ${videoFitMode === 'cover' ? 'text-[#F042FF]' : 'text-white/80'}`} 
-                          title={videoFitMode === 'cover' ? "Tỷ lệ gốc (Vừa màn hình)" : "Phóng to (Tràn màn hình)"}
-                      >
-                          {videoFitMode === 'cover' ? <Minimize className="w-6 h-6 rotate-45" /> : <Maximize className="w-6 h-6 rotate-45" />}
-                      </button>
-
-                      {/* 4. Nút Toàn Màn Hình */}
-                      <button tabIndex={0} data-player-control="fullscreen-btn" onClick={toggleFullScreen} className="text-white/80 hover:text-white hover:scale-110 transition flex items-center justify-center cursor-pointer focus:outline-none focus:text-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 rounded-xl p-1.5" title="Toàn màn hình">
-                          {isFullscreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
-                      </button>
-                  </div>
-
-                  {/* 5. Nút Âm Lượng (Góc Trên Bên Phải) */}
-                  <div className="pointer-events-auto flex items-center group/vol bg-black/60 backdrop-blur-xl px-5 py-2.5 rounded-2xl border border-white/20 shadow-2xl">
-                      <button 
-                          tabIndex={0}
-                          data-player-control="volume-btn"
-                          onClick={toggleMute} 
-                          className="text-white/80 hover:text-white focus:text-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 rounded-xl p-1 transition flex items-center justify-center shrink-0 cursor-pointer focus:outline-none" 
-                          title="Âm lượng"
-                      >
-                          {isMuted || volume === 0 ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
-                      </button>
-                      
-                      <div className="w-0 overflow-hidden group-hover/vol:w-32 transition-all duration-300 ease-out flex items-center ml-0 group-hover/vol:ml-4">
-                          <input
-                              tabIndex={0}
-                              type="range"
-                              min={0}
-                              max={1}
-                              step={0.01}
-                              value={isMuted ? 0 : volume}
-                              onChange={(e) => { e.stopPropagation(); handleVolumeChange(e); }}
-                              className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#F042FF] custom-slider"
-                              style={{ background: `linear-gradient(to right, #F042FF ${(isMuted ? 0 : volume) * 100}%, rgba(255, 255, 255, 0.3) ${(isMuted ? 0 : volume) * 100}%)` }}
-                          />
-                      </div>
+              {/* KHU VỰC 1: TOP BAR (TIÊU ĐỀ PHIM) */}
+              <div className={`absolute top-0 left-0 right-0 pt-6 px-6 md:px-8 pb-10 bg-gradient-to-b from-black/80 to-transparent flex justify-between items-start z-30 transition-all duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100 -translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`} onClick={(e) => e.stopPropagation()}>
+                  <div className="flex flex-col drop-shadow-2xl pr-4 cursor-default max-w-[85%]">
+                      <p className="text-sm md:text-base font-black text-[#F042FF] tracking-widest mb-1 uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                          {currentEpisode?.name || 'Đang tải tập...'}
+                      </p>
+                      <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight line-clamp-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                          {movie.name}
+                      </h2>
                   </div>
               </div>
 
-              {/* LỚP PHỦ TỐI NỀN VIDEO */}
-              <div className={`absolute inset-0 transition-all duration-300 pointer-events-none z-10 ${!isPlaying ? 'opacity-100 bg-black/50' : (isControlsVisible ? 'opacity-100 bg-black/20' : 'opacity-0')}`} />
+              {/* LỚP PHỦ TỐI NỀN VIDEO (Chỉ làm tối nhẹ phần trung tâm khi pause) */}
+              <div className={`absolute inset-0 transition-all duration-300 pointer-events-none z-10 ${!isPlaying ? 'opacity-100 bg-black/40' : (isControlsVisible ? 'opacity-100 bg-black/10' : 'opacity-0')}`} />
 
-              {/* TẦNG 2 INTERFACE FULLSCREEN: CỤM NÚT TRUNG TÂM (Play/Pause, Tua 10s) */}
+              {/* KHU VỰC 2: CENTER CONTROLS (CỤM NÚT TRUNG TÂM) */}
               <div 
-                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center gap-8 md:gap-14 transition-all duration-300 z-30 ${!isPlaying || isControlsVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center gap-10 md:gap-24 transition-all duration-300 z-30 ${!isPlaying || isControlsVisible ? 'opacity-100 pointer-events-auto scale-100' : 'opacity-0 pointer-events-none scale-95'}`}
                 onClick={(e) => e.stopPropagation()}
               >
                   <button 
                     tabIndex={0}
                     data-player-control="rewind"
                     onClick={(e) => { e.stopPropagation(); skipTime(-10); }} 
-                    className="pointer-events-auto w-14 h-14 md:w-20 md:h-20 rounded-full bg-black/60 hover:bg-[#7226FF] focus:bg-[#7226FF] backdrop-blur-xl flex items-center justify-center border-2 border-white/20 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/70 text-white hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer shadow-2xl outline-none"
+                    className="pointer-events-auto w-14 h-14 md:w-20 md:h-20 rounded-full bg-black/40 hover:bg-[#7226FF] focus-visible:bg-[#7226FF] backdrop-blur-xl flex items-center justify-center border-2 border-white/20 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/70 text-white hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer shadow-2xl outline-none"
                   >
                       <RotateCcw className="w-6 h-6 md:w-9 md:h-9" />
                   </button>
@@ -1190,7 +1120,7 @@ export default function MovieDetailPage() {
                     data-player-control="play"
                     data-center-play="true"
                     onClick={(e) => { e.stopPropagation(); togglePlay(); }} 
-                    className="pointer-events-auto w-22 h-22 md:w-28 md:h-28 bg-[#7226FF] hover:bg-[#853aff] focus:bg-[#853aff] backdrop-blur-xl rounded-full flex items-center justify-center border-4 border-transparent focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/70 text-white shadow-[0_0_50px_rgba(114,38,255,0.7)] hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer outline-none"
+                    className="pointer-events-auto w-20 h-20 md:w-28 md:h-28 bg-[#7226FF] hover:bg-[#853aff] focus-visible:bg-[#853aff] backdrop-blur-xl rounded-full flex items-center justify-center border-4 border-transparent focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/70 text-white shadow-[0_0_50px_rgba(114,38,255,0.7)] hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer outline-none"
                   >
                       {isPlaying ? <Pause className="w-10 h-10 md:w-14 md:h-14 fill-white" /> : <Play className="w-10 h-10 md:w-14 md:h-14 fill-white ml-2" />}
                   </button>
@@ -1199,78 +1129,138 @@ export default function MovieDetailPage() {
                     tabIndex={0}
                     data-player-control="forward"
                     onClick={(e) => { e.stopPropagation(); skipTime(10); }} 
-                    className="pointer-events-auto w-14 h-14 md:w-20 md:h-20 rounded-full bg-black/60 hover:bg-[#7226FF] focus:bg-[#7226FF] backdrop-blur-xl flex items-center justify-center border-2 border-white/20 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/70 text-white hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer shadow-2xl outline-none"
+                    className="pointer-events-auto w-14 h-14 md:w-20 md:h-20 rounded-full bg-black/40 hover:bg-[#7226FF] focus-visible:bg-[#7226FF] backdrop-blur-xl flex items-center justify-center border-2 border-white/20 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/70 text-white hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer shadow-2xl outline-none"
                   >
                       <RotateCw className="w-6 h-6 md:w-9 md:h-9" />
                   </button>
               </div>
 
-              {/* TẦNG 3 INTERFACE FULLSCREEN: THANH ĐIỀU KHIỂN DƯỚI ĐÁY (TÊN PHIM & THANH TIMELINE) */}
+              {/* KHU VỰC 3: BOTTOM BAR (TIMELINE VÀ CÔNG CỤ) */}
               <div 
-                className={`absolute bottom-0 left-0 right-0 px-6 md:px-10 pb-6 pt-28 bg-gradient-to-t from-black/95 via-black/50 to-transparent flex flex-col justify-end z-20 transition-all duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+                className={`absolute bottom-0 left-0 right-0 px-4 md:px-8 pb-6 pt-16 bg-gradient-to-t from-black/95 via-black/60 to-transparent flex flex-col gap-4 z-30 transition-all duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
                 onClick={(e) => e.stopPropagation()}
               >
-                  <div className="pointer-events-auto flex flex-col w-full gap-3 md:gap-5">
-                      
-                      <div className="flex flex-col drop-shadow-lg pr-4 cursor-default">
-                          <p className="text-xs md:text-base font-black text-[#F042FF] tracking-widest mb-0.5 uppercase">
-                              {currentEpisode?.name || 'Đang tải tập...'}
-                          </p>
-                          <h2 className="text-xl md:text-3xl font-black text-white tracking-tight line-clamp-1">
-                              {movie.name}
-                          </h2>
+                  {/* HÀNG 1: TIMELINE */}
+                  <div className="flex items-center gap-3 md:gap-6 w-full cursor-default pointer-events-auto">
+                      <span className="text-xs md:text-base font-mono font-black text-white shrink-0 min-w-[45px] md:min-w-[70px] text-left drop-shadow-lg z-20">
+                          {formatTime(currentTime)}
+                      </span>
+
+                      <div className="flex-1 relative flex items-center group/timeline h-6">
+                          <input
+                              tabIndex={0}
+                              data-player-control="timeline"
+                              type="range"
+                              min={0}
+                              max={duration || 100}
+                              value={currentTime}
+                              onChange={handleSeek}
+                              onKeyDown={(e) => {
+                                if (e.key === 'ArrowUp') { e.preventDefault(); e.stopPropagation(); safeFocus('[data-center-play]'); }
+                                else if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); skipTime(-10); setSeekFeedback('backward'); setTimeout(() => setSeekFeedback(null), 500); }
+                                else if (e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); skipTime(10); setSeekFeedback('forward'); setTimeout(() => setSeekFeedback(null), 500); }
+                                else if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) { e.preventDefault(); e.stopPropagation(); togglePlay(); }
+                              }}
+                              className="w-full h-2 md:h-3 rounded-full appearance-none cursor-pointer relative z-10 accent-[#F042FF] shadow-lg custom-slider focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F042FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black/80"
+                              style={{ background: `linear-gradient(to right, #F042FF ${progressPercent}%, rgba(255, 255, 255, 0.25) ${progressPercent}%)` }}
+                          />
                       </div>
 
-                      <div className="flex items-center gap-6 md:gap-8 w-full cursor-default px-2">
-                          <span className="text-sm md:text-lg font-mono font-black text-white shrink-0 min-w-[70px] md:min-w-[90px] text-left drop-shadow-lg z-20">
-                              {formatTime(currentTime)}
-                          </span>
+                      <span className="text-xs md:text-base font-mono font-black text-white shrink-0 min-w-[45px] md:min-w-[70px] text-right drop-shadow-lg z-20">
+                          -{formatTime(duration - currentTime)}
+                      </span>
+                  </div>
 
-                          <div className="flex-1 relative flex items-center">
+                  {/* HÀNG 2: THANH CÔNG CỤ (CHỈ HIỂN THỊ TRÊN DESKTOP) */}
+                  <div className="hidden md:flex justify-between items-center w-full pointer-events-auto mt-2">
+                      
+                      {/* BÊN TRÁI: ÂM LƯỢNG */}
+                      <div className="flex items-center group/vol">
+                          <button 
+                              tabIndex={0}
+                              data-player-control="volume-btn"
+                              onClick={toggleMute} 
+                              className="text-white/80 hover:text-white hover:scale-110 focus-visible:text-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 rounded-xl p-2 transition flex items-center justify-center shrink-0 cursor-pointer focus-visible:outline-none" 
+                              title="Âm lượng"
+                          >
+                              {isMuted || volume === 0 ? <VolumeX className="w-7 h-7" /> : <Volume2 className="w-7 h-7" />}
+                          </button>
+                          
+                          <div className="w-0 overflow-hidden group-hover/vol:w-28 transition-all duration-300 ease-out flex items-center ml-0 group-hover/vol:ml-2">
                               <input
                                   tabIndex={0}
-                                  data-player-control="timeline"
                                   type="range"
                                   min={0}
-                                  max={duration || 100}
-                                  value={currentTime}
-                                  onChange={handleSeek}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'ArrowUp') {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      safeFocus('[data-center-play]');
-                                    } else if (e.key === 'ArrowDown') {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                    } else if (e.key === 'ArrowLeft') {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      skipTime(-10);
-                                      setSeekFeedback('backward');
-                                      setTimeout(() => setSeekFeedback(null), 500);
-                                    } else if (e.key === 'ArrowRight') {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      skipTime(10);
-                                      setSeekFeedback('forward');
-                                      setTimeout(() => setSeekFeedback(null), 500);
-                                    } else if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      togglePlay();
-                                    }
-                                  }}
-                                  className="w-full h-3 md:h-3.5 rounded-full appearance-none cursor-pointer relative z-10 accent-[#F042FF] shadow-lg custom-slider focus:outline-none focus:ring-4 focus:ring-[#F042FF] focus:ring-offset-2 focus:ring-offset-black/80"
-                                  style={{ background: `linear-gradient(to right, #F042FF ${progressPercent}%, rgba(255, 255, 255, 0.25) ${progressPercent}%)` }}
+                                  max={1}
+                                  step={0.01}
+                                  value={isMuted ? 0 : volume}
+                                  onChange={(e) => { e.stopPropagation(); handleVolumeChange(e); }}
+                                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#F042FF] custom-slider"
+                                  style={{ background: `linear-gradient(to right, #F042FF ${(isMuted ? 0 : volume) * 100}%, rgba(255, 255, 255, 0.3) ${(isMuted ? 0 : volume) * 100}%)` }}
                               />
                           </div>
-
-                          <span className="text-sm md:text-lg font-mono font-black text-white shrink-0 min-w-[70px] md:min-w-[90px] text-right drop-shadow-lg z-20">
-                              -{formatTime(duration - currentTime)}
-                          </span>
                       </div>
 
+                      {/* BÊN PHẢI: PHỤ ĐỀ, TỐC ĐỘ, TỶ LỆ, TOÀN MÀN HÌNH */}
+                      <div className="flex items-center gap-2 md:gap-4">
+                          
+                          {/* Phụ Đề */}
+                          <div className="relative">
+                              {isSubMenuOpen && (
+                                  <>
+                                      <div className="fixed inset-0 z-40" onClick={() => setIsSubMenuOpen(false)} />
+                                      <div className="absolute bottom-full right-0 mb-4 w-max min-w-[200px] z-50">
+                                        <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl flex flex-col py-3">
+                                            <div className="px-5 py-2 text-xs font-black text-[#F042FF] border-b border-white/10 uppercase mb-1">Ngôn ngữ hỗ trợ</div>
+                                            <button onClick={() => changeSubtitle(-1)} className={`px-5 py-3 text-base text-left hover:bg-white/20 transition-colors flex items-center gap-2 ${activeSubIndex === -1 ? 'text-[#F042FF]' : 'text-white/80'}`}>Tắt phụ đề</button>
+                                            {subtitleTracks.length > 0 ? (
+                                                subtitleTracks.map((track, idx) => (
+                                                    <button key={idx} onClick={() => changeSubtitle(idx)} className={`px-5 py-3 text-base text-left hover:bg-white/20 transition-colors flex items-center gap-2 ${activeSubIndex === idx ? 'text-[#F042FF] font-black' : 'text-white/80 font-bold'}`}>{track.name || track.label || track.language || `Ngôn ngữ ${idx + 1}`}</button>
+                                                ))
+                                            ) : (
+                                                <div className="px-5 py-3 text-sm text-white/50 italic">Bản mặc định (Vietsub)</div>
+                                            )}
+                                        </div>
+                                      </div>
+                                  </>
+                              )}
+                              <button tabIndex={0} data-player-control="sub-btn" onClick={() => { setIsSubMenuOpen(!isSubMenuOpen); setIsSpeedMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:text-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 rounded-xl p-2 ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-[#F042FF]' : 'text-white/80 hover:text-white'}`} title="Phụ đề"><Subtitles className="w-7 h-7" /></button>
+                          </div>
+
+                          {/* Tốc Độ */}
+                          <div className="relative">
+                              {isSpeedMenuOpen && (
+                                  <>
+                                      <div className="fixed inset-0 z-40" onClick={() => setIsSpeedMenuOpen(false)} />
+                                      <div className="absolute bottom-full right-0 mb-4 w-44 z-50">
+                                        <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl flex flex-col py-3">
+                                            <div className="px-5 py-2 text-xs font-black text-[#F042FF] border-b border-white/10 uppercase mb-1">Tốc độ phát</div>
+                                            {speedOptions.map(rate => (
+                                                <button key={rate} onClick={() => changePlaybackRate(rate)} className={`px-5 py-2.5 text-base text-left hover:bg-white/20 transition-colors ${playbackRate === rate ? 'text-[#F042FF] font-black' : 'text-white/80 font-bold'}`}>{rate === 1 ? 'Chuẩn (1x)' : `${rate}x`}</button>
+                                            ))}
+                                        </div>
+                                      </div>
+                                  </>
+                              )}
+                              <button tabIndex={0} data-player-control="speed-btn" onClick={() => { setIsSpeedMenuOpen(!isSpeedMenuOpen); setIsSubMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:text-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 rounded-xl p-2 ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-[#F042FF]' : 'text-white/80 hover:text-white'}`} title="Cài đặt tốc độ"><Settings className="w-7 h-7" /></button>
+                          </div>
+
+                          {/* Tỷ Lệ */}
+                          <button 
+                              tabIndex={0}
+                              data-player-control="fit-btn"
+                              onClick={(e) => { e.stopPropagation(); changeFitMode(videoFitMode === 'contain' ? 'cover' : 'contain'); }} 
+                              className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:text-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 rounded-xl p-2 ${videoFitMode === 'cover' ? 'text-[#F042FF]' : 'text-white/80 hover:text-white'}`} 
+                              title={videoFitMode === 'cover' ? "Tỷ lệ gốc (Vừa màn hình)" : "Phóng to (Tràn màn hình)"}
+                          >
+                              {videoFitMode === 'cover' ? <Minimize className="w-7 h-7 rotate-45" /> : <Maximize className="w-7 h-7 rotate-45" />}
+                          </button>
+
+                          {/* Toàn Màn Hình */}
+                          <button tabIndex={0} data-player-control="fullscreen-btn" onClick={toggleFullScreen} className="text-white/80 hover:text-white hover:scale-110 transition flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:text-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 rounded-xl p-2" title="Toàn màn hình">
+                              {isFullscreen ? <Minimize className="w-7 h-7" /> : <Maximize className="w-7 h-7" />}
+                          </button>
+                      </div>
                   </div>
               </div>
             </div>
@@ -1296,7 +1286,7 @@ export default function MovieDetailPage() {
                 <button
                   tabIndex={0}
                   onClick={handleToggleFavorite}
-                  className="shrink-0 w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 hover:scale-105 focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/60 focus:outline-none transition-all cursor-pointer shadow-xl"
+                  className="shrink-0 w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 hover:scale-105 focus-visible:scale-105 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 focus-visible:outline-none transition-all cursor-pointer shadow-xl"
                   title={isFavorited ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
                 >
                   <Heart 
@@ -1343,7 +1333,7 @@ export default function MovieDetailPage() {
                                     key={idx}
                                     tabIndex={0}
                                     onClick={() => { setActiveServerIndex(idx); setCurrentEpisodeIndex(0); setActiveGroupIndex(0); setIsExpanded(false); }}
-                                    className={`px-6 py-3 rounded-2xl text-base md:text-lg font-black transition-all border-2 ${activeServerIndex === idx ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105' : 'bg-black/50 text-white/70 border-white/15 hover:bg-white/10 hover:text-white'} focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 cursor-pointer`}
+                                    className={`px-6 py-3 rounded-2xl text-base md:text-lg font-black transition-all border-2 ${activeServerIndex === idx ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105' : 'bg-black/50 text-white/70 border-white/15 hover:bg-white/10 hover:text-white'} focus-visible:outline-none focus-visible:scale-105 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/40 cursor-pointer`}
                                 >
                                     {server.server_name}
                                 </button>
@@ -1385,7 +1375,7 @@ export default function MovieDetailPage() {
                                                         activeGroupIndex === idx
                                                             ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105'
                                                             : 'bg-black/50 text-white/70 border-white/15 hover:bg-white/10 hover:text-white'
-                                                    } focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40`}
+                                                    } focus-visible:outline-none focus-visible:scale-105 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/40`}
                                                 >Tập {firstEp} - {lastEp}</button>
                                             );
                                         })}
@@ -1410,20 +1400,20 @@ export default function MovieDetailPage() {
                                       key={ep.slug} 
                                       tabIndex={0}
                                       onClick={() => { setCurrentEpisodeIndex(globalIndex); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
-                                      className={`w-full py-4 md:py-5 rounded-2xl text-base md:text-xl font-black transition-all border-2 cursor-pointer focus:outline-none focus:scale-105 focus:bg-[#7226FF] focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 shadow-lg ${isPlaying ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105 z-10' : 'bg-black/50 text-[#F042FF] font-black border-white/15 hover:bg-white/20 hover:text-white'}`}
+                                      className={`w-full py-4 md:py-5 rounded-2xl text-base md:text-xl font-black transition-all border-2 cursor-pointer focus-visible:outline-none focus-visible:scale-105 focus-visible:bg-[#7226FF] focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/40 shadow-lg ${isPlaying ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105 z-10' : 'bg-black/50 text-[#F042FF] font-black border-white/15 hover:bg-white/20 hover:text-white'}`}
                                     >
                                       {ep.name.replace('Tập ', '')}
                                     </button>
                                 );
                              })}
                             {hasMoreInGroup && !isExpanded && (
-                                <button tabIndex={0} onClick={() => setIsExpanded(true)} className="w-full py-4 md:py-5 rounded-2xl text-base md:text-xl font-black transition-all border-2 bg-white/10 text-white/80 border-white/15 hover:bg-white hover:text-black flex items-center justify-center focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 cursor-pointer"><MoreHorizontal className="w-7 h-7" /></button>
+                                <button tabIndex={0} onClick={() => setIsExpanded(true)} className="w-full py-4 md:py-5 rounded-2xl text-base md:text-xl font-black transition-all border-2 bg-white/10 text-white/80 border-white/15 hover:bg-white hover:text-black flex items-center justify-center focus-visible:outline-none focus-visible:scale-105 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/40 cursor-pointer"><MoreHorizontal className="w-7 h-7" /></button>
                             )}
                         </div>
 
                         {hasMoreInGroup && isExpanded && (
                             <div className="mt-6 flex justify-center">
-                                <button tabIndex={0} onClick={() => setIsExpanded(false)} className="flex items-center gap-2 text-base font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors py-3.5 px-8 rounded-full hover:bg-white/10 focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 cursor-pointer"><ChevronUp className="w-6 h-6" /> Thu gọn</button>
+                                <button tabIndex={0} onClick={() => setIsExpanded(false)} className="flex items-center gap-2 text-base font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors py-3.5 px-8 rounded-full hover:bg-white/10 focus-visible:outline-none focus-visible:scale-105 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/40 cursor-pointer"><ChevronUp className="w-6 h-6" /> Thu gọn</button>
                             </div>
                         )}
                     </div>
@@ -1484,7 +1474,7 @@ export default function MovieDetailPage() {
                       router.push(`/phim/${relMovie.slug}`);
                     }
                   }}
-                  className="shrink-0 w-48 md:w-60 cursor-pointer group focus:outline-none transition-all duration-300"
+                  className="shrink-0 w-48 md:w-60 cursor-pointer group focus-visible:outline-none transition-all duration-300"
                 >
                   <div className="relative aspect-[2/3] rounded-3xl overflow-hidden mb-3 border-2 border-white/15 group-focus:border-[#F042FF] group-focus:ring-4 group-focus:ring-[#F042FF]/40 group-focus:scale-105 transition-all duration-300 shadow-xl bg-black/40">
                     <Image

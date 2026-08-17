@@ -11,6 +11,7 @@ export function useBodyScrollLock(isLocked: boolean) {
     if (isLocked) {
       lastActiveElement = document.activeElement as HTMLElement;
       document.body.style.overflow = 'hidden';
+      document.body.style.overscrollBehavior = 'none';
       
       // Chờ một chút cho modal render xong để lấy element focusable đầu tiên
       const timer = setTimeout(() => {
@@ -26,6 +27,7 @@ export function useBodyScrollLock(isLocked: boolean) {
       return () => {
         clearTimeout(timer);
         document.body.style.overflow = 'unset';
+        document.body.style.overscrollBehavior = 'auto';
         if (lastActiveElement) {
           lastActiveElement.focus();
         }
@@ -34,6 +36,7 @@ export function useBodyScrollLock(isLocked: boolean) {
 
     return () => {
       document.body.style.overflow = 'unset';
+      document.body.style.overscrollBehavior = 'auto';
     };
   }, [isLocked]);
 }
