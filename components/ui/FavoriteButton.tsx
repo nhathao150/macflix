@@ -63,7 +63,6 @@ export default function FavoriteButton({ movieData, className }: FavoriteButtonP
 
   return (
     <button
-      tabIndex={0}
       onClick={handleToggle}
       className={className || defaultStyle}
       title={isFavorited ? "Bỏ yêu thích" : "Thêm vào yêu thích"}

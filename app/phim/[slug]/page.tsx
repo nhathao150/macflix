@@ -714,15 +714,7 @@ export default function MovieDetailPage() {
     setIsMuted(newVolume === 0);
   };
 
-  // HELPER FOCUS CHỐNG NHẢY ĐÚP SỰ KIỆN PHÍM
-  const safeFocus = (selector: string) => {
-    const el = playerContainerRef.current?.querySelector(selector) as HTMLElement;
-    if (el) {
-      el.focus();
-    }
-  };
-
-  // KEYBOARD / REMOTE SHORTCUTS HANDLER METICULOUS D-PAD ROUTING
+// KEYBOARD SHORTCUTS HANDLER
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeEl = document.activeElement as HTMLElement;
@@ -746,7 +738,7 @@ export default function MovieDetailPage() {
         }
       }
 
-      // 1. PHÍM BACK / ESCAPE TRÊN REMOTE -> ẨN NHANH TRÌNH QUẢN LÝ VIDEO
+      
       if (
         e.key === 'Escape' || 
         e.key === 'Back' || 
@@ -771,120 +763,6 @@ export default function MovieDetailPage() {
       controlsTimeoutRef.current = setTimeout(() => {
         setIsControlsVisible(false);
       }, 4000);
-
-      // 3. ĐIỀU HƯỚNG D-PAD 3 TẦNG BÊN TRONG VIDEO:
-      // TẦNG 1 (TOP BAR): Các Nút Chức Năng (sub-btn ⟷ speed-btn ⟷ fit-btn ⟷ fullscreen-btn ⟷ volume-btn)
-      // TẦNG 2 (TRUNG TÂM): Cụm Nút Tạm Dừng / Phát (rewind ⟷ play ⟷ forward)
-      // TẦNG 3 (DƯỚI ĐÁY): Thanh Timeline (timeline)
-      if (isInsidePlayer) {
-        const activeControl = activeEl?.getAttribute('data-player-control');
-
-        if (e.key === 'ArrowDown') {
-          if (
-            activeControl === 'sub-btn' || 
-            activeControl === 'speed-btn' || 
-            activeControl === 'fit-btn' || 
-            activeControl === 'fullscreen-btn' ||
-            activeControl === 'volume-btn'
-          ) {
-            // TẦNG 1 -> TẦNG 2 (Nút Play Trung Tâm)
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-center-play]');
-            return;
-          } else if (activeControl === 'play' || activeControl === 'rewind' || activeControl === 'forward') {
-            // TẦNG 2 -> TẦNG 3 (Thanh Timeline)
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="timeline"]');
-            return;
-          } else if (activeControl === 'timeline') {
-            // TẦNG 3 KHÔNG TUA VIDEO KHI BẤM PHÍM XUỐNG
-            e.preventDefault();
-            e.stopPropagation();
-            return;
-          }
-        } else if (e.key === 'ArrowUp') {
-          if (activeControl === 'timeline') {
-            // TẦNG 3 -> TẦNG 2 (Nút Play Trung Tâm)
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-center-play]');
-            return;
-          } else if (activeControl === 'play' || activeControl === 'rewind' || activeControl === 'forward') {
-            // TẦNG 2 -> TẦNG 1 (Nút Phụ Đề Hoặc Âm Lượng)
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="sub-btn"]');
-            return;
-          }
-        } else if (e.key === 'ArrowRight') {
-          if (activeControl === 'sub-btn') {
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="speed-btn"]');
-            return;
-          } else if (activeControl === 'speed-btn') {
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="fit-btn"]');
-            return;
-          } else if (activeControl === 'fit-btn') {
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="fullscreen-btn"]');
-            return;
-          } else if (activeControl === 'fullscreen-btn') {
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="volume-btn"]');
-            return;
-          } else if (activeControl === 'rewind') {
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="play"]');
-            return;
-          } else if (activeControl === 'play') {
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="forward"]');
-            return;
-          }
-        } else if (e.key === 'ArrowLeft') {
-          if (activeControl === 'volume-btn') {
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="fullscreen-btn"]');
-            return;
-          } else if (activeControl === 'fullscreen-btn') {
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="fit-btn"]');
-            return;
-          } else if (activeControl === 'fit-btn') {
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="speed-btn"]');
-            return;
-          } else if (activeControl === 'speed-btn') {
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="sub-btn"]');
-            return;
-          } else if (activeControl === 'forward') {
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="play"]');
-            return;
-          } else if (activeControl === 'play') {
-            e.preventDefault();
-            e.stopPropagation();
-            safeFocus('[data-player-control="rewind"]');
-            return;
-          }
-        }
-      }
-
       // Nếu chưa tự động Fullscreen, kích hoạt Fullscreen ở phím tương tác đầu tiên
       if (!hasAutoFullscreen && playerContainerRef.current && !document.fullscreenElement) {
         setHasAutoFullscreen(true);
@@ -899,11 +777,66 @@ export default function MovieDetailPage() {
           break;
 
         case ' ':
+          if ((tag === 'input' && inputType === 'text') || tag === 'textarea') return;
+          if (isInsidePlayer || isPlayerContainerFocused) {
+            e.preventDefault();
+            togglePlay();
+          }
+          break;
+
         case 'Enter':
           if (tag === 'button' || tag === 'a' || inputType === 'range') return;
           if (isInsidePlayer || isPlayerContainerFocused) {
             e.preventDefault();
             togglePlay();
+          }
+          break;
+
+        case 'ArrowRight':
+          if (isInsidePlayer || isPlayerContainerFocused) {
+            e.preventDefault();
+            skipTime(10);
+            setSeekFeedback('forward');
+            setTimeout(() => setSeekFeedback(null), 500);
+          }
+          break;
+
+        case 'ArrowLeft':
+          if (isInsidePlayer || isPlayerContainerFocused) {
+            e.preventDefault();
+            skipTime(-10);
+            setSeekFeedback('backward');
+            setTimeout(() => setSeekFeedback(null), 500);
+          }
+          break;
+
+        case 'ArrowUp':
+          if (isInsidePlayer || isPlayerContainerFocused) {
+            e.preventDefault();
+            setVolume(prev => {
+              const newVol = Math.min(1, prev + 0.1);
+              if (videoRef.current) {
+                videoRef.current.volume = newVol;
+                videoRef.current.muted = newVol === 0;
+              }
+              setIsMuted(newVol === 0);
+              return newVol;
+            });
+          }
+          break;
+
+        case 'ArrowDown':
+          if (isInsidePlayer || isPlayerContainerFocused) {
+            e.preventDefault();
+            setVolume(prev => {
+              const newVol = Math.max(0, prev - 0.1);
+              if (videoRef.current) {
+                videoRef.current.volume = newVol;
+                videoRef.current.muted = newVol === 0;
+              }
+              setIsMuted(newVol === 0);
+              return newVol;
+            });
           }
           break;
       }
@@ -1003,10 +936,8 @@ export default function MovieDetailPage() {
         {hasLinkMovie ? (
           useEmbedPlayer ? (
             <div 
-              ref={playerContainerRef} 
-              tabIndex={0}
-              data-player-container="true"
-              className={`relative w-full aspect-video bg-black overflow-hidden outline-none transition-all duration-300 ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-3xl border-2 border-white/15 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 focus-visible:shadow-[0_0_50px_rgba(240,66,255,0.5)] shadow-[0_20px_60px_rgba(0,0,0,0.9)]'}`}
+              ref={playerContainerRef}
+              className={`relative w-full aspect-video bg-black overflow-hidden outline-none transition-all duration-300 ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-3xl border-2 border-white/15(240,66,255,0.5)] shadow-[0_20px_60px_rgba(0,0,0,0.9)]'}`}
             >
               <iframe
                 src={currentEpisode?.link_embed?.startsWith('http://') ? currentEpisode.link_embed.replace('http://', 'https://') : currentEpisode?.link_embed}
@@ -1017,19 +948,15 @@ export default function MovieDetailPage() {
             </div>
           ) : (
             <div 
-              ref={playerContainerRef} 
-              tabIndex={0}
-              data-player-container="true"
+              ref={playerContainerRef}
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
-              onFocus={() => {
-                safeFocus('[data-center-play]');
-              }}
+              onFocus={() => {}}
               onClick={(e) => {
                 e.stopPropagation();
                 setIsControlsVisible((prev) => !prev);
               }}
-              className={`relative w-full aspect-video bg-black overflow-hidden group select-none flex flex-col justify-center touch-manipulation outline-none focus-visible:outline-none transition-all duration-300 ${!isPlaying || isControlsVisible ? 'cursor-pointer' : 'cursor-none'} ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-3xl border-2 border-white/15 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 focus-visible:shadow-[0_0_50px_rgba(240,66,255,0.5)] shadow-[0_20px_60px_rgba(0,0,0,0.9)]'}`}
+              className={`relative w-full aspect-video bg-black overflow-hidden group select-none flex flex-col justify-center touch-manipulation outline-none transition-all duration-300 ${!isPlaying || isControlsVisible ? 'cursor-pointer' : 'cursor-none'} ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-3xl border-2 border-white/15(240,66,255,0.5)] shadow-[0_20px_60px_rgba(0,0,0,0.9)]'}`}
             >
               <video 
                 ref={videoRef} 
@@ -1106,30 +1033,23 @@ export default function MovieDetailPage() {
                 className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center gap-10 md:gap-24 transition-all duration-300 z-30 ${!isPlaying || isControlsVisible ? 'opacity-100 pointer-events-auto scale-100' : 'opacity-0 pointer-events-none scale-95'}`}
                 onClick={(e) => e.stopPropagation()}
               >
-                  <button 
-                    tabIndex={0}
-                    data-player-control="rewind"
+                  <button
                     onClick={(e) => { e.stopPropagation(); skipTime(-10); }} 
-                    className="pointer-events-auto w-14 h-14 md:w-20 md:h-20 rounded-full bg-black/40 hover:bg-[#7226FF] focus-visible:bg-[#7226FF] backdrop-blur-xl flex items-center justify-center border-2 border-white/20 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/70 text-white hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer shadow-2xl outline-none"
+                    className="pointer-events-auto w-14 h-14 md:w-20 md:h-20 rounded-full bg-black/40 hover:bg-[#7226FF] backdrop-blur-xl flex items-center justify-center border-2 border-white/20 text-white hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer shadow-2xl outline-none"
                   >
                       <RotateCcw className="w-6 h-6 md:w-9 md:h-9" />
                   </button>
 
-                  <button 
-                    tabIndex={0}
-                    data-player-control="play"
-                    data-center-play="true"
+                  <button
                     onClick={(e) => { e.stopPropagation(); togglePlay(); }} 
-                    className="pointer-events-auto w-20 h-20 md:w-28 md:h-28 bg-[#7226FF] hover:bg-[#853aff] focus-visible:bg-[#853aff] backdrop-blur-xl rounded-full flex items-center justify-center border-4 border-transparent focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/70 text-white shadow-[0_0_50px_rgba(114,38,255,0.7)] hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer outline-none"
+                    className="pointer-events-auto w-20 h-20 md:w-28 md:h-28 bg-[#7226FF] hover:bg-[#853aff] backdrop-blur-xl rounded-full flex items-center justify-center border-4 border-transparent text-white shadow-[0_0_50px_rgba(114,38,255,0.7)] hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer outline-none"
                   >
                       {isPlaying ? <Pause className="w-10 h-10 md:w-14 md:h-14 fill-white" /> : <Play className="w-10 h-10 md:w-14 md:h-14 fill-white ml-2" />}
                   </button>
 
-                  <button 
-                    tabIndex={0}
-                    data-player-control="forward"
+                  <button
                     onClick={(e) => { e.stopPropagation(); skipTime(10); }} 
-                    className="pointer-events-auto w-14 h-14 md:w-20 md:h-20 rounded-full bg-black/40 hover:bg-[#7226FF] focus-visible:bg-[#7226FF] backdrop-blur-xl flex items-center justify-center border-2 border-white/20 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/70 text-white hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer shadow-2xl outline-none"
+                    className="pointer-events-auto w-14 h-14 md:w-20 md:h-20 rounded-full bg-black/40 hover:bg-[#7226FF] backdrop-blur-xl flex items-center justify-center border-2 border-white/20 text-white hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer shadow-2xl outline-none"
                   >
                       <RotateCw className="w-6 h-6 md:w-9 md:h-9" />
                   </button>
@@ -1148,20 +1068,17 @@ export default function MovieDetailPage() {
 
                       <div className="flex-1 relative flex items-center group/timeline h-6">
                           <input
-                              tabIndex={0}
-                              data-player-control="timeline"
                               type="range"
                               min={0}
                               max={duration || 100}
                               value={currentTime}
                               onChange={handleSeek}
                               onKeyDown={(e) => {
-                                if (e.key === 'ArrowUp') { e.preventDefault(); e.stopPropagation(); safeFocus('[data-center-play]'); }
-                                else if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); skipTime(-10); setSeekFeedback('backward'); setTimeout(() => setSeekFeedback(null), 500); }
+                                if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); skipTime(-10); setSeekFeedback('backward'); setTimeout(() => setSeekFeedback(null), 500); }
                                 else if (e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); skipTime(10); setSeekFeedback('forward'); setTimeout(() => setSeekFeedback(null), 500); }
                                 else if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) { e.preventDefault(); e.stopPropagation(); togglePlay(); }
                               }}
-                              className="w-full h-2 md:h-3 rounded-full appearance-none cursor-pointer relative z-10 accent-[#F042FF] shadow-lg custom-slider focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F042FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black/80"
+                              className="w-full h-2 md:h-3 rounded-full appearance-none cursor-pointer relative z-10 accent-[#F042FF] shadow-lg custom-slider"
                               style={{ background: `linear-gradient(to right, #F042FF ${progressPercent}%, rgba(255, 255, 255, 0.25) ${progressPercent}%)` }}
                           />
                       </div>
@@ -1176,11 +1093,9 @@ export default function MovieDetailPage() {
                       
                       {/* BÊN TRÁI: ÂM LƯỢNG */}
                       <div className="flex items-center group/vol">
-                          <button 
-                              tabIndex={0}
-                              data-player-control="volume-btn"
+                          <button
                               onClick={toggleMute} 
-                              className="text-white/80 hover:text-white hover:scale-110 focus-visible:text-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 rounded-xl p-2 transition flex items-center justify-center shrink-0 cursor-pointer focus-visible:outline-none" 
+                              className="text-white/80 hover:text-white hover:scale-110 rounded-xl p-2 transition flex items-center justify-center shrink-0 cursor-pointer" 
                               title="Âm lượng"
                           >
                               {isMuted || volume === 0 ? <VolumeX className="w-7 h-7" /> : <Volume2 className="w-7 h-7" />}
@@ -1188,7 +1103,6 @@ export default function MovieDetailPage() {
                           
                           <div className="w-0 overflow-hidden group-hover/vol:w-28 transition-all duration-300 ease-out flex items-center ml-0 group-hover/vol:ml-2">
                               <input
-                                  tabIndex={0}
                                   type="range"
                                   min={0}
                                   max={1}
@@ -1224,7 +1138,7 @@ export default function MovieDetailPage() {
                                       </div>
                                   </>
                               )}
-                              <button tabIndex={0} data-player-control="sub-btn" onClick={() => { setIsSubMenuOpen(!isSubMenuOpen); setIsSpeedMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:text-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 rounded-xl p-2 ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-[#F042FF]' : 'text-white/80 hover:text-white'}`} title="Phụ đề"><Subtitles className="w-7 h-7" /></button>
+                              <button onClick={() => { setIsSubMenuOpen(!isSubMenuOpen); setIsSpeedMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer rounded-xl p-2 ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-[#F042FF]' : 'text-white/80 hover:text-white'}`} title="Phụ đề"><Subtitles className="w-7 h-7" /></button>
                           </div>
 
                           {/* Tốc Độ */}
@@ -1242,22 +1156,20 @@ export default function MovieDetailPage() {
                                       </div>
                                   </>
                               )}
-                              <button tabIndex={0} data-player-control="speed-btn" onClick={() => { setIsSpeedMenuOpen(!isSpeedMenuOpen); setIsSubMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:text-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 rounded-xl p-2 ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-[#F042FF]' : 'text-white/80 hover:text-white'}`} title="Cài đặt tốc độ"><Settings className="w-7 h-7" /></button>
+                              <button onClick={() => { setIsSpeedMenuOpen(!isSpeedMenuOpen); setIsSubMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer rounded-xl p-2 ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-[#F042FF]' : 'text-white/80 hover:text-white'}`} title="Cài đặt tốc độ"><Settings className="w-7 h-7" /></button>
                           </div>
 
                           {/* Tỷ Lệ */}
-                          <button 
-                              tabIndex={0}
-                              data-player-control="fit-btn"
+                          <button
                               onClick={(e) => { e.stopPropagation(); changeFitMode(videoFitMode === 'contain' ? 'cover' : 'contain'); }} 
-                              className={`hover:scale-110 transition flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:text-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 rounded-xl p-2 ${videoFitMode === 'cover' ? 'text-[#F042FF]' : 'text-white/80 hover:text-white'}`} 
+                              className={`hover:scale-110 transition flex items-center justify-center cursor-pointer rounded-xl p-2 ${videoFitMode === 'cover' ? 'text-[#F042FF]' : 'text-white/80 hover:text-white'}`} 
                               title={videoFitMode === 'cover' ? "Tỷ lệ gốc (Vừa màn hình)" : "Phóng to (Tràn màn hình)"}
                           >
                               {videoFitMode === 'cover' ? <Minimize className="w-7 h-7 rotate-45" /> : <Maximize className="w-7 h-7 rotate-45" />}
                           </button>
 
                           {/* Toàn Màn Hình */}
-                          <button tabIndex={0} data-player-control="fullscreen-btn" onClick={toggleFullScreen} className="text-white/80 hover:text-white hover:scale-110 transition flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:text-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 rounded-xl p-2" title="Toàn màn hình">
+                          <button onClick={toggleFullScreen} className="text-white/80 hover:text-white hover:scale-110 transition flex items-center justify-center cursor-pointer rounded-xl p-2" title="Toàn màn hình">
                               {isFullscreen ? <Minimize className="w-7 h-7" /> : <Maximize className="w-7 h-7" />}
                           </button>
                       </div>
@@ -1282,11 +1194,10 @@ export default function MovieDetailPage() {
                     {movie.name}
                 </h1>
 
-                {/* NÚT YÊU THÍCH HD CHO REMOTE CONTROL */}
+                {}
                 <button
-                  tabIndex={0}
                   onClick={handleToggleFavorite}
-                  className="shrink-0 w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 hover:scale-105 focus-visible:scale-105 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/60 focus-visible:outline-none transition-all cursor-pointer shadow-xl"
+                  className="shrink-0 w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 hover:scale-105 transition-all cursor-pointer shadow-xl"
                   title={isFavorited ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
                 >
                   <Heart 
@@ -1331,9 +1242,8 @@ export default function MovieDetailPage() {
                             {servers.map((server: { server_name: string }, idx: number) => (
                                 <button
                                     key={idx}
-                                    tabIndex={0}
                                     onClick={() => { setActiveServerIndex(idx); setCurrentEpisodeIndex(0); setActiveGroupIndex(0); setIsExpanded(false); }}
-                                    className={`px-6 py-3 rounded-2xl text-base md:text-lg font-black transition-all border-2 ${activeServerIndex === idx ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105' : 'bg-black/50 text-white/70 border-white/15 hover:bg-white/10 hover:text-white'} focus-visible:outline-none focus-visible:scale-105 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/40 cursor-pointer`}
+                                    className={`px-6 py-3 rounded-2xl text-base md:text-lg font-black transition-all border-2 ${activeServerIndex === idx ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105' : 'bg-black/50 text-white/70 border-white/15 hover:bg-white/10 hover:text-white'} cursor-pointer`}
                                 >
                                     {server.server_name}
                                 </button>
@@ -1369,13 +1279,12 @@ export default function MovieDetailPage() {
                                                 <button
                                                     key={idx}
                                                     type="button"
-                                                    tabIndex={0}
                                                     onClick={(e) => { e.stopPropagation(); setActiveGroupIndex(idx); setIsExpanded(false); }}
                                                     className={`shrink-0 px-6 py-3 text-base md:text-lg font-black rounded-2xl transition-all border-2 whitespace-nowrap cursor-pointer ${
                                                         activeGroupIndex === idx
                                                             ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105'
                                                             : 'bg-black/50 text-white/70 border-white/15 hover:bg-white/10 hover:text-white'
-                                                    } focus-visible:outline-none focus-visible:scale-105 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/40`}
+                                                    }`}
                                                 >Tập {firstEp} - {lastEp}</button>
                                             );
                                         })}
@@ -1397,23 +1306,22 @@ export default function MovieDetailPage() {
                                 const isPlaying = currentEpisodeIndex === globalIndex;
                                 return (
                                     <button 
-                                      key={ep.slug} 
-                                      tabIndex={0}
+                                      key={ep.slug}
                                       onClick={() => { setCurrentEpisodeIndex(globalIndex); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
-                                      className={`w-full py-4 md:py-5 rounded-2xl text-base md:text-xl font-black transition-all border-2 cursor-pointer focus-visible:outline-none focus-visible:scale-105 focus-visible:bg-[#7226FF] focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/40 shadow-lg ${isPlaying ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105 z-10' : 'bg-black/50 text-[#F042FF] font-black border-white/15 hover:bg-white/20 hover:text-white'}`}
+                                      className={`w-full py-4 md:py-5 rounded-2xl text-base md:text-xl font-black transition-all border-2 cursor-pointer shadow-lg ${isPlaying ? 'bg-[#7226FF] text-white border-transparent shadow-[0_0_24px_rgba(114,38,255,0.8)] scale-105 z-10' : 'bg-black/50 text-[#F042FF] font-black border-white/15 hover:bg-white/20 hover:text-white'}`}
                                     >
                                       {ep.name.replace('Tập ', '')}
                                     </button>
                                 );
                              })}
                             {hasMoreInGroup && !isExpanded && (
-                                <button tabIndex={0} onClick={() => setIsExpanded(true)} className="w-full py-4 md:py-5 rounded-2xl text-base md:text-xl font-black transition-all border-2 bg-white/10 text-white/80 border-white/15 hover:bg-white hover:text-black flex items-center justify-center focus-visible:outline-none focus-visible:scale-105 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/40 cursor-pointer"><MoreHorizontal className="w-7 h-7" /></button>
+                                <button onClick={() => setIsExpanded(true)} className="w-full py-4 md:py-5 rounded-2xl text-base md:text-xl font-black transition-all border-2 bg-white/10 text-white/80 border-white/15 hover:bg-white hover:text-black flex items-center justify-center cursor-pointer"><MoreHorizontal className="w-7 h-7" /></button>
                             )}
                         </div>
 
                         {hasMoreInGroup && isExpanded && (
                             <div className="mt-6 flex justify-center">
-                                <button tabIndex={0} onClick={() => setIsExpanded(false)} className="flex items-center gap-2 text-base font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors py-3.5 px-8 rounded-full hover:bg-white/10 focus-visible:outline-none focus-visible:scale-105 focus-visible:border-[#F042FF] focus-visible:ring-4 focus-visible:ring-[#F042FF]/40 cursor-pointer"><ChevronUp className="w-6 h-6" /> Thu gọn</button>
+                                <button onClick={() => setIsExpanded(false)} className="flex items-center gap-2 text-base font-black text-white/70 hover:text-white uppercase tracking-widest transition-colors py-3.5 px-8 rounded-full hover:bg-white/10 cursor-pointer"><ChevronUp className="w-6 h-6" /> Thu gọn</button>
                             </div>
                         )}
                     </div>
@@ -1454,7 +1362,7 @@ export default function MovieDetailPage() {
         )}
 
         {/* ======================================================= */}
-        {/* TẦNG 6: PHIM LIÊN QUAN CHO REMOTE CONTROL                 */}
+        {}
         {/* ======================================================= */}
         {relatedMovies.length > 0 && (
           <div className="pt-8 border-t border-white/15">
@@ -1466,7 +1374,6 @@ export default function MovieDetailPage() {
               {relatedMovies.map((relMovie, index) => (
                 <div
                   key={relMovie.slug}
-                  tabIndex={0}
                   onClick={() => router.push(`/phim/${relMovie.slug}`)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) {
@@ -1474,7 +1381,7 @@ export default function MovieDetailPage() {
                       router.push(`/phim/${relMovie.slug}`);
                     }
                   }}
-                  className="shrink-0 w-48 md:w-60 cursor-pointer group focus-visible:outline-none transition-all duration-300"
+                  className="shrink-0 w-48 md:w-60 cursor-pointer group transition-all duration-300"
                 >
                   <div className="relative aspect-[2/3] rounded-3xl overflow-hidden mb-3 border-2 border-white/15 group-focus:border-[#F042FF] group-focus:ring-4 group-focus:ring-[#F042FF]/40 group-focus:scale-105 transition-all duration-300 shadow-xl bg-black/40">
                     <Image

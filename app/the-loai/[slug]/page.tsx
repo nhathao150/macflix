@@ -259,7 +259,6 @@ function GenreContent() {
                   {movies.map((movie, index) => (
                     <div 
                       key={`${movie.id}-${index}`}
-                      tabIndex={0}
                       onClick={() => router.push(`/phim/${movie.slug}`)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) {

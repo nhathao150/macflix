@@ -81,7 +81,6 @@ export default function FavoritesPage() {
             <h2 className="text-2xl font-black text-white">Chưa Đăng Nhập</h2>
             <p className="text-white/60 text-base font-medium leading-relaxed">Vui lòng đăng nhập tài khoản để lưu trữ và thưởng thức bộ sưu tập phim yêu thích của bạn!</p>
             <Link 
-              tabIndex={0} 
               href="/dang-nhap" 
               className="mt-2 px-8 py-3.5 bg-gradient-to-r from-[#7226FF] to-[#F042FF] text-white rounded-2xl font-black text-lg shadow-xl hover:scale-105 focus:scale-105 focus:outline-none focus:ring-4 focus:ring-[#F042FF]/60 transition-all cursor-pointer"
             >
@@ -92,8 +91,7 @@ export default function FavoritesPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 md:gap-8">
             {favorites.map((movie, index) => (
               <div 
-                key={index} 
-                tabIndex={0}
+                key={index}
                 onClick={() => router.push(`/phim/${movie.slug}`)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) {
@@ -134,7 +132,6 @@ export default function FavoritesPage() {
             <p className="text-lg font-bold">Bộ sưu tập phim yêu thích đang trống.</p>
             <p className="text-white/50 text-base">Hãy bấm vào biểu tượng trái tim khi xem phim để lưu vào đây nhé!</p>
             <Link 
-              tabIndex={0} 
               href="/" 
               className="mt-4 px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-black text-base rounded-2xl border border-white/20 transition-all focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 cursor-pointer"
             >

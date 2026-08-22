@@ -152,7 +152,6 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                     {/* HÀNG NÚT BẤM BANNER */}
                     <div className="flex items-center gap-3 md:gap-6 mt-1 md:mt-2">
                       <button
-                        tabIndex={0}
                         onClick={hasLinkMovie ? handleWatchMovie : undefined}
                         className={`flex items-center gap-2.5 md:gap-4 bg-[#7226FF] hover:bg-[#853aff] text-white px-6 md:px-12 py-2.5 md:py-4.5 rounded-xl md:rounded-2xl font-black text-base md:text-2xl border-2 border-transparent transition-all shadow-2xl focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 ${
                           hasLinkMovie ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
