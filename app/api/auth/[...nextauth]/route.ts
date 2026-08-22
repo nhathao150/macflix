@@ -121,6 +121,7 @@ const authOptions = {
   pages: {
     signIn: "/login", 
   },
+  debug: true, // Bật chế độ debug để ghi lại mọi lỗi vào Vercel Logs
 };
 
 const handler = NextAuth(authOptions);
