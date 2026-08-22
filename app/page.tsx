@@ -1,7 +1,7 @@
 // app/page.tsx
 import Navbar from '@/components/layout/Navbar';
 import HomeContent from '@/components/home/HomeContent';
-import { getNewMovies, getMoviesByCategory, getMoviesByGenre } from '@/lib/api';
+import { getNewMovies, getMoviesByCategory, getMoviesByGenre } from '@/services/movie.service';
 
 export default async function Home() {
   // Lấy dữ liệu 12 danh mục phim theo đúng yêu cầu

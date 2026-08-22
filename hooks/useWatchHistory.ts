@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Movie } from '@/types';
-import { getMovieDetails } from '@/lib/api';
+import { getMovieDetails } from '@/services/movie.service';
 
 // Định nghĩa kiểu dữ liệu cho mục lịch sử trả về từ API
 interface HistoryItem {

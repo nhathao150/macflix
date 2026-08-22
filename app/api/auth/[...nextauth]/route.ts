@@ -1,5 +1,6 @@
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { connectMongoDB } from "@/lib/mongodb";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
@@ -8,6 +9,10 @@ import { JWT } from "next-auth/jwt";
 
 const authOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    }),
     CredentialsProvider({
       name: "credentials",
       credentials: {},
@@ -71,6 +76,28 @@ const authOptions = {
   
   // NƠI TRUYỀN DỮ LIỆU EMAIL RA NGOÀI CHO CÁC TRANG KHÁC ĐỌC
   callbacks: {
+    async signIn({ user, account }: any) {
+      if (account?.provider === "google") {
+        try {
+          await connectMongoDB();
+          const existingUser = await User.findOne({ email: user.email });
+          if (!existingUser) {
+            await User.create({
+              name: user.name,
+              email: user.email,
+              avatar: user.image,
+              isVerified: true,
+              authProvider: "google"
+            });
+          }
+          return true;
+        } catch (error) {
+          console.error("Lỗi khi lưu user Google:", error);
+          return false;
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }: { token: JWT, user: NextAuthUser | any }) {
       if (user) {
         token.id = user.id;
@@ -92,7 +119,7 @@ const authOptions = {
 
   secret: process.env.NEXTAUTH_SECRET || "macflix_secret_default_key_123456",
   pages: {
-    signIn: "/dang-nhap", 
+    signIn: "/login", 
   },
 };
 

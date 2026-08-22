@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { X, Play } from 'lucide-react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
-import { getMovieDetails } from '@/lib/api';
+import { getMovieDetails } from '@/services/movie.service';
 import { useRouter } from 'next/navigation';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 import CastCard, { usePeoplesData } from '@/components/movies/CastCard';
@@ -72,7 +72,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
     const slug = movieDetails?.movie?.slug || movie?.slug;
     if (slug) {
       onClose(); // Đóng Modal trước
-      router.push(`/phim/${slug}`); // Chuyển hướng sang trang xem phim
+      router.push(`/movies/${slug}`); // Chuyển hướng sang trang xem phim
     }
   }, [movieDetails, movie, onClose, router]);
 

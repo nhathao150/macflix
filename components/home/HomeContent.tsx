@@ -86,7 +86,7 @@ export default function HomeContent({
             title="Tiếp tục xem" 
             movies={continueWatchingMovies} 
             onMovieClick={handleMovieClick}
-            viewMoreLink="/lich-su" // Link tới trang lịch sử đầy đủ
+            viewMoreLink="/history" // Link tới trang lịch sử đầy đủ
           />
         )}
 

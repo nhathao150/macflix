@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { Search, User, ChevronDown, Menu, LogOut, History, Settings, Heart } from 'lucide-react';
-import { searchMovies } from '@/lib/api';
+import { searchMovies } from '@/services/movie.service';
 import { useSession, signOut } from 'next-auth/react';
 
 const GENRES = [
@@ -199,7 +199,7 @@ export default function Navbar() {
                   <div className="grid grid-cols-3 gap-x-2 gap-y-1">
                     {GENRES.map((genre) => (
                       <Link
-                        key={genre.slug} href={`/the-loai/${genre.slug}`} onClick={closeDropdown}
+                        key={genre.slug} href={`/genres/${genre.slug}`} onClick={closeDropdown}
                         className="px-3 py-2 text-xs font-medium text-white/70 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
                       >
                         {genre.name}
@@ -231,7 +231,7 @@ export default function Navbar() {
                   <div className="grid grid-cols-5 gap-x-2 gap-y-2">
                     {COUNTRIES.map((country) => (
                       <Link
-                        key={country.slug} href={`/quoc-gia/${country.slug}`} onClick={closeDropdown}
+                        key={country.slug} href={`/countries/${country.slug}`} onClick={closeDropdown}
                         className="px-3 py-2 text-sm text-white/70 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
                       >
                         {country.name}
@@ -303,7 +303,7 @@ export default function Navbar() {
                       <div className="flex flex-col gap-2">
                         {searchResults.map((movie) => (
                           <Link 
-                            href={`/phim/${movie.slug}`} 
+                            href={`/movies/${movie.slug}`} 
                             key={movie.id} 
                             onClick={() => {
                               setIsSearchOpen(false);
@@ -351,7 +351,7 @@ export default function Navbar() {
           {pathname === '/' && (
             session ? (
               <Link 
-                href="/ca-nhan" 
+                href="/profile" 
                 className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 rounded-full transition-all active-scale shadow-lg pointer-events-auto overflow-hidden"
               >
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
@@ -364,7 +364,7 @@ export default function Navbar() {
               </Link>
             ) : (
               <Link 
-                href="/dang-nhap" 
+                href="/login" 
                 className="md:hidden w-10 h-10 flex items-center justify-center bg-[#0a0a0c]/60 backdrop-blur-md border border-white/10 rounded-full transition-all active-scale shadow-lg pointer-events-auto"
               >
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-white overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
@@ -397,13 +397,13 @@ export default function Navbar() {
                 
                 {/* Lịch sử và Cài đặt */}
                 <div className="py-2 border-b border-white/10 flex flex-col gap-1">
-                  <Link href="/ca-nhan" className="px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors flex items-center gap-2 font-medium">
+                  <Link href="/profile" className="px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors flex items-center gap-2 font-medium">
                     <Settings className="w-4 h-4" /> Tùy chỉnh thông tin
                   </Link>
-                  <Link href="/lich-su" className="px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors flex items-center gap-2 font-medium">
+                  <Link href="/history" className="px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors flex items-center gap-2 font-medium">
                     <History className="w-4 h-4" /> Lịch sử xem phim
                   </Link>
-                  <Link href="/yeu-thich" className="px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-red-400 transition-colors flex items-center gap-2 font-medium">
+                  <Link href="/favorites" className="px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-red-400 transition-colors flex items-center gap-2 font-medium">
                     <Heart className="w-4 h-4" /> Phim yêu thích
                   </Link>
                 </div>
@@ -419,7 +419,7 @@ export default function Navbar() {
             </div>
           ) : (
             /* Nút hình người khi CHƯA đăng nhập */
-            <Link href="/dang-nhap" className="hidden md:flex w-11 h-11 items-center justify-center text-white cursor-pointer hover:scale-105 active-scale pointer-events-auto">
+            <Link href="/login" className="hidden md:flex w-11 h-11 items-center justify-center text-white cursor-pointer hover:scale-105 active-scale pointer-events-auto">
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-white shadow-lg hover:ring-2 hover:ring-[#F042FF]/50 transition-all overflow-hidden" style={{background: 'linear-gradient(135deg, #F042FF, #7226FF)'}}>
                 <User className="w-4 h-4" />
               </div>
@@ -484,7 +484,7 @@ export default function Navbar() {
                   ? GENRES.map((genre) => (
                     <a
                       key={genre.slug}
-                      href={`/the-loai/${genre.slug}`}
+                      href={`/genres/${genre.slug}`}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="px-3 py-3 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all font-medium active-scale flex items-center"
                     >
@@ -494,7 +494,7 @@ export default function Navbar() {
                   : COUNTRIES.map((country) => (
                     <a
                       key={country.slug}
-                      href={`/quoc-gia/${country.slug}`}
+                      href={`/countries/${country.slug}`}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="px-3 py-3 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all font-medium active-scale flex items-center"
                     >
@@ -509,10 +509,10 @@ export default function Navbar() {
             <div className="px-4 py-4 border-t border-white/10 flex flex-col gap-2">
               {session ? (
                 <>
-                  <a href="/lich-su" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors active-scale">
+                  <a href="/history" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors active-scale">
                     <History className="w-4 h-4" /> Lịch sử xem
                   </a>
-                  <a href="/yeu-thich" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors active-scale">
+                  <a href="/favorites" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors active-scale">
                     <Heart className="w-4 h-4" /> Phim yêu thích
                   </a>
                   <button onClick={() => { signOut(); setIsMobileMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors active-scale text-left">
@@ -520,7 +520,7 @@ export default function Navbar() {
                   </button>
                 </>
               ) : (
-                <a href="/dang-nhap" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-bold text-white bg-gradient-to-r from-[#D9251D] to-orange-500 rounded-xl transition-opacity hover:opacity-80 active-scale">
+                <a href="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-bold text-white bg-gradient-to-r from-[#D9251D] to-orange-500 rounded-xl transition-opacity hover:opacity-80 active-scale">
                   <User className="w-4 h-4" /> Đăng nhập
                 </a>
               )}

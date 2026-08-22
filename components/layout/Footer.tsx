@@ -4,17 +4,17 @@ import Link from 'next/link';
 import { Facebook, Instagram, Twitter } from 'lucide-react';
 
 const LEGAL_LINKS = [
-  { name: 'Privacy Policy - Chính sách bảo mật', href: '/chinh-sach-bao-mat' },
-  { name: 'Terms of Service - Điều khoản sử dụng', href: '/dieu-khoan-su-dung' },
-  { name: 'Copyright/DMCA - Thông báo bản quyền', href: '/ban-quyen-dmca' },
-  { name: 'Contact Us - Liên hệ', href: '/lien-he' },
+  { name: 'Privacy Policy - Chính sách bảo mật', href: '/privacy-policy' },
+  { name: 'Terms of Service - Điều khoản sử dụng', href: '/terms-of-service' },
+  { name: 'Copyright/DMCA - Thông báo bản quyền', href: '/dmca' },
+  { name: 'Contact Us - Liên hệ', href: '/contact' },
 ];
 
 const SUPPORT_LINKS = [
-  { name: 'Help/FAQ - Trợ giúp', href: '/tro-giup' },
-  { name: 'Settings - Cài đặt', href: '/cai-dat' },
-  { name: 'About - Giới thiệu ứng dụng', href: '/gioi-thieu' },
-  { name: 'Version - Phiên bản ứng dụng', href: '/phien-ban' },
+  { name: 'Help/FAQ - Trợ giúp', href: '/help' },
+  { name: 'Settings - Cài đặt', href: '/settings' },
+  { name: 'About - Giới thiệu ứng dụng', href: '/about' },
+  { name: 'Version - Phiên bản ứng dụng', href: '/changelog' },
 ];
 
 export default function Footer() {

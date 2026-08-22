@@ -4,7 +4,8 @@ const userSchema = new Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: false }, // Cho phép null khi dùng Google OAuth
+    authProvider: { type: String, default: "credentials" }, // 'credentials' hoặc 'google'
     avatar: { type: String, default: '' },
     isVerified: { type: Boolean, default: false },
     verificationToken: { type: String },

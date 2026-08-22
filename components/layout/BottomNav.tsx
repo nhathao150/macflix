@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Grid, Heart, History, Search } from 'lucide-react';
 import { clsx } from 'clsx';
-import { searchMovies } from '@/lib/api';
+import { searchMovies } from '@/services/movie.service';
 
 const GENRES = [
   { name: 'Hành Động', slug: 'hanh-dong' }, { name: 'Tình Cảm', slug: 'tinh-cam' }, { name: 'Hài Hước', slug: 'hai-huoc' },
@@ -69,7 +69,7 @@ const NAV_ITEMS = [
   },
   {
     name: 'Yêu thích',
-    href: '/yeu-thich',
+    href: '/favorites',
     icon: Heart,
   },
   {
@@ -79,12 +79,12 @@ const NAV_ITEMS = [
   },
   {
     name: 'Lịch sử',
-    href: '/lich-su',
+    href: '/history',
     icon: History,
   },
   {
     name: 'Tìm kiếm',
-    href: '/tim-kiem',
+    href: '/search',
     icon: Search,
   },
 ];
@@ -166,7 +166,7 @@ export default function BottomNav() {
   };
 
   // Ẩn BottomNav khi ở các trang chi tiết phim/phát phim (/phim/[slug]) để không bị đè lên trình phát
-  const isWatchPage = pathname?.startsWith('/phim/');
+  const isWatchPage = pathname?.startsWith('/movies/');
 
   if (isWatchPage) return null;
 
@@ -368,7 +368,7 @@ export default function BottomNav() {
                   ? GENRES.map((genre) => (
                     <Link
                       key={genre.slug}
-                      href={`/the-loai/${genre.slug}`}
+                      href={`/genres/${genre.slug}`}
                       onClick={() => setIsDrawerOpen(false)}
                       className="px-4 py-3 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all font-semibold active-scale text-center border border-white/5"
                     >
@@ -378,7 +378,7 @@ export default function BottomNav() {
                   : COUNTRIES.map((country) => (
                     <Link
                       key={country.slug}
-                      href={`/quoc-gia/${country.slug}`}
+                      href={`/countries/${country.slug}`}
                       onClick={() => setIsDrawerOpen(false)}
                       className="px-4 py-3 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all font-semibold active-scale text-center border border-white/5"
                     >
@@ -432,7 +432,7 @@ export default function BottomNav() {
                 <div className="flex flex-col gap-2">
                   {searchResults.map((movie) => (
                     <Link 
-                      href={`/phim/${movie.slug}`} 
+                      href={`/movies/${movie.slug}`} 
                       key={movie.id} 
                       onClick={() => {
                         setIsSearchOpen(false);
