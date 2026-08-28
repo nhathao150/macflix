@@ -50,7 +50,7 @@ function SearchContent() {
   const handleSearchClick = () => {
     if (!searchInput.trim()) return;
     setSuggestions([]);
-    router.push(`/tim-kiem?q=${encodeURIComponent(searchInput.trim())}`);
+    router.push(`/search?q=${encodeURIComponent(searchInput.trim())}`);
   };
 
   useEffect(() => {
@@ -68,7 +68,7 @@ function SearchContent() {
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || (pagination && newPage > pagination.totalPages)) return;
-    router.push(`/tim-kiem?q=${encodeURIComponent(keyword)}&page=${newPage}`);
+    router.push(`/search?q=${encodeURIComponent(keyword)}&page=${newPage}`);
   };
 
   return (

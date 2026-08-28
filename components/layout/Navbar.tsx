@@ -136,7 +136,7 @@ export default function Navbar() {
     if (!searchTerm.trim()) return;
     setSearchResults([]);
     setIsSearchOpen(false);
-    router.push(`/tim-kiem?q=${encodeURIComponent(searchTerm.trim())}`);
+    router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
     setSearchTerm('');
   };
 

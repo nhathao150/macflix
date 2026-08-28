@@ -96,7 +96,7 @@ export default function HomeContent({
           title="Phim Mới Cập Nhật" 
           movies={phimMoi} 
           onMovieClick={handleMovieClick}
-          viewMoreLink="/phim?danh-muc=phim-moi"
+          viewMoreLink="/movies?danh-muc=phim-moi"
         />
 
         <MovieRow 
@@ -104,7 +104,7 @@ export default function HomeContent({
           title="Phim Bộ" 
           movies={phimBo} 
           onMovieClick={handleMovieClick}
-          viewMoreLink="/phim?danh-muc=phim-bo"
+          viewMoreLink="/movies?danh-muc=phim-bo"
         />
 
         <MovieRow 
@@ -112,7 +112,7 @@ export default function HomeContent({
           title="Phim Lẻ" 
           movies={phimLe} 
           onMovieClick={handleMovieClick}
-          viewMoreLink="/phim?danh-muc=phim-le"
+          viewMoreLink="/movies?danh-muc=phim-le"
         />
 
         <MovieRow 
@@ -120,7 +120,7 @@ export default function HomeContent({
           title="Shows & TV Shows" 
           movies={shows} 
           onMovieClick={handleMovieClick}
-          viewMoreLink="/phim?danh-muc=tv-shows"
+          viewMoreLink="/movies?danh-muc=tv-shows"
         />
 
         <MovieRow 
@@ -128,7 +128,7 @@ export default function HomeContent({
           title="Hoạt Hình" 
           movies={hoatHinh} 
           onMovieClick={handleMovieClick}
-          viewMoreLink="/phim?danh-muc=hoat-hinh"
+          viewMoreLink="/movies?danh-muc=hoat-hinh"
         />
 
         <MovieRow 
@@ -136,7 +136,7 @@ export default function HomeContent({
           title="Phim Vietsub" 
           movies={vietsub} 
           onMovieClick={handleMovieClick}
-          viewMoreLink="/phim?danh-muc=phim-vietsub"
+          viewMoreLink="/movies?danh-muc=phim-vietsub"
         />
 
         <MovieRow 
@@ -144,7 +144,7 @@ export default function HomeContent({
           title="Phim Thuyết Minh" 
           movies={thuyetMinh} 
           onMovieClick={handleMovieClick}
-          viewMoreLink="/phim?danh-muc=phim-thuyet-minh"
+          viewMoreLink="/movies?danh-muc=phim-thuyet-minh"
         />
 
         <MovieRow 
@@ -152,7 +152,7 @@ export default function HomeContent({
           title="Phim Lồng Tiếng" 
           movies={longTieng} 
           onMovieClick={handleMovieClick}
-          viewMoreLink="/phim?danh-muc=phim-long-tieng"
+          viewMoreLink="/movies?danh-muc=phim-long-tieng"
         />
 
         <MovieRow 
@@ -160,7 +160,7 @@ export default function HomeContent({
           title="Phim Bộ Đang Chiếu" 
           movies={dangChieu} 
           onMovieClick={handleMovieClick}
-          viewMoreLink="/phim?danh-muc=phim-bo-dang-chieu"
+          viewMoreLink="/movies?danh-muc=phim-bo-dang-chieu"
         />
 
         <MovieRow 
@@ -168,7 +168,7 @@ export default function HomeContent({
           title="Phim Bộ Đã Hoàn Thành" 
           movies={daHoanThanh} 
           onMovieClick={handleMovieClick}
-          viewMoreLink="/phim?danh-muc=phim-bo-da-hoan-thanh"
+          viewMoreLink="/movies?danh-muc=phim-bo-da-hoan-thanh"
         />
 
         <MovieRow 
@@ -176,7 +176,7 @@ export default function HomeContent({
           title="Subteam" 
           movies={subteam} 
           onMovieClick={handleMovieClick}
-          viewMoreLink="/phim?danh-muc=subteam"
+          viewMoreLink="/movies?danh-muc=subteam"
         />
 
         <MovieRow 
@@ -184,7 +184,7 @@ export default function HomeContent({
           title="Phim Chiếu Rạp" 
           movies={chieuRap} 
           onMovieClick={handleMovieClick}
-          viewMoreLink="/phim?danh-muc=chieu-rap"
+          viewMoreLink="/movies?danh-muc=chieu-rap"
         />
       </div>
 

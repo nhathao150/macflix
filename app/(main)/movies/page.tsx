@@ -149,7 +149,7 @@ function DanhMucContent() {
       params.delete('year');
     }
     
-    router.push(`/phim?${params.toString()}`);
+    router.push(`/movies?${params.toString()}`);
     setIsFilterDrawerOpen(false);
   };
 
@@ -157,7 +157,7 @@ function DanhMucContent() {
     setTempGenre('');
     setTempCountry('');
     setTempYear('');
-    router.push(`/phim?danh-muc=${slug}&page=1`);
+    router.push(`/movies?danh-muc=${slug}&page=1`);
     setIsFilterDrawerOpen(false);
   };
 
@@ -165,7 +165,7 @@ function DanhMucContent() {
     if (newPage < 1 || (pagination && newPage > pagination.totalPages)) return;
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', newPage.toString());
-    router.push(`/phim?${params.toString()}`);
+    router.push(`/movies?${params.toString()}`);
   };
 
   const FilterBoxContent = () => (
