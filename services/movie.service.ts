@@ -202,7 +202,7 @@ export async function getMoviesByGenre(slug: string) {
 // 6. Hàm Phân trang Thể loại - ĐÃ THÊM CACHE
 export async function getMoviesByGenrePaginated(slug: string, page: number = 1, limit: number = 24, country: string = '', year: string = '') {
   try {
-    let url = `${MOVIE_API_URL}/v1/api/the-loai/${slug}?limit=${limit}&page=${page}`;
+    let url = `${MOVIE_API_URL}/v1/api/the-loai/${slug}?limit=${limit}&page=${page}&sort_field=year&sort_type=desc`;
     if (country) url += `&country=${country}`;
     if (year) url += `&year=${year}`;
     const data = await fetchWithCache(url, 3600);
@@ -232,7 +232,7 @@ export async function getMoviesByGenrePaginated(slug: string, page: number = 1, 
 // 7. Hàm Phân trang Quốc gia - ĐÃ THÊM CACHE
 export async function getMoviesByCountryPaginated(slug: string, page: number = 1, limit: number = 24, category: string = '', year: string = '') {
   try {
-    let url = `${MOVIE_API_URL}/v1/api/quoc-gia/${slug}?limit=${limit}&page=${page}`;
+    let url = `${MOVIE_API_URL}/v1/api/quoc-gia/${slug}?limit=${limit}&page=${page}&sort_field=year&sort_type=desc`;
     if (category) url += `&category=${category}`;
     if (year) url += `&year=${year}`;
     const data = await fetchWithCache(url, 3600);
@@ -262,7 +262,7 @@ export async function getMoviesByCountryPaginated(slug: string, page: number = 1
 // 8. Hàm Phân trang cho các Danh Mục (phim-bo, phim-le, hoat-hinh, tv-shows) - ĐÃ THÊM CACHE
 export async function getDanhSachPhimPaginated(slug: string, page: number = 1, limit: number = 24, category: string = '', country: string = '', year: string = '') {
   try {
-    let url = `${MOVIE_API_URL}/v1/api/danh-sach/${slug}?limit=${limit}&page=${page}`;
+    let url = `${MOVIE_API_URL}/v1/api/danh-sach/${slug}?limit=${limit}&page=${page}&sort_field=year&sort_type=desc`;
     if (category) url += `&category=${category}`;
     if (country) url += `&country=${country}`;
     if (year) url += `&year=${year}`;
@@ -334,7 +334,7 @@ export async function getMoviesByCountryAndGenre(
   year: string = ''
 ) {
   try {
-    let url = `${MOVIE_API_URL}/v1/api/quoc-gia/${countrySlug}?limit=${limit}&page=${page}&category=${genreSlug}`;
+    let url = `${MOVIE_API_URL}/v1/api/quoc-gia/${countrySlug}?limit=${limit}&page=${page}&category=${genreSlug}&sort_field=year&sort_type=desc`;
     if (year) url += `&year=${year}`;
     const data = await fetchWithCache(url, 3600);
     const imageDomain = data.data?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com/';

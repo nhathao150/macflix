@@ -59,7 +59,7 @@ export default function FavoriteButton({ movieData, className }: FavoriteButtonP
     }
   };
 
-  const defaultStyle = "w-14 h-14 shrink-0 flex items-center justify-center rounded-2xl bg-white/15 hover:bg-white/25 focus:bg-white/25 backdrop-blur-md border border-white/25 hover:scale-105 focus:scale-105 focus:ring-4 focus:ring-[#F042FF] focus:outline-none transition-all cursor-pointer shadow-xl group/fav";
+  const defaultStyle = "w-14 h-14 shrink-0 flex items-center justify-center rounded-2xl bg-white/15 hover:bg-white/25 focus:bg-white/25 backdrop-blur-md border border-white/25 hover:scale-105 focus:scale-105 focus:outline-none transition-all cursor-pointer shadow-xl group/fav";
 
   return (
     <button

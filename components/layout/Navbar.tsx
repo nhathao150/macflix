@@ -142,7 +142,7 @@ export default function Navbar() {
 
   return (
     <div ref={navRef} className="absolute md:fixed top-0 left-0 w-full z-[100] flex justify-center pointer-events-none">
-      <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-6xl mt-3 md:mt-6 rounded-full px-4 md:px-8 py-2 md:py-3 transition-all duration-300 md:backdrop-blur-3xl md:shadow-[0_24px_50px_-12px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.08)] md:bg-[#0a0a0c]/60 md:border md:border-white/[0.08] border-none bg-transparent shadow-none backdrop-blur-none relative">
+      <nav className="pointer-events-auto flex items-center justify-between w-[95%] max-w-7xl mt-3 md:mt-6 rounded-full px-4 md:px-8 py-2 md:py-3 transition-all duration-300 md:backdrop-blur-3xl md:shadow-[0_24px_50px_-12px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.08)] md:bg-[#0a0a0c]/60 md:border md:border-white/[0.08] border-none bg-transparent shadow-none backdrop-blur-none relative">
         
         {/* LOGO */}
         <div className="hidden md:flex items-center shrink-0">
@@ -194,13 +194,13 @@ export default function Navbar() {
               }`} />
             </button>
             {openDropdown === 'genre' && (
-              <div className="absolute top-full left-0 pt-4 w-[450px] z-50">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 w-[450px] z-50">
                 <div className="bg-[#141414]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col p-4">
                   <div className="grid grid-cols-3 gap-x-2 gap-y-1">
                     {GENRES.map((genre) => (
                       <Link
                         key={genre.slug} href={`/genres/${genre.slug}`} onClick={closeDropdown}
-                        className="px-3 py-2 text-xs font-medium text-white/70 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
+                        className="px-3 py-2 text-sm text-white/70 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
                       >
                         {genre.name}
                       </Link>

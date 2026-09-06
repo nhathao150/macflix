@@ -1190,7 +1190,7 @@ export default function MovieDetailPage() {
         {/* ======================================================= */}
         <div className="flex flex-col gap-3">
             <div className="flex items-start justify-between gap-6">
-                <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-white drop-shadow-md leading-tight">
+                <h1 className="uppercase tracking-tight text-white drop-shadow-md leading-tight mb-1.5 md:mb-3">
                     {movie.name}
                 </h1>
 
@@ -1333,7 +1333,7 @@ export default function MovieDetailPage() {
         {/* TẦNG 4: BÀI VIẾT NỘI DUNG PHIM                            */}
         {/* ======================================================= */}
         <div className="bg-[#1c1c1e] border-2 border-white/15 p-8 md:p-10 rounded-[36px] shadow-2xl">
-          <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-wider mb-4">Nội Dung Phim</h3>
+          <h2 className="text-white uppercase mb-4">Nội Dung Phim</h2>
           <div 
             className="text-white/90 text-lg md:text-xl leading-relaxed prose prose-invert max-w-none font-medium" 
             dangerouslySetInnerHTML={{ __html: movie.content }} 
@@ -1345,7 +1345,7 @@ export default function MovieDetailPage() {
         {/* ======================================================= */}
         {validCast.length > 0 && (
             <div className="pt-6 border-t border-white/15">
-                <h3 className="text-2xl md:text-3xl font-black mb-6 uppercase tracking-wider text-white">Diễn Viên &amp; Đoàn Làm Phim</h3>
+                <h2 className="mb-6 uppercase text-white">Diễn Viên &amp; Đoàn Làm Phim</h2>
                 <div className="flex gap-8 overflow-x-auto scrollbar-hide pb-4">
                     {validCast.map((name, idx) => (
                         <CastCard
@@ -1368,7 +1368,7 @@ export default function MovieDetailPage() {
           <div className="pt-8 border-t border-white/15">
             <div className="flex items-center gap-3 mb-6">
               <Film className="w-8 h-8 text-[#F042FF]" />
-              <h3 className="text-2xl md:text-3xl font-black uppercase tracking-wider text-white">Phim Liên Quan</h3>
+              <h2 className="uppercase text-white">Phim Liên Quan</h2>
             </div>
             <div className="flex gap-6 md:gap-8 overflow-x-auto scrollbar-hide pb-4">
               {relatedMovies.map((relMovie, index) => (
@@ -1381,9 +1381,9 @@ export default function MovieDetailPage() {
                       router.push(`/movies/${relMovie.slug}`);
                     }
                   }}
-                  className="shrink-0 w-48 md:w-60 cursor-pointer group transition-all duration-300"
+                  className="shrink-0 w-40 md:w-80 cursor-pointer group transition-all duration-300"
                 >
-                  <div className="relative aspect-[2/3] rounded-3xl overflow-hidden mb-3 border-2 border-white/15 group-focus:border-[#F042FF] group-focus:ring-4 group-focus:ring-[#F042FF]/40 group-focus:scale-105 transition-all duration-300 shadow-xl bg-black/40">
+                  <div className="relative aspect-[2/3] md:aspect-video rounded-3xl overflow-hidden mb-3 border-2 border-white/15 group-focus:border-[#F042FF] group-focus:ring-4 group-focus:ring-[#F042FF]/40 group-focus:scale-105 transition-all duration-300 shadow-xl bg-black/40">
                     <Image
                       src={relMovie.imageSrc}
                       alt={relMovie.title}

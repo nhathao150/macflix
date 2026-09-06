@@ -229,7 +229,7 @@ function DanhMucContent() {
     <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-28">
       <Navbar />
 
-      <div className="max-w-[1800px] mx-auto px-4 md:px-8 pt-6 md:pt-[120px]">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-8 pt-6 md:pt-[120px]">
         {/* Tiêu đề danh mục */}
         <div className="mb-8 flex items-end justify-between border-b border-white/10 pb-4">
           <div>
@@ -281,7 +281,7 @@ function DanhMucContent() {
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6"
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 md:gap-6"
                 >
                   {movies.map((movie, index) => (
                     <div 
@@ -289,7 +289,7 @@ function DanhMucContent() {
                       onClick={() => openModal(movie)}
                       className="group flex flex-col cursor-pointer active-scale"
                     >
-                      <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-[#160078/20]">
+                      <div className="relative w-full aspect-[2/3] md:aspect-video rounded-xl overflow-hidden mb-3 border border-white/10 shadow-lg bg-[#160078/20]">
                         <Image 
                           src={movie.imageSrc} 
                           alt={movie.title} 

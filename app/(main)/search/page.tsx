@@ -82,7 +82,7 @@ function SearchContent() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Search className="w-8 h-8 text-[#F042FF]" />
-              <h1 className="font-black text-2xl md:text-4xl text-white tracking-wide uppercase drop-shadow-md">
+              <h1 className="font-black text-white tracking-wide uppercase drop-shadow-md">
                 Tìm kiếm phim
               </h1>
             </div>

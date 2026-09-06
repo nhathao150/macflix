@@ -103,12 +103,12 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
             initial={{ scale: 0.95, y: 20 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.95, y: 20 }}
-            className="relative w-[96vw] max-w-[1800px] h-[94vh] bg-[#141414] border border-white/15 rounded-2xl md:rounded-3xl shadow-[0_30px_90px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden"
+            className="relative w-[96vw] max-w-[1600px] h-[94vh] bg-[#141414] border border-white/15 rounded-2xl md:rounded-3xl shadow-[0_30px_90px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden"
           >
             {/* NÚT ĐÓNG MODAL (Responsive cho Mobile & TV) */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 md:top-6 md:right-6 z-50 w-10 h-10 md:w-14 md:h-14 rounded-full bg-black/60 hover:bg-black/90 focus:bg-black/90 focus:scale-105 focus:ring-4 focus:ring-[#F042FF] focus:outline-none backdrop-blur-md border border-white/20 flex items-center justify-center transition-all cursor-pointer shadow-2xl"
+              className="absolute top-4 right-4 md:top-6 md:right-6 z-50 w-10 h-10 md:w-14 md:h-14 rounded-full bg-black/60 hover:bg-black/90 focus:bg-black/90 focus:scale-105 focus:outline-none backdrop-blur-md border border-white/20 flex items-center justify-center transition-all cursor-pointer shadow-2xl"
             >
               <X className="w-5 h-5 md:w-8 md:h-8 text-white" />
             </button>
@@ -121,7 +121,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
               <div className="flex-1 overflow-y-auto scrollbar-hide pb-16 md:pb-20">
 
                 {/* --- 1. BANNER: MOBILE (h-[45vh] min-h-[280px]), DESKTOP/TV (h-[75vh] min-h-[660px] max-h-[850px]) --- */}
-                <div className="relative w-full h-[45vh] md:h-[75vh] min-h-[280px] md:min-h-[660px] max-h-[850px] bg-black overflow-hidden">
+                <div className="relative w-full h-[45vh] md:h-[60vh] min-h-[280px] md:min-h-[500px] max-h-[750px] bg-black overflow-hidden">
                   {backdropUrl && (
                     <Image
                       src={backdropUrl}
@@ -139,7 +139,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                   {/* THÔNG TIN TIÊU ĐỀ + NÚT PHÁT NGAY & ICON YÊU THÍCH */}
                   <div className="absolute bottom-6 left-5 md:left-16 right-5 md:right-16 z-20 flex flex-col items-start gap-4 md:gap-6 max-w-5xl">
                     <div>
-                      <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-black tracking-tight text-white mb-1.5 md:mb-3 drop-shadow-2xl uppercase line-clamp-2 leading-tight">
+                      <h1 className="text-white drop-shadow-2xl uppercase line-clamp-2 mb-1.5 md:mb-3">
                         {movieData?.name || movie?.title}
                       </h1>
                       {movieData?.origin_name && (
@@ -153,7 +153,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                     <div className="flex items-center gap-3 md:gap-6 mt-1 md:mt-2">
                       <button
                         onClick={hasLinkMovie ? handleWatchMovie : undefined}
-                        className={`flex items-center gap-2.5 md:gap-4 bg-[#7226FF] hover:bg-[#853aff] text-white px-6 md:px-12 py-2.5 md:py-4.5 rounded-xl md:rounded-2xl font-black text-base md:text-2xl border-2 border-transparent transition-all shadow-2xl focus:outline-none focus:scale-105 focus:border-[#F042FF] focus:ring-4 focus:ring-[#F042FF]/40 ${
+                        className={`flex items-center gap-2.5 md:gap-4 bg-[#7226FF] hover:bg-[#853aff] text-white px-6 md:px-12 py-2.5 md:py-4.5 rounded-xl md:rounded-2xl font-black text-base md:text-2xl border-2 border-transparent transition-all shadow-2xl focus:outline-none focus:scale-105 focus:border-[#F042FF] ${
                           hasLinkMovie ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
                         }`}
                       >
@@ -179,9 +179,9 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
 
                   {/* --- 2. DIỄN VIÊN & ĐOÀN LÀM PHIM --- */}
                   <div className="space-y-4 md:space-y-6">
-                    <div className="text-white font-black text-xl md:text-4xl">
+                    <h2 className="text-white">
                       Diễn Viên &amp; Đoàn Làm Phim
-                    </div>
+                    </h2>
                     <div className="flex gap-4 md:gap-8 overflow-x-auto scrollbar-hide pb-2 md:pb-4">
                       {peoples.length > 0 ? (
                         peoples.map((person, idx) => (
@@ -215,11 +215,11 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
 
                   {/* --- 3. GIỚI THIỆU NỘI DUNG PHIM --- */}
                   <div className="space-y-4 md:space-y-6">
-                    <div className="flex items-center gap-1 text-white font-black text-xl md:text-4xl">
+                    <h2 className="flex items-center gap-1 text-white">
                       Giới thiệu
-                    </div>
+                    </h2>
                     <div className="bg-[#1c1c1e] border border-white/10 p-5 md:p-12 rounded-2xl md:rounded-3xl shadow-xl">
-                      <h4 className="text-lg md:text-3xl font-black text-white mb-2 uppercase">{movieData?.name}</h4>
+                      <h3 className="text-white mb-2 uppercase">{movieData?.name}</h3>
                       <p className="text-xs md:text-lg text-[#F042FF] uppercase tracking-widest font-black mb-4 md:mb-6">
                         {movieData?.category?.map((c: { name: string }) => c.name).join(', ')}
                       </p>
@@ -239,7 +239,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                   {/* --- 4. THÔNG TIN CHI TIẾT (LƯỚI 3 CỘT RESPONSIVE) --- */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 border-t border-white/10 pt-8 md:pt-12">
                     <div>
-                      <h3 className="text-lg md:text-3xl font-black mb-4 md:mb-6 text-white">Thông tin</h3>
+                      <h3 className="mb-4 md:mb-6 text-white">Thông tin</h3>
                       <ul className="space-y-4 md:space-y-6 text-sm md:text-xl">
                         <li>
                           <span className="text-white/50 block text-xs font-bold uppercase mb-1">Năm phát hành</span>
@@ -261,7 +261,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                     </div>
 
                     <div>
-                      <h3 className="text-lg md:text-3xl font-black mb-4 md:mb-6 text-white">Ngôn ngữ</h3>
+                      <h3 className="mb-4 md:mb-6 text-white">Ngôn ngữ</h3>
                       <ul className="space-y-4 md:space-y-6 text-sm md:text-xl">
                         <li>
                           <span className="text-white/50 block text-xs font-bold uppercase mb-1">Âm thanh gốc</span>
@@ -275,7 +275,7 @@ export default function MovieModal({ isOpen, onClose, movie }: MovieModalProps) 
                     </div>
 
                     <div>
-                      <h3 className="text-lg md:text-3xl font-black mb-4 md:mb-6 text-white">Trợ năng</h3>
+                      <h3 className="mb-4 md:mb-6 text-white">Trợ năng</h3>
                       <div className="flex gap-3 md:gap-4 items-start">
                         <span className="border border-white/20 rounded px-2.5 py-1 text-xs md:text-sm font-black text-white shrink-0 mt-0.5 bg-white/10">CC</span>
                         <p className="text-xs md:text-base text-white/60 leading-relaxed font-medium">

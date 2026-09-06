@@ -24,7 +24,7 @@ export default function MovieCard({ movie, isTrending, priority }: MovieCardProp
     <>
       {/* 1. GIAO DIỆN MOBILE (DỌC - aspect-[2/3]) */}
       <div
-        className={`relative group cursor-pointer aspect-[2/3] rounded-xl overflow-hidden bg-[#16151a]/40 border border-white/[0.08] shadow-[0_8px_24px_rgba(0,0,0,0.5)] md:hidden active-scale focus:outline-none focus:scale-105 focus:ring-2 focus:ring-purple-500 transition-all duration-300 ${isTrending ? 'w-[135px]' : 'w-[125px]'
+        className={`relative group cursor-pointer aspect-[2/3] rounded-xl overflow-hidden bg-[#16151a]/40 border border-white/[0.08] shadow-[0_8px_24px_rgba(0,0,0,0.5)] md:hidden active-scale focus:outline-none focus:scale-105 focus:ring-2 focus:ring-purple-500 transition-all duration-300 ${isTrending ? 'w-[160px]' : 'w-[140px]'
           }`}
       >
         {!isLoaded && (
@@ -34,7 +34,7 @@ export default function MovieCard({ movie, isTrending, priority }: MovieCardProp
           src={poster}
           alt={movie.title}
           fill
-          sizes="(max-width: 768px) 135px, 150px"
+          sizes="(max-width: 768px) 160px, 150px"
           className={`object-cover transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           referrerPolicy="no-referrer"
           priority={priority}
@@ -51,7 +51,7 @@ export default function MovieCard({ movie, isTrending, priority }: MovieCardProp
 
       {/* 2. GIAO DIỆN DESKTOP (NGANG - aspect-video) */}
       <div
-        className={`relative group cursor-pointer aspect-video rounded-2xl overflow-hidden bg-[#16151a]/40 border border-white/[0.08] shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] hover:shadow-[0_24px_50px_rgba(0,0,0,0.7),0_0_20px_rgba(168,85,247,0.15)] hover:scale-[1.03] focus:outline-none focus:scale-[1.05] focus:shadow-[0_24px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(168,85,247,0.4)] focus:border-purple-500 transition-[transform,box-shadow,border-color] duration-300 ease-out hidden md:flex ${isTrending ? 'w-[400px]' : 'w-[320px]'
+        className={`relative group cursor-pointer aspect-video rounded-2xl overflow-hidden bg-[#16151a]/40 border border-white/[0.08] shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] hover:shadow-[0_24px_50px_rgba(0,0,0,0.7),0_0_20px_rgba(168,85,247,0.15)] hover:scale-[1.03] focus:outline-none focus:scale-[1.05] focus:shadow-[0_24px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(168,85,247,0.4)] focus:border-purple-500 transition-[transform,box-shadow,border-color] duration-300 ease-out hidden md:flex ${isTrending ? 'w-[420px]' : 'w-[340px]'
           }`}
       >
         {/* Shimmer skeleton khi ảnh chưa load */}
@@ -62,7 +62,7 @@ export default function MovieCard({ movie, isTrending, priority }: MovieCardProp
           src={movie.imageSrc}
           alt={movie.title}
           fill
-          sizes="(max-width: 1024px) 320px, 400px"
+          sizes="(max-width: 1024px) 340px, 420px"
           className={`object-cover transition-all duration-500 group-hover:scale-110 group-focus:scale-110 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           referrerPolicy="no-referrer"
           priority={priority}

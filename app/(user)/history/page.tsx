@@ -94,7 +94,7 @@ export default function HistoryPage() {
         <div className="flex items-center justify-between border-b border-white/10 pb-5 mb-4">
           <div className="flex items-center gap-3">
             <History className="w-8 h-8 text-cyan-400" />
-            <h1 className="font-black text-2xl md:text-4xl text-white tracking-wide uppercase drop-shadow-md">
+            <h1 className="font-black text-white tracking-wide uppercase drop-shadow-md">
               Lịch Sử Xem Phim
             </h1>
           </div>
@@ -103,7 +103,7 @@ export default function HistoryPage() {
         {status === 'unauthenticated' ? (
           <div className="text-center my-16 flex flex-col items-center gap-5 bg-white/5 p-10 rounded-3xl border border-white/10 max-w-lg mx-auto backdrop-blur-md shadow-2xl">
             <AlertCircle className="w-16 h-16 text-yellow-400 opacity-90" />
-            <h2 className="text-2xl font-black text-white">Chưa Đăng Nhập</h2>
+            <h2 className="text-white">Chưa Đăng Nhập</h2>
             <p className="text-white/60 text-base font-medium leading-relaxed">Vui lòng đăng nhập tài khoản để đồng bộ và xem lại lịch sử các bộ phim bạn đang xem dở!</p>
             <Link 
               href="/login" 
@@ -113,7 +113,7 @@ export default function HistoryPage() {
             </Link>
           </div>
         ) : history.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 md:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6 md:gap-8">
             {history.map((movie, index) => (
               <div 
                 key={`${movie.slug}-${index}`}
@@ -126,7 +126,7 @@ export default function HistoryPage() {
                 }}
                 className="group flex flex-col cursor-pointer focus:outline-none transition-all duration-300"
               >
-                <div className="relative w-full aspect-[2/3] rounded-3xl overflow-hidden mb-3 border-2 border-white/20 group-focus:border-4 group-focus:border-cyan-400 group-focus:scale-105 transition-all duration-300 shadow-2xl bg-black/40">
+                <div className="relative w-full aspect-[2/3] md:aspect-video rounded-3xl overflow-hidden mb-3 border-2 border-white/20 group-focus:border-4 group-focus:border-cyan-400 group-focus:scale-105 transition-all duration-300 shadow-2xl bg-black/40">
                   <Image 
                     src={movie.imageSrc || '/placeholder-image.jpg'} 
                     alt={movie.name} 
