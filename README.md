@@ -54,7 +54,7 @@
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/yourusername/macflix.git
+git clone https://github.com/nhathao150/macflix.git
 
 # 2. Cài đặt thư viện
 npm install
