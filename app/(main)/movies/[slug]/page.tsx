@@ -4,13 +4,13 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import { getMovieDetails, getMoviesByGenre, searchMoviesPaginated } from '@/services/movie.service';
-import Hls from 'hls.js';
-import { ListVideo, CircleAlert, MoreHorizontal, ChevronUp, Mic2, ChevronLeft, ChevronRight, Heart, Play, Pause, Maximize, Minimize, Settings, Subtitles, Volume2, VolumeX, RotateCcw, RotateCw, Film, Tv } from 'lucide-react'; 
+import { ListVideo, CircleAlert, MoreHorizontal, ChevronUp, Mic2, ChevronLeft, ChevronRight, Heart, Film, Play } from 'lucide-react'; 
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { MovieDetails, Movie } from '@/types';
 import CastCard, { useTmdbActorPhotos } from '@/components/movies/CastCard';
+import VideoPlayer from '@/components/movies/VideoPlayer';
 
 const EPISODES_PER_GROUP = 100;
 const INITIAL_VISIBLE_EPISODES = 24; 
@@ -23,9 +23,17 @@ export default function MovieDetailPage() {
   const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [relatedMovies, setRelatedMovies] = useState<Movie[]>([]);
+
+  const relatedScrollRef = useRef<HTMLDivElement>(null);
+  
+  const scrollRelated = (direction: 'left' | 'right') => {
+    if (relatedScrollRef.current) {
+      const scrollAmount = direction === 'left' ? -800 : 800; // Cuộn xa hơn trên Desktop
+      relatedScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
   const router = useRouter();
 
-  // Lấy ảnh diễn viên từ ophim peoples API
   const actorPhotoMap = useTmdbActorPhotos(slug);
   
   const [activeServerIndex, setActiveServerIndex] = useState(0);
@@ -37,44 +45,7 @@ export default function MovieDetailPage() {
   const [hasLoadedHistory, setHasLoadedHistory] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   
-  // === STATE CHO CUSTOM VIDEO PLAYER ===
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [useEmbedPlayer, setUseEmbedPlayer] = useState(false);
-  const [hasAutoFullscreen, setHasAutoFullscreen] = useState(false);
-  
-  const [playbackRate, setPlaybackRate] = useState(1);
-  const [isSpeedMenuOpen, setIsSpeedMenuOpen] = useState(false);
-
-  const [subtitleTracks, setSubtitleTracks] = useState<any[]>([]);
-  const [activeSubIndex, setActiveSubIndex] = useState(-1);
-  const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
-
-  // === TOUCH GESTURES & SEEK ===
-  const lastTapRef = useRef<number>(0);
-  const lastTouchTimeRef = useRef<number>(0);
-  const [seekFeedback, setSeekFeedback] = useState<'forward' | 'backward' | null>(null);
-
-  const [volume, setVolume] = useState(1);
-  const [isMuted, setIsMuted] = useState(false);
-
-  // === STATE CHO ZOOM ASPECT RATIO (FIT / COVER) ===
-  const [videoFitMode, setVideoFitMode] = useState<'contain' | 'cover'>('contain');
-  const [zoomToast, setZoomToast] = useState<string | null>(null);
-  const initialPinchDistanceRef = useRef<number | null>(null);
-  const isPinchingRef = useRef<boolean>(false);
-
-  // STATE: Quản lý việc tự động ẩn giao diện
-  const [isControlsVisible, setIsControlsVisible] = useState(true);
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const playerContainerRef = useRef<HTMLDivElement>(null);
   const tabContainerRef = useRef<HTMLDivElement>(null);
-  
-  const hlsRef = useRef<Hls | null>(null);
 
   // 1. FETCH DỮ LIỆU PHIM
   useEffect(() => {
@@ -99,26 +70,12 @@ export default function MovieDetailPage() {
   
   const currentEpisode = episodesList[currentEpisodeIndex];
   const hasLinkMovie = episodesList.length > 0;
+  const hasNextEpisode = currentEpisodeIndex < episodesList.length - 1;
 
   const episodeGroups = [];
   for (let i = 0; i < episodesList.length; i += EPISODES_PER_GROUP) {
     episodeGroups.push(episodesList.slice(i, i + EPISODES_PER_GROUP));
   }
-
-  // TỰ ĐỘNG BẬT FULLSCREEN KHI VIDEO PHÁT SẴN SÀNG & FOCUS VÀO NÚT TRONG FULLSCREEN
-  const triggerAutoFullscreen = () => {
-    if (!hasAutoFullscreen && playerContainerRef.current) {
-      setHasAutoFullscreen(true);
-      if (!document.fullscreenElement) {
-        playerContainerRef.current.requestFullscreen().then(() => {
-          setTimeout(() => {
-            const playBtn = playerContainerRef.current?.querySelector('[data-center-play]') as HTMLElement;
-            playBtn?.focus();
-          }, 100);
-        }).catch(() => {});
-      }
-    }
-  };
 
   // 2. ĐỌC LỊCH SỬ TỪ MONGODB
   useEffect(() => {
@@ -260,15 +217,6 @@ export default function MovieDetailPage() {
     }
   }, [currentEpisodeIndex]);
 
-  // Reset trình phát về chế độ chính khi chuyển tập phim hoặc server
-  useEffect(() => {
-    if (currentEpisode && !currentEpisode.link_m3u8 && currentEpisode.link_embed) {
-      setUseEmbedPlayer(true);
-    } else {
-      setUseEmbedPlayer(false);
-    }
-  }, [currentEpisodeIndex, activeServerIndex, currentEpisode]);
-
   // FETCH PHIM LIÊN QUAN
   useEffect(() => {
     if (!movieDetails?.movie) return;
@@ -337,514 +285,11 @@ export default function MovieDetailPage() {
     fetchSmartRelated();
   }, [movieDetails, slug]);
 
-  // 7. VIDEO PLAYER CHỐNG LAG, TỰ ĐỘNG CHẠY VÀ BẮT PHỤ ĐỀ
-  useEffect(() => {
-    if (useEmbedPlayer || !hasLinkMovie || !currentEpisode?.link_m3u8 || !videoRef.current) return;
-    
-    let videoSrc = currentEpisode.link_m3u8;
-    if (videoSrc && videoSrc.startsWith('http://')) {
-      videoSrc = videoSrc.replace('http://', 'https://');
-    }
-    
-    const video = videoRef.current;
-    let fallbackTimeout: NodeJS.Timeout;
-
-    const handleNativeError = (e: Event) => {
-      console.log("Native HLS error, fallback to embed player...", e);
-      setUseEmbedPlayer(true);
-    };
-    
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
-    
-    if ((isSafari || isIOS) && video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = videoSrc;
-      video.load();
-      video.addEventListener('error', handleNativeError);
-      
-      fallbackTimeout = setTimeout(() => {
-        setUseEmbedPlayer(true);
-      }, 7000);
-
-      const handleLoadedMetadata = () => {
-        if (fallbackTimeout) clearTimeout(fallbackTimeout);
-        video.play().then(() => triggerAutoFullscreen()).catch((e) => console.log("Autoplay blocked by Safari:", e));
-        
-        const tracks = [];
-        for (let i = 0; i < video.textTracks.length; i++) {
-          if (video.textTracks[i].kind === 'subtitles' || video.textTracks[i].kind === 'captions') {
-            tracks.push(video.textTracks[i]);
-          }
-        }
-        setSubtitleTracks(tracks);
-      };
-      
-      video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
-    } else if (Hls.isSupported()) {
-      const hls = new Hls({
-        startLevel: -1, 
-        capLevelToPlayerSize: true, 
-        maxBufferLength: 15,
-        maxMaxBufferLength: 30,
-        maxBufferSize: 15 * 1000 * 1000,
-        abrEwmaDefaultEstimate: 500000, 
-      });
-      hlsRef.current = hls; 
-      
-      hls.loadSource(videoSrc);
-      hls.attachMedia(video);
-      
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        if (hls.subtitleTracks && hls.subtitleTracks.length > 0) {
-           setSubtitleTracks(hls.subtitleTracks);
-        }
-        video.play().then(() => triggerAutoFullscreen()).catch(() => {}); 
-      });
-
-      hls.on(Hls.Events.ERROR, (event, data) => {
-        if (data.fatal) {
-          switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              hls.startLoad();
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              hls.recoverMediaError();
-              break;
-            default:
-              setUseEmbedPlayer(true);
-              break;
-          }
-        }
-      });
-
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = videoSrc;
-      video.load();
-      video.addEventListener('error', handleNativeError);
-      
-      fallbackTimeout = setTimeout(() => {
-        setUseEmbedPlayer(true);
-      }, 7000);
-
-      const handleLoadedMetadata = () => {
-        if (fallbackTimeout) clearTimeout(fallbackTimeout);
-        video.play().then(() => triggerAutoFullscreen()).catch(() => {}); 
-        const tracks = [];
-        for (let i = 0; i < video.textTracks.length; i++) {
-          if (video.textTracks[i].kind === 'subtitles' || video.textTracks[i].kind === 'captions') {
-            tracks.push(video.textTracks[i]);
-          }
-        }
-        setSubtitleTracks(tracks);
-      };
-      
-      video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
-    }
-
-    return () => { 
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
-        hlsRef.current = null;
-      }
-    };
-  }, [hasLinkMovie, currentEpisode, useEmbedPlayer]);
-
-  // PLAYER HANDLERS
-  const handleMouseMove = () => {
-    if (Date.now() - lastTouchTimeRef.current < 1500) return;
-
-    setIsControlsVisible(true);
-    if (controlsTimeoutRef.current) {
-      clearTimeout(controlsTimeoutRef.current);
-    }
-    if (!isSpeedMenuOpen && !isSubMenuOpen && isPlaying) {
-        controlsTimeoutRef.current = setTimeout(() => {
-          setIsControlsVisible(false);
-        }, 4000);
+  const handleNextEpisode = () => {
+    if (hasNextEpisode) {
+      setCurrentEpisodeIndex(prev => prev + 1);
     }
   };
-
-  const handleMouseLeave = () => {
-    if (isPlaying && !isSpeedMenuOpen && !isSubMenuOpen) {
-        setIsControlsVisible(false);
-    }
-  };
-
-  const togglePlay = () => {
-    if (videoRef.current?.paused) {
-      videoRef.current.play().catch(() => {});
-      setIsPlaying(true);
-      
-      // NEW: Tự động bật full screen khi ấn Play ở dạng thu nhỏ trên Mobile
-      if (typeof window !== 'undefined' && window.innerWidth < 768 && !isFullscreen) {
-        toggleFullScreen();
-      }
-    } else {
-      videoRef.current?.pause();
-      setIsPlaying(false);
-      setIsControlsVisible(true);
-    }
-  };
-
-  const handleVideoInteraction = (e: React.MouseEvent | React.TouchEvent) => {
-
-    const now = Date.now();
-    const DOUBLE_TAP_DELAY = 300;
-
-    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
-      toggleFullScreen();
-      lastTapRef.current = 0;
-    } else {
-      if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current);
-        controlsTimeoutRef.current = null;
-      }
-
-      if (!isControlsVisible) {
-        setIsControlsVisible(true);
-        controlsTimeoutRef.current = setTimeout(() => setIsControlsVisible(false), 4000);
-      } else {
-        setIsControlsVisible(false);
-      }
-      lastTapRef.current = now;
-    }
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    lastTouchTimeRef.current = Date.now();
-    if (e.touches.length === 2) {
-      isPinchingRef.current = true;
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      initialPinchDistanceRef.current = Math.sqrt(dx * dx + dy * dy);
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (isPinchingRef.current && e.touches.length === 2 && initialPinchDistanceRef.current !== null) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const currentDistance = Math.sqrt(dx * dx + dy * dy);
-      const diff = currentDistance - initialPinchDistanceRef.current;
-      
-      if (Math.abs(diff) > 40) {
-        if (diff > 0) {
-          changeFitMode('cover');
-        } else {
-          changeFitMode('contain');
-        }
-        initialPinchDistanceRef.current = currentDistance;
-      }
-    }
-  };
-
-  const handleTouchEnd = () => {
-    isPinchingRef.current = false;
-    initialPinchDistanceRef.current = null;
-  };
-
-  const changeFitMode = (mode: 'contain' | 'cover') => {
-    if (videoFitMode === mode) return;
-    setVideoFitMode(mode);
-    setZoomToast(mode === 'cover' ? 'Tràn màn hình (Zoom to Fill)' : 'Vừa màn hình (Vừa tỷ lệ gốc)');
-  };
-
-  const skipTime = (seconds: number) => {
-    if (videoRef.current) {
-      videoRef.current.currentTime += seconds;
-    }
-  };
-
-  const handleTimeUpdate = () => setCurrentTime(videoRef.current?.currentTime || 0);
-  const handleLoadedMetadata = () => {
-    setDuration(videoRef.current?.duration || 0);
-    triggerAutoFullscreen();
-  };
-
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const time = Number(e.target.value);
-    if (videoRef.current) videoRef.current.currentTime = time;
-    setCurrentTime(time);
-  };
-
-  const formatTime = (time: number) => {
-    if (!time || isNaN(time)) return "00:00";
-    const h = Math.floor(time / 3600);
-    const m = Math.floor((time % 3600) / 60);
-    const s = Math.floor(time % 60);
-    if (h > 0) {
-      return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-    }
-    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-  };
-
-  const toggleFullScreen = () => {
-    if (videoRef.current) {
-      const video = videoRef.current;
-      if (!document.fullscreenElement && !(video as any).webkitDisplayingFullscreen) {
-        if (playerContainerRef.current?.requestFullscreen) {
-          playerContainerRef.current.requestFullscreen()
-            .then(() => {
-              if (screen.orientation && (screen.orientation as any).lock) {
-                (screen.orientation as any).lock('landscape').catch(() => {});
-              }
-              setTimeout(() => {
-                const playBtn = playerContainerRef.current?.querySelector('[data-center-play]') as HTMLElement;
-                playBtn?.focus();
-              }, 100);
-            })
-            .catch(err => console.error(err));
-        } else if ((video as any).webkitEnterFullscreen) {
-          (video as any).webkitEnterFullscreen();
-        } else if ((video as any).webkitRequestFullscreen) {
-          (video as any).webkitRequestFullscreen();
-        }
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if ((video as any).webkitExitFullscreen) {
-          (video as any).webkitExitFullscreen();
-        }
-      }
-    }
-  };
-
-  useEffect(() => {
-    const handleFsChange = () => {
-      const isFs = !!document.fullscreenElement;
-      setIsFullscreen(isFs);
-      if (isFs && playerContainerRef.current) {
-        setTimeout(() => {
-          const targetFocusable = (playerContainerRef.current?.querySelector('[data-center-play]') || playerContainerRef.current?.querySelector('button')) as HTMLElement;
-          targetFocusable?.focus();
-        }, 150);
-      }
-      
-      if (!isFs) {
-        if (screen.orientation && screen.orientation.unlock) {
-          try {
-            screen.orientation.unlock();
-          } catch (e) {}
-        }
-        
-        // NEW: Tự động pause video khi thoát fullscreen trên Mobile
-        if (typeof window !== 'undefined' && window.innerWidth < 768 && videoRef.current && !videoRef.current.paused) {
-          videoRef.current.pause();
-          setIsPlaying(false);
-        }
-      }
-    };
-    document.addEventListener('fullscreenchange', handleFsChange);
-    
-    const video = videoRef.current;
-    const handleWebKitFsChange = () => {
-      const isFs = (video as any).webkitDisplayingFullscreen || false;
-      setIsFullscreen(isFs);
-      
-      // NEW: Tự động pause video khi thoát fullscreen trên iOS Safari
-      if (!isFs && typeof window !== 'undefined' && window.innerWidth < 768 && video && !video.paused) {
-        video.pause();
-        setIsPlaying(false);
-      }
-    };
-    if (video) {
-      video.addEventListener('webkitbeginfullscreen', handleWebKitFsChange);
-      video.addEventListener('webkitendfullscreen', handleWebKitFsChange);
-    }
-
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFsChange);
-      if (video) {
-        video.removeEventListener('webkitbeginfullscreen', handleWebKitFsChange);
-        video.removeEventListener('webkitendfullscreen', handleWebKitFsChange);
-      }
-    };
-  }, [hasLinkMovie]);
-
-  useEffect(() => {
-    if (zoomToast) {
-      const timeout = setTimeout(() => setZoomToast(null), 1500);
-      return () => clearTimeout(timeout);
-    }
-  }, [zoomToast]);
-
-  const changePlaybackRate = (rate: number) => {
-    if (videoRef.current) videoRef.current.playbackRate = rate;
-    setPlaybackRate(rate);
-    setIsSpeedMenuOpen(false);
-  };
-
-  const changeSubtitle = (index: number) => {
-    setActiveSubIndex(index);
-    setIsSubMenuOpen(false);
-
-    if (Hls.isSupported() && hlsRef.current) {
-      hlsRef.current.subtitleTrack = index; 
-    } else if (videoRef.current) {
-      const tracks = videoRef.current.textTracks;
-      let subIdx = 0;
-      for (let i = 0; i < tracks.length; i++) {
-        if (tracks[i].kind === 'subtitles' || tracks[i].kind === 'captions') {
-          tracks[i].mode = (subIdx === index) ? 'showing' : 'hidden';
-          subIdx++;
-        }
-      }
-    }
-  };
-
-  const toggleMute = () => {
-    if (videoRef.current) {
-      const newMutedState = !isMuted;
-      videoRef.current.muted = newMutedState;
-      setIsMuted(newMutedState);
-      if (!newMutedState && volume === 0) {
-        setVolume(0.5);
-        videoRef.current.volume = 0.5;
-      }
-    }
-  };
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseFloat(e.target.value);
-    if (videoRef.current) {
-      videoRef.current.volume = newVolume;
-      videoRef.current.muted = newVolume === 0;
-    }
-    setVolume(newVolume);
-    setIsMuted(newVolume === 0);
-  };
-
-// KEYBOARD SHORTCUTS HANDLER
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const activeEl = document.activeElement as HTMLElement;
-      const tag = activeEl?.tagName?.toLowerCase();
-      const inputType = (activeEl as HTMLInputElement)?.type;
-      
-      // Chỉ bỏ qua các ô nhập văn bản (search, text input), KHÔNG bỏ qua thanh Timeline (range)
-      if ((tag === 'input' && inputType === 'text') || tag === 'textarea' || tag === 'select') return;
-
-      const isInsidePlayer = playerContainerRef.current && playerContainerRef.current.contains(activeEl);
-      const isPlayerContainerFocused = activeEl === playerContainerRef.current || (activeEl?.getAttribute('data-player-container') === 'true');
-
-      // NẾU ĐANG Ở MÀN HÌNH THU NHỎ (!isFullscreen):
-      // Trong khung video KHÔNG tương tác nút con. Bấm OK / Enter / Space -> Phóng to Fullscreen!
-      if (!isFullscreen && (isInsidePlayer || isPlayerContainerFocused)) {
-        if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) {
-          e.preventDefault();
-          e.stopPropagation();
-          toggleFullScreen();
-          return;
-        }
-      }
-
-      
-      if (
-        e.key === 'Escape' || 
-        e.key === 'Back' || 
-        e.key === 'GoBack' || 
-        e.key === 'BrowserBack' || 
-        e.keyCode === 27 || 
-        e.keyCode === 8 || 
-        e.keyCode === 10009 || 
-        e.keyCode === 461
-      ) {
-        if (isControlsVisible) {
-          e.preventDefault();
-          setIsControlsVisible(false);
-          if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
-          return;
-        }
-      }
-
-      // 2. HIỂN THỊ TRÌNH QUẢN LÝ VIDEO KHI CÓ BẤT KỲ TƯƠNG TÁC PHÍM NÀO
-      setIsControlsVisible(true);
-      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
-      controlsTimeoutRef.current = setTimeout(() => {
-        setIsControlsVisible(false);
-      }, 4000);
-      // Nếu chưa tự động Fullscreen, kích hoạt Fullscreen ở phím tương tác đầu tiên
-      if (!hasAutoFullscreen && playerContainerRef.current && !document.fullscreenElement) {
-        setHasAutoFullscreen(true);
-        playerContainerRef.current.requestFullscreen().catch(() => {});
-      }
-
-      switch (e.key) {
-        case 'f':
-        case 'F':
-          e.preventDefault();
-          toggleFullScreen();
-          break;
-
-        case ' ':
-          if ((tag === 'input' && inputType === 'text') || tag === 'textarea') return;
-          if (isInsidePlayer || isPlayerContainerFocused) {
-            e.preventDefault();
-            togglePlay();
-          }
-          break;
-
-        case 'Enter':
-          if (tag === 'button' || tag === 'a' || inputType === 'range') return;
-          if (isInsidePlayer || isPlayerContainerFocused) {
-            e.preventDefault();
-            togglePlay();
-          }
-          break;
-
-        case 'ArrowRight':
-          if (isInsidePlayer || isPlayerContainerFocused) {
-            e.preventDefault();
-            skipTime(10);
-            setSeekFeedback('forward');
-            setTimeout(() => setSeekFeedback(null), 500);
-          }
-          break;
-
-        case 'ArrowLeft':
-          if (isInsidePlayer || isPlayerContainerFocused) {
-            e.preventDefault();
-            skipTime(-10);
-            setSeekFeedback('backward');
-            setTimeout(() => setSeekFeedback(null), 500);
-          }
-          break;
-
-        case 'ArrowUp':
-          if (isInsidePlayer || isPlayerContainerFocused) {
-            e.preventDefault();
-            setVolume(prev => {
-              const newVol = Math.min(1, prev + 0.1);
-              if (videoRef.current) {
-                videoRef.current.volume = newVol;
-                videoRef.current.muted = newVol === 0;
-              }
-              setIsMuted(newVol === 0);
-              return newVol;
-            });
-          }
-          break;
-
-        case 'ArrowDown':
-          if (isInsidePlayer || isPlayerContainerFocused) {
-            e.preventDefault();
-            setVolume(prev => {
-              const newVol = Math.max(0, prev - 0.1);
-              if (videoRef.current) {
-                videoRef.current.volume = newVol;
-                videoRef.current.muted = newVol === 0;
-              }
-              setIsMuted(newVol === 0);
-              return newVol;
-            });
-          }
-          break;
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [hasAutoFullscreen, isControlsVisible, isFullscreen]);
 
   const scrollTabs = (direction: 'left' | 'right') => {
     if (tabContainerRef.current) {
@@ -896,31 +341,11 @@ export default function MovieDetailPage() {
   const currentGroupEpisodes = episodeGroups[activeGroupIndex] || [];
   const visibleEpisodes = isExpanded ? currentGroupEpisodes : currentGroupEpisodes.slice(0, INITIAL_VISIBLE_EPISODES);
   const hasMoreInGroup = currentGroupEpisodes.length > INITIAL_VISIBLE_EPISODES;
-
-  const speedOptions = [0.5, 0.75, 1, 1.25, 1.5, 2];
-  const progressPercent = (currentTime / (duration || 1)) * 100;
   
   const validCast = [...(movie.director || []), ...(movie.actor || [])].filter(name => name && name !== 'Đang cập nhật');
 
   return (
     <main className="min-h-dvh bg-[#0a0a0c] text-white selection:bg-[#F042FF]/30 pb-24 relative overflow-hidden">
-      <style dangerouslySetInnerHTML={{ __html: `
-        *:fullscreen,
-        *:-webkit-full-screen,
-        *:fullscreen:focus,
-        *:-webkit-full-screen:focus,
-        video:-webkit-full-screen,
-        iframe:-webkit-full-screen,
-        div:-webkit-full-screen,
-        video, iframe, video:focus, iframe:focus {
-          outline: none !important;
-          outline-width: 0 !important;
-          border: none !important;
-          border-width: 0 !important;
-          box-shadow: none !important;
-        }
-      `}} />
-      
       <Navbar />
 
       <div className="fixed top-0 left-0 right-0 h-dvh pointer-events-none z-0">
@@ -931,262 +356,25 @@ export default function MovieDetailPage() {
       <div className="w-full px-6 md:px-16 lg:px-24 relative z-10 flex flex-col gap-8 md:gap-10 pt-4 md:pt-[100px]">
         
         {/* ======================================================= */}
-        {/* TẦNG 1: KHUNG VIDEO PLAYER CHUẨN 4K                      */}
+        {/* TẦNG 1: KHUNG VIDEO PLAYER                              */}
         {/* ======================================================= */}
         {hasLinkMovie ? (
-          useEmbedPlayer ? (
-            <div 
-              ref={playerContainerRef}
-              className={`relative w-full aspect-video bg-black overflow-hidden outline-none transition-all duration-300 ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-3xl border-2 border-white/15(240,66,255,0.5)] shadow-[0_20px_60px_rgba(0,0,0,0.9)]'}`}
-            >
-              <iframe
-                src={currentEpisode?.link_embed?.startsWith('http://') ? currentEpisode.link_embed.replace('http://', 'https://') : currentEpisode?.link_embed}
-                className="w-full h-full border-none"
-                allowFullScreen
-                allow="autoplay; encrypted-media; picture-in-picture"
-              />
-            </div>
-          ) : (
-            <div 
-              ref={playerContainerRef}
-              onMouseMove={handleMouseMove}
-              onMouseLeave={handleMouseLeave}
-              onFocus={() => {}}
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsControlsVisible((prev) => !prev);
-              }}
-              className={`relative w-full aspect-video bg-black overflow-hidden group select-none flex flex-col justify-center touch-manipulation outline-none transition-all duration-300 ${!isPlaying || isControlsVisible ? 'cursor-pointer' : 'cursor-none'} ${isFullscreen ? 'rounded-none border-none shadow-none' : 'rounded-3xl border-2 border-white/15(240,66,255,0.5)] shadow-[0_20px_60px_rgba(0,0,0,0.9)]'}`}
-            >
-              <video 
-                ref={videoRef} 
-                preload="metadata"
-                playsInline
-                className={`w-full h-full object-${videoFitMode} bg-black outline-none pointer-events-none transition-all duration-300`}
-                poster={bannerUrl} 
-                onTimeUpdate={handleTimeUpdate}
-                onLoadedMetadata={handleLoadedMetadata}
-                onPlay={() => {
-                  setIsPlaying(true);
-                  triggerAutoFullscreen();
-                }}
-                onPause={() => { setIsPlaying(false); setIsControlsVisible(true); }}
-                onEnded={() => {
-                  if (currentEpisodeIndex < episodesList.length - 1) {
-                     setCurrentEpisodeIndex(prev => prev + 1);
-                  }
-                }}
-                onError={() => {
-                  console.log("Video playback error, auto fallback to embed player...");
-                  setUseEmbedPlayer(true);
-                }}
-                autoPlay
-              />
-
-              {/* OVERLAY TƯƠNG TÁC */}
-              <div 
-                className="absolute inset-0 z-0"
-                onClick={(e) => { e.stopPropagation(); handleVideoInteraction(e); }}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-              />
-
-              {/* TOAST THÔNG BÁO THU PHÓNG */}
-              {zoomToast && (
-                <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 z-50 text-white font-black text-base pointer-events-none animate-in fade-in zoom-in-95 duration-200 shadow-2xl">
-                    {zoomToast}
-                </div>
-              )}
-
-              {/* HIỆU ỨNG TUA NHANH 10S */}
-              <div className={`absolute inset-y-0 left-0 w-[30%] bg-gradient-to-r from-[#7226FF]/30 to-transparent flex items-center justify-center transition-opacity duration-300 pointer-events-none rounded-l-3xl ${seekFeedback === 'backward' ? 'opacity-100' : 'opacity-0'}`}>
-                  <div className="flex flex-col items-center gap-2 animate-bounce">
-                      <RotateCcw className="w-10 h-10 md:w-16 md:h-16 text-white" />
-                      <span className="text-white font-black text-lg md:text-2xl">-10s</span>
-                  </div>
-              </div>
-              <div className={`absolute inset-y-0 right-0 w-[30%] bg-gradient-to-l from-[#7226FF]/30 to-transparent flex items-center justify-center transition-opacity duration-300 pointer-events-none rounded-r-3xl ${seekFeedback === 'forward' ? 'opacity-100' : 'opacity-0'}`}>
-                  <div className="flex flex-col items-center gap-2 animate-bounce">
-                      <RotateCw className="w-10 h-10 md:w-16 md:h-16 text-white" />
-                      <span className="text-white font-black text-lg md:text-2xl">+10s</span>
-                  </div>
-              </div>
-
-              {/* KHU VỰC 1: TOP BAR (TIÊU ĐỀ PHIM) */}
-              <div className={`absolute top-0 left-0 right-0 pt-6 px-6 md:px-8 pb-10 bg-gradient-to-b from-black/80 to-transparent flex justify-between items-start z-30 transition-all duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100 -translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`} onClick={(e) => e.stopPropagation()}>
-                  <div className="flex flex-col drop-shadow-2xl pr-4 cursor-default max-w-[85%]">
-                      <p className="text-sm md:text-base font-black text-[#F042FF] tracking-widest mb-1 uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                          {currentEpisode?.name || 'Đang tải tập...'}
-                      </p>
-                      <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight line-clamp-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                          {movie.name}
-                      </h2>
-                  </div>
-              </div>
-
-              {/* LỚP PHỦ TỐI NỀN VIDEO (Chỉ làm tối nhẹ phần trung tâm khi pause) */}
-              <div className={`absolute inset-0 transition-all duration-300 pointer-events-none z-10 ${!isPlaying ? 'opacity-100 bg-black/40' : (isControlsVisible ? 'opacity-100 bg-black/10' : 'opacity-0')}`} />
-
-              {/* KHU VỰC 2: CENTER CONTROLS (CỤM NÚT TRUNG TÂM) */}
-              <div 
-                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center gap-10 md:gap-24 transition-all duration-300 z-30 ${!isPlaying || isControlsVisible ? 'opacity-100 pointer-events-auto scale-100' : 'opacity-0 pointer-events-none scale-95'}`}
-                onClick={(e) => e.stopPropagation()}
-              >
-                  <button
-                    onClick={(e) => { e.stopPropagation(); skipTime(-10); }} 
-                    className="pointer-events-auto w-14 h-14 md:w-20 md:h-20 rounded-full bg-black/40 hover:bg-[#7226FF] backdrop-blur-xl flex items-center justify-center border-2 border-white/20 text-white hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer shadow-2xl outline-none"
-                  >
-                      <RotateCcw className="w-6 h-6 md:w-9 md:h-9" />
-                  </button>
-
-                  <button
-                    onClick={(e) => { e.stopPropagation(); togglePlay(); }} 
-                    className="pointer-events-auto w-20 h-20 md:w-28 md:h-28 bg-[#7226FF] hover:bg-[#853aff] backdrop-blur-xl rounded-full flex items-center justify-center border-4 border-transparent text-white shadow-[0_0_50px_rgba(114,38,255,0.7)] hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer outline-none"
-                  >
-                      {isPlaying ? <Pause className="w-10 h-10 md:w-14 md:h-14 fill-white" /> : <Play className="w-10 h-10 md:w-14 md:h-14 fill-white ml-2" />}
-                  </button>
-
-                  <button
-                    onClick={(e) => { e.stopPropagation(); skipTime(10); }} 
-                    className="pointer-events-auto w-14 h-14 md:w-20 md:h-20 rounded-full bg-black/40 hover:bg-[#7226FF] backdrop-blur-xl flex items-center justify-center border-2 border-white/20 text-white hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer shadow-2xl outline-none"
-                  >
-                      <RotateCw className="w-6 h-6 md:w-9 md:h-9" />
-                  </button>
-              </div>
-
-              {/* KHU VỰC 3: BOTTOM BAR (TIMELINE VÀ CÔNG CỤ) */}
-              <div 
-                className={`absolute bottom-0 left-0 right-0 px-4 md:px-8 pb-6 pt-16 bg-gradient-to-t from-black/95 via-black/60 to-transparent flex flex-col gap-4 z-30 transition-all duration-300 ${!isPlaying || isControlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
-                onClick={(e) => e.stopPropagation()}
-              >
-                  {/* HÀNG 1: TIMELINE */}
-                  <div className="flex items-center gap-3 md:gap-6 w-full cursor-default pointer-events-auto">
-                      <span className="text-xs md:text-base font-mono font-black text-white shrink-0 min-w-[45px] md:min-w-[70px] text-left drop-shadow-lg z-20">
-                          {formatTime(currentTime)}
-                      </span>
-
-                      <div className="flex-1 relative flex items-center group/timeline h-6">
-                          <input
-                              type="range"
-                              min={0}
-                              max={duration || 100}
-                              value={currentTime}
-                              onChange={handleSeek}
-                              onKeyDown={(e) => {
-                                if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); skipTime(-10); setSeekFeedback('backward'); setTimeout(() => setSeekFeedback(null), 500); }
-                                else if (e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); skipTime(10); setSeekFeedback('forward'); setTimeout(() => setSeekFeedback(null), 500); }
-                                else if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13) { e.preventDefault(); e.stopPropagation(); togglePlay(); }
-                              }}
-                              className="w-full h-2 md:h-3 rounded-full appearance-none cursor-pointer relative z-10 accent-[#F042FF] shadow-lg custom-slider"
-                              style={{ background: `linear-gradient(to right, #F042FF ${progressPercent}%, rgba(255, 255, 255, 0.25) ${progressPercent}%)` }}
-                          />
-                      </div>
-
-                      <span className="text-xs md:text-base font-mono font-black text-white shrink-0 min-w-[45px] md:min-w-[70px] text-right drop-shadow-lg z-20">
-                          -{formatTime(duration - currentTime)}
-                      </span>
-                  </div>
-
-                  {/* HÀNG 2: THANH CÔNG CỤ (CHỈ HIỂN THỊ TRÊN DESKTOP) */}
-                  <div className="hidden md:flex justify-between items-center w-full pointer-events-auto mt-2">
-                      
-                      {/* BÊN TRÁI: ÂM LƯỢNG */}
-                      <div className="flex items-center group/vol">
-                          <button
-                              onClick={toggleMute} 
-                              className="text-white/80 hover:text-white hover:scale-110 rounded-xl p-2 transition flex items-center justify-center shrink-0 cursor-pointer" 
-                              title="Âm lượng"
-                          >
-                              {isMuted || volume === 0 ? <VolumeX className="w-7 h-7" /> : <Volume2 className="w-7 h-7" />}
-                          </button>
-                          
-                          <div className="w-0 overflow-hidden group-hover/vol:w-28 transition-all duration-300 ease-out flex items-center ml-0 group-hover/vol:ml-2">
-                              <input
-                                  type="range"
-                                  min={0}
-                                  max={1}
-                                  step={0.01}
-                                  value={isMuted ? 0 : volume}
-                                  onChange={(e) => { e.stopPropagation(); handleVolumeChange(e); }}
-                                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#F042FF] custom-slider"
-                                  style={{ background: `linear-gradient(to right, #F042FF ${(isMuted ? 0 : volume) * 100}%, rgba(255, 255, 255, 0.3) ${(isMuted ? 0 : volume) * 100}%)` }}
-                              />
-                          </div>
-                      </div>
-
-                      {/* BÊN PHẢI: PHỤ ĐỀ, TỐC ĐỘ, TỶ LỆ, TOÀN MÀN HÌNH */}
-                      <div className="flex items-center gap-2 md:gap-4">
-                          
-                          {/* Phụ Đề */}
-                          <div className="relative">
-                              {isSubMenuOpen && (
-                                  <>
-                                      <div className="fixed inset-0 z-40" onClick={() => setIsSubMenuOpen(false)} />
-                                      <div className="absolute bottom-full right-0 mb-4 w-max min-w-[200px] z-50">
-                                        <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl flex flex-col py-3">
-                                            <div className="px-5 py-2 text-xs font-black text-[#F042FF] border-b border-white/10 uppercase mb-1">Ngôn ngữ hỗ trợ</div>
-                                            <button onClick={() => changeSubtitle(-1)} className={`px-5 py-3 text-base text-left hover:bg-white/20 transition-colors flex items-center gap-2 ${activeSubIndex === -1 ? 'text-[#F042FF]' : 'text-white/80'}`}>Tắt phụ đề</button>
-                                            {subtitleTracks.length > 0 ? (
-                                                subtitleTracks.map((track, idx) => (
-                                                    <button key={idx} onClick={() => changeSubtitle(idx)} className={`px-5 py-3 text-base text-left hover:bg-white/20 transition-colors flex items-center gap-2 ${activeSubIndex === idx ? 'text-[#F042FF] font-black' : 'text-white/80 font-bold'}`}>{track.name || track.label || track.language || `Ngôn ngữ ${idx + 1}`}</button>
-                                                ))
-                                            ) : (
-                                                <div className="px-5 py-3 text-sm text-white/50 italic">Bản mặc định (Vietsub)</div>
-                                            )}
-                                        </div>
-                                      </div>
-                                  </>
-                              )}
-                              <button onClick={() => { setIsSubMenuOpen(!isSubMenuOpen); setIsSpeedMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer rounded-xl p-2 ${isSubMenuOpen || activeSubIndex !== -1 ? 'text-[#F042FF]' : 'text-white/80 hover:text-white'}`} title="Phụ đề"><Subtitles className="w-7 h-7" /></button>
-                          </div>
-
-                          {/* Tốc Độ */}
-                          <div className="relative">
-                              {isSpeedMenuOpen && (
-                                  <>
-                                      <div className="fixed inset-0 z-40" onClick={() => setIsSpeedMenuOpen(false)} />
-                                      <div className="absolute bottom-full right-0 mb-4 w-44 z-50">
-                                        <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl flex flex-col py-3">
-                                            <div className="px-5 py-2 text-xs font-black text-[#F042FF] border-b border-white/10 uppercase mb-1">Tốc độ phát</div>
-                                            {speedOptions.map(rate => (
-                                                <button key={rate} onClick={() => changePlaybackRate(rate)} className={`px-5 py-2.5 text-base text-left hover:bg-white/20 transition-colors ${playbackRate === rate ? 'text-[#F042FF] font-black' : 'text-white/80 font-bold'}`}>{rate === 1 ? 'Chuẩn (1x)' : `${rate}x`}</button>
-                                            ))}
-                                        </div>
-                                      </div>
-                                  </>
-                              )}
-                              <button onClick={() => { setIsSpeedMenuOpen(!isSpeedMenuOpen); setIsSubMenuOpen(false); }} className={`hover:scale-110 transition flex items-center justify-center cursor-pointer rounded-xl p-2 ${isSpeedMenuOpen || playbackRate !== 1 ? 'text-[#F042FF]' : 'text-white/80 hover:text-white'}`} title="Cài đặt tốc độ"><Settings className="w-7 h-7" /></button>
-                          </div>
-
-                          {/* Tỷ Lệ */}
-                          <button
-                              onClick={(e) => { e.stopPropagation(); changeFitMode(videoFitMode === 'contain' ? 'cover' : 'contain'); }} 
-                              className={`hover:scale-110 transition flex items-center justify-center cursor-pointer rounded-xl p-2 ${videoFitMode === 'cover' ? 'text-[#F042FF]' : 'text-white/80 hover:text-white'}`} 
-                              title={videoFitMode === 'cover' ? "Tỷ lệ gốc (Vừa màn hình)" : "Phóng to (Tràn màn hình)"}
-                          >
-                              {videoFitMode === 'cover' ? <Minimize className="w-7 h-7 rotate-45" /> : <Maximize className="w-7 h-7 rotate-45" />}
-                          </button>
-
-                          {/* Toàn Màn Hình */}
-                          <button onClick={toggleFullScreen} className="text-white/80 hover:text-white hover:scale-110 transition flex items-center justify-center cursor-pointer rounded-xl p-2" title="Toàn màn hình">
-                              {isFullscreen ? <Minimize className="w-7 h-7" /> : <Maximize className="w-7 h-7" />}
-                          </button>
-                      </div>
-                  </div>
-              </div>
-            </div>
-          )
+          <VideoPlayer 
+            currentEpisode={currentEpisode}
+            movieName={movie.name}
+            bannerUrl={bannerUrl}
+            onNextEpisode={handleNextEpisode}
+            hasNextEpisode={hasNextEpisode}
+          />
         ) : (
           <div className="relative w-full aspect-video bg-black rounded-3xl border border-white/10 flex flex-col items-center justify-center text-white/50 gap-3">
               <CircleAlert className="w-14 h-14 opacity-50" />
               <p className="text-xl font-bold">Chưa có link phim</p>
           </div>
         )}
-        {/* ======================================================= */}
 
         {/* ======================================================= */}
-        {/* TẦNG 2: THÔNG TIN CƠ BẢN VÀ NÚT YÊU THÍCH                */}
+        {/* TẦNG 2: THÔNG TIN CƠ BẢN VÀ NÚT YÊU THÍCH               */}
         {/* ======================================================= */}
         <div className="flex flex-col gap-3">
             <div className="flex items-start justify-between gap-6">
@@ -1194,7 +382,6 @@ export default function MovieDetailPage() {
                     {movie.name}
                 </h1>
 
-                {}
                 <button
                   onClick={handleToggleFavorite}
                   className="shrink-0 w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 hover:scale-105 transition-all cursor-pointer shadow-xl"
@@ -1202,9 +389,7 @@ export default function MovieDetailPage() {
                 >
                   <Heart 
                     className={`w-7 h-7 md:w-8 md:h-8 transition-all duration-300 ${
-                      isFavorited 
-                      ? 'scale-110' 
-                      : 'text-white/80'
+                      isFavorited ? 'scale-110' : 'text-white/80'
                     }`} 
                     style={isFavorited ? { color: '#F042FF', fill: '#F042FF', filter: 'drop-shadow(0 0 14px rgba(240,66,255,0.9))' } : {}}
                   />
@@ -1231,7 +416,6 @@ export default function MovieDetailPage() {
         {(hasLinkMovie || servers.length > 1 || episodesList.length > 0) && (
             <div className="bg-[#1c1c1e] border-2 border-white/15 p-8 md:p-10 rounded-[36px] backdrop-blur-xl flex flex-col gap-8 shadow-2xl">
                 
-                {/* 1. CHỌN ÂM THANH / SERVER (NẾU CÓ NHIỀU SERVER) */}
                 {servers.length > 1 && (
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/15">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3">
@@ -1253,7 +437,6 @@ export default function MovieDetailPage() {
                   </div>
                 )}
 
-                {/* 2. CHỌN TẬP PHIM (DANH SÁCH KHỔ LỚN DỄ BẤM REMOTE) */}
                 {episodesList.length > 0 && (
                     <div>
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
@@ -1299,7 +482,6 @@ export default function MovieDetailPage() {
                             )}
                         </div>
 
-                        {/* LƯỚI TẬP PHIM KHỔ LỚN CỰC KỲ DỄ BẤM VỚI D-PAD REMOTE */}
                         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3 md:gap-4">
                             {visibleEpisodes.map((ep: { slug: string, name: string }, localIndex: number) => {
                                 const globalIndex = activeGroupIndex * EPISODES_PER_GROUP + localIndex;
@@ -1362,15 +544,31 @@ export default function MovieDetailPage() {
         )}
 
         {/* ======================================================= */}
-        {}
+        {/* TẦNG 6: PHIM LIÊN QUAN                                  */}
         {/* ======================================================= */}
         {relatedMovies.length > 0 && (
-          <div className="pt-8 border-t border-white/15">
+          <div className="pt-8 border-t border-white/15 relative group/related">
             <div className="flex items-center gap-3 mb-6">
               <Film className="w-8 h-8 text-[#F042FF]" />
               <h2 className="uppercase text-white">Phim Liên Quan</h2>
             </div>
-            <div className="flex gap-6 md:gap-8 overflow-x-auto scrollbar-hide pb-4">
+            
+            {/* Desktop Navigation Buttons */}
+            <button 
+              onClick={() => scrollRelated('left')}
+              className="hidden md:flex absolute -left-2 md:-left-6 top-[60%] -translate-y-1/2 z-[60] w-12 h-12 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-md items-center justify-center opacity-0 group-hover/related:opacity-100 transition-all shadow-lg scale-90 hover:scale-100"
+            >
+              <ChevronLeft className="w-8 h-8 text-white" />
+            </button>
+
+            <button 
+              onClick={() => scrollRelated('right')}
+              className="hidden md:flex absolute -right-2 md:-right-6 top-[60%] -translate-y-1/2 z-[60] w-12 h-12 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-md items-center justify-center opacity-0 group-hover/related:opacity-100 transition-all shadow-lg scale-90 hover:scale-100"
+            >
+              <ChevronRight className="w-8 h-8 text-white" />
+            </button>
+
+            <div ref={relatedScrollRef} className="flex gap-6 md:gap-8 overflow-x-auto scrollbar-hide pb-4 scroll-smooth">
               {relatedMovies.map((relMovie, index) => (
                 <div
                   key={relMovie.slug}

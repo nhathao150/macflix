@@ -42,17 +42,22 @@ export const metadata: Metadata = {
   },
 };
 
+import LandscapeBlocker from '@/components/layout/LandscapeBlocker';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi" suppressHydrationWarning className="dark">
       <body className={`${inter.variable} font-sans flex flex-col min-h-screen bg-[#0a0a0c] text-white`} suppressHydrationWarning>
         <AuthProvider>
           <ModalProvider>
-            <WelcomeWrapper>
-              <div className="flex-1">{children}</div>
-              <Footer />
-              <BottomNav />
-            </WelcomeWrapper>
+            <LandscapeBlocker />
+            <div id="app-root" className="flex flex-col flex-1">
+              <WelcomeWrapper>
+                <div className="flex-1">{children}</div>
+                <Footer />
+                <BottomNav />
+              </WelcomeWrapper>
+            </div>
           </ModalProvider>
         </AuthProvider>
       </body>

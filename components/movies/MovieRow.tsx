@@ -96,7 +96,7 @@ export default function MovieRow({ title, movies, isTrending, onMovieClick, view
         {shouldRender && (
           <div
             ref={rowRef} // Gắn ref vào đây để hàm scroll ở trên có thể điều khiển được
-            className="flex gap-4 overflow-x-auto scrollbar-hide pb-6 pt-2 -mx-4 md:-mx-12 px-4 md:px-12 md:snap-x md:snap-mandatory"
+            className="flex gap-4 overflow-x-auto scrollbar-hide pb-6 pt-2 -mx-4 md:-mx-12 px-4 md:px-12 scroll-pl-4 md:scroll-pl-12 md:snap-x md:snap-mandatory"
           >
             {/* Vòng lặp duyệt qua mảng phim và tạo ra các MovieCard */}
             {movies.map((movie, index) => (

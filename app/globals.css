@@ -208,3 +208,9 @@ iframe:active {
   box-shadow: none !important;
 }
 
+
+
+@media screen and (orientation: landscape) and (pointer: coarse) and (hover: none) {
+  #landscape-blocker { display: flex !important; }
+  #app-root { display: none !important; }
+}
