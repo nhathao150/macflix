@@ -7,21 +7,11 @@
 
 > **Macflix** là nền tảng xem phim trực tuyến chất lượng cao được lấy cảm hứng từ giao diện UI/UX của Netflix. Dự án tập trung mạnh vào hiệu năng (Performance), khả năng tương thích đa thiết bị (Responsive/Mobile-first) và tối ưu hóa luồng dữ liệu Video (Video Streaming).
 
-🌐 **Live Demo:** [Tên miền trang web của bạn - ví dụ: macflix.vercel.app](https://#)
-
----
-
-## 📸 Ảnh chụp màn hình (Screenshots)
-*(Bạn hãy chụp 3-4 tấm ảnh thật đẹp của web (Trang chủ, Giao diện Mobile, Trình phát Video) và chèn link ảnh vào đây)*
-
-![Trang Chủ](link-anh-trang-chu)
-![Giao diện Mobile](link-anh-mobile)
-![Video Player](link-anh-video-player)
+🌐 **Live Demo:** [https://macflix-ten.vercel.app](https://#)
 
 ---
 
 ## 💡 Các bài toán kỹ thuật đã giải quyết (Technical Challenges & Solutions)
-*(Đây là phần "ăn tiền" nhất để Tech Lead đánh giá năng lực tư duy của bạn)*
 
 ### 1. Tối ưu hóa render cho hàng ngàn thẻ phim (DOM Optimization)
 - **Vấn đề:** Khi render hàng chục danh mục với hàng ngàn bộ phim trên trang chủ, trình duyệt bị giật lag và rớt FPS nghiêm trọng.
